@@ -3,11 +3,13 @@ local gui = require("__flib__.control.gui")
 local migration = require("__flib__.control.migration")
 local translation = require("__flib__.control.translation")
 
+local constants = require("scripts.constants")
 local global_data = require("scripts.global-data")
 local migrations = require("scripts.migrations")
 local player_data = require("scripts.player-data")
 local qis_gui = require("scripts.gui")
 
+local string_gsub = string.gsub
 local string_sub = string.sub
 
 -- -----------------------------------------------------------------------------
@@ -65,6 +67,15 @@ event.register("qis-search", function(e)
   else
     player.print{"qis-message.cannot-open-gui"}
     player_table.flags.show_message_after_translation = true
+  end
+end)
+
+event.register(constants.nav_arrow_events, function(e)
+  local player = game.get_player(e.player_index)
+  local player_table = global.players[e.player_index]
+  local gui_data = player_table.gui
+  if gui_data and gui_data.state == "select_result" then
+    qis_gui.move_selection(player, player_table, constants.nav_offsets[string_gsub(e.input_name, "qis%-nav%-", "")])
   end
 end)
 

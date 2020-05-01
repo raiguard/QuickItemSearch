@@ -2,9 +2,10 @@ local qis_gui = {}
 
 local gui = require("__flib__.control.gui")
 
-local string_find = string.find
-local string_gsub = string.gsub
-local string_lower = string.lower
+local constants = require("scripts.constants")
+local util = require("scripts.util")
+
+local string = string
 
 local function search(player, player_table, query)
   local player_settings = player_table.settings
@@ -39,7 +40,7 @@ local function search(player, player_table, query)
   -- match the query to the given name
   local function match_query(name, translation, ignore_unique)
     return (ignore_unique or not results[name]) and (show_hidden or not item_data[name].hidden)
-      and string_find(string_lower(translation or translations[name]), query)
+      and string.find(string.lower(translation or translations[name]), query)
   end
 
   -- map editor
@@ -47,7 +48,7 @@ local function search(player, player_table, query)
     local contents = player.get_main_inventory().get_contents()
     for internal,translated in pairs(translations) do
       -- we don't care about hidden or other results, so use an optimised condition
-      if string_find(string_lower(translated), query) then
+      if string.find(string.lower(translated), query) then
         set_result("inventory", internal, contents[internal])
       end
     end
@@ -95,6 +96,10 @@ local function search(player, player_table, query)
   end
 end
 
+local function take_action(player, player_table, result)
+
+end
+
 local sanitizers = {
   ["%("] = "%%(",
   ["%)"] = "%%)",
@@ -117,93 +122,110 @@ gui.add_templates{
 }
 
 gui.add_handlers{
-  search_textfield = {
-    on_gui_click = function(e)
-      local player = game.get_player(e.player_index)
-      local player_table = global.players[e.player_index]
-      game.print(serpent.block(e))
-    end,
-    on_gui_closed = function(e)
-      local player = game.get_player(e.player_index)
-      local player_table = global.players[e.player_index]
-      game.print(serpent.block(e))
-    end,
-    on_gui_text_changed = function(e)
-      local player = game.get_player(e.player_index)
-      local player_table = global.players[e.player_index]
-      local query = e.text
+  search = {
+    search_textfield = {
+      on_gui_click = function(e)
+        local player = game.get_player(e.player_index)
+        local player_table = global.players[e.player_index]
+        local gui_data = player_table.gui
+        local element = e.element
 
-      -- fuzzy search
-      if player_table.settings.fuzzy_search then
-        query = string_gsub(query, ".", "%1.*")
-      end
-      -- input sanitization
-      for pattern, replacement in pairs(sanitizers) do
-        query = string_gsub(query, pattern, replacement)
-      end
+        if gui_data.state == "select_result" then
+          qis_gui.cancel_selection(gui_data)
 
-      -- TODO: non-essential search smarts
-      if query == "" then
-        player_table.gui.results_table.clear()
-        return
-      end
+          gui_data.state = "search"
+          element.text = gui_data.search_query
+          element.focus()
+          player.opened = element
+        end
+      end,
+      on_gui_closed = function(e)
+        local player = game.get_player(e.player_index)
+        local player_table = global.players[e.player_index]
+        local gui_data = player_table.gui
+        if gui_data.state == "search" then
+          qis_gui.destroy(player, player_table)
+        end
+      end,
+      on_gui_text_changed = function(e)
+        local player = game.get_player(e.player_index)
+        local player_table = global.players[e.player_index]
+        local query = e.text
 
-      search(player, player_table, query)
-    end,
-    on_gui_confirmed = function(e)
-      local player = game.get_player(e.player_index)
-      local player_table = global.players[e.player_index]
-      game.print(serpent.block(e))
-    end
-  },
-  result_button = {
-    on_gui_click = function(e)
-      local player = game.get_player(e.player_index)
-      local player_table = global.players[e.player_index]
-      game.print(serpent.block(e))
-    end
+        -- fuzzy search
+        if player_table.settings.fuzzy_search then
+          query = string.gsub(query, ".", "%1.*")
+        end
+        -- input sanitization
+        for pattern, replacement in pairs(sanitizers) do
+          query = string.gsub(query, pattern, replacement)
+        end
+
+        player_table.gui.search_query = query
+
+        -- TODO: non-essential search smarts
+        if query == "" then
+          player_table.gui.results_table.clear()
+          return
+        end
+
+        search(player, player_table, query)
+      end,
+      on_gui_confirmed = function(e)
+        local player = game.get_player(e.player_index)
+        local player_table = global.players[e.player_index]
+        local gui_data = player_table.gui
+        qis_gui.move_selection(player, player_table)
+
+        gui_data.state = "select_result"
+        player.opened = gui_data.results_scrollpane
+      end
+    },
+    results_scrollpane = {
+      on_gui_closed = function(e)
+        local player_table = global.players[e.player_index]
+        gui.handlers.search.search_textfield.on_gui_click{player_index=e.player_index, element=player_table.gui.search_textfield}
+      end
+    },
+    result_button = {
+      on_gui_click = function(e)
+        local player = game.get_player(e.player_index)
+        local player_table = global.players[e.player_index]
+        game.print(serpent.block(e))
+      end
+    }
   }
-  -- keys_nav = {id={"qis-nav-left", "qis-nav-up", "qis-nav-right", "qis-nav-down"}, handler=function(e)
-  --   local player = game.get_player(e.player_index)
-  --   local player_table = global.players[e.player_index]
-  --   game.print(serpent.block(e))
-  -- end},
-  -- keys_confirm = {id={"qis-nav-confirm", "qis-nav-shift-confirm", "qis-nav-control-confirm"}, handler=function(e)
-  --   local player = game.get_player(e.player_index)
-  --   local player_table = global.players[e.player_index]
-  --   game.print(serpent.block(e))
-  -- end}
 }
 
 function qis_gui.create(player, player_table)
   -- GUI prototyping
   local gui_data = gui.build(player.gui.screen, {
     {type="frame", style="dialog_frame", direction="vertical", save_as="window", children={
-      {type="textfield", style="qis_main_textfield", clear_and_focus_on_right_click=true, handlers="search_textfield", save_as="search_textfield"},
+      {type="textfield", style="qis_main_textfield", clear_and_focus_on_right_click=true, handlers="search.search_textfield", save_as="search_textfield"},
       {type="flow", children={
         {type="frame", style="qis_content_frame", style_mods={padding=12}, mods={visible=true}, children={
           {type="frame", style="qis_results_frame", children={
-            {type="scroll-pane", style="qis_results_scroll_pane", children={
+            {type="scroll-pane", style="qis_results_scroll_pane", handlers="search.results_scrollpane", save_as="results_scrollpane", children={
               {type="table", style="qis_results_table", column_count=5, save_as="results_table"}
             }}
           }}
         }},
-        -- {type="frame", style="qis_content_frame", style_mods={padding=0}, direction="vertical", mods={visible=false}, children={
-        --   {type="frame", style="subheader_frame", style_mods={height=30}, children={
-        --     {type="label", style="caption_label", style_mods={left_margin=4}, caption="Logistics request"},
-        --     {type="empty-widget", style_mods={horizontally_stretchable=true}},
-        --     {type="sprite-button", style="green_button", style_mods={width=24, height=24, padding=0, top_margin=1}, sprite="utility/confirm_slot"}
-        --   }},
-        --   {type="flow", style_mods={top_padding=2, left_padding=10, right_padding=8}, direction="vertical", children={
-        --     {template="logistic_request_setter"},
-        --     {template="logistic_request_setter"}
-        --   }}
-        -- }}
+        {type="frame", style="qis_content_frame", style_mods={padding=0}, direction="vertical", mods={visible=false}, children={
+          {type="frame", style="subheader_frame", style_mods={height=30}, children={
+            {type="label", style="caption_label", style_mods={left_margin=4}, caption="Logistics request"},
+            {type="empty-widget", style_mods={horizontally_stretchable=true}},
+            {type="sprite-button", style="green_button", style_mods={width=24, height=24, padding=0, top_margin=1}, sprite="utility/confirm_slot"}
+          }},
+          {type="flow", style_mods={top_padding=2, left_padding=10, right_padding=8}, direction="vertical", children={
+            {template="logistic_request_setter"},
+            {template="logistic_request_setter"}
+          }}
+        }}
       }}
     }}
   })
 
-  gui.update_filters("result_button", player.index, {"qis_result_button"}, "add")
+  gui.update_filters("search.result_button", player.index, {"qis_result_button"}, "add")
 
   gui_data.window.force_auto_center()
   gui_data.search_textfield.focus()
@@ -212,6 +234,42 @@ function qis_gui.create(player, player_table)
   gui_data.state = "search"
 
   player_table.gui = gui_data
+end
+
+function qis_gui.destroy(player, player_table)
+  gui.update_filters("search", player.index, nil, "remove")
+  player_table.gui.window.destroy()
+  player_table.gui = nil
+end
+
+function qis_gui.cancel_selection(gui_data)
+  local selected_index = gui_data.selected_index
+  local selected_element = gui_data.results_table.children[selected_index]
+  selected_element.style = string.gsub(selected_element.style.name, "qis_active", "qis")
+  gui_data.selected_index = nil
+end
+
+function qis_gui.move_selection(player, player_table, offset)
+  local gui_data = player_table.gui
+  local children = gui_data.results_table.children
+  local selected_index = gui_data.selected_index
+  if offset then
+    qis_gui.cancel_selection(gui_data)
+    -- set new selected index
+    selected_index = util.clamp(selected_index + offset, 1, #children)
+  else
+    selected_index = 1
+  end
+  -- set new selected style
+  local selected_element = children[selected_index]
+  selected_element.style = string.gsub(selected_element.style.name, "qis", "qis_active")
+  selected_element.focus()
+  -- scroll to selection
+  gui_data.results_scrollpane.scroll_to_element(selected_element)
+  -- update item name in textfield
+  gui_data.search_textfield.text = player_table.translations[util.sprite_to_item_name(selected_element.sprite)]
+  -- update index in global
+  gui_data.selected_index = selected_index
 end
 
 return qis_gui
