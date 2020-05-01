@@ -2,9 +2,9 @@
 -- CONTROL SCRIPTING
 
 -- dependencies
-local event = require("__RaiLuaLib__.lualib.event")
-local migration = require("__RaiLuaLib__.lualib.migration")
-local translation = require("__RaiLuaLib__.lualib.translation")
+local event = require("__flib__.control.event")
+local migration = require("__flib__.control.migration")
+local translation = require("__flib__.control.translation")
 
 -- locals
 local string_gsub = string.gsub

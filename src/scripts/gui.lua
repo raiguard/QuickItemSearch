@@ -1,8 +1,8 @@
 -- -------------------------------------------------------------------------------------------------------------------------------------------------------------
 -- GUI
 
-local event = require("__RaiLuaLib__.lualib.event")
-local gui = require("__RaiLuaLib__.lualib.gui")
+local event = require("__flib__.control.event")
+local gui = require("__flib__.control.gui")
 
 local string_find = string.find
 local string_gsub = string.gsub
