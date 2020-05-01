@@ -1,7 +1,13 @@
 ---------------------------------------------------------------------------------------------------
 Version: 1.5.0
 Date: ????
+  Features:
+    - Redesigned custom request screen - now you can set minimum and maximum limits for the request
+    - Added the ability to permanently edit the logistic request, instead of making a temporary request
   Changes:
+    - Refactored the mod to improve performance and code structure
+    - Switched from RaiLuaLib to FLib
+    - Removed Death Markers incompatibility
 ---------------------------------------------------------------------------------------------------
 Version: 1.4.0
 Date: 2020-04-04

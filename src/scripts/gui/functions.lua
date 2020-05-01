@@ -89,18 +89,18 @@ function gui_functions.search(player, player_table, query)
   end
 end
 
-function gui_functions.take_action(player, player_table, action_type, name, count, control, shift)
+function gui_functions.take_action(player, player_table, action_type, item_name, item_count, control, shift)
   --[[
     Logistic:
       default: request a temporary stack from the network
       shift: set custom temporary request
   ]]
-  local item_data = global.item_data[name]
+  local item_data = global.item_data[item_name]
   local stack_size = item_data.stack_size
   local function set_ghost_cursor()
     if item_data.place_result then
       if player.clean_cursor() then
-        player.cursor_ghost = name
+        player.cursor_ghost = item_name
       end
     end
   end
@@ -110,14 +110,14 @@ function gui_functions.take_action(player, player_table, action_type, name, coun
   if action_type == "inventory" then
     local is_editor = player.controller_type == defines.controllers.editor
     if player.clean_cursor() then
-      if count == 0 and is_editor then
-        player.cursor_stack.set_stack{name=name, count=stack_size}
+      if item_count == 0 and is_editor then
+        player.cursor_stack.set_stack{name=item_name, count=stack_size}
       else
-        player.cursor_stack.set_stack{name=name, count=player.get_main_inventory().remove{name=name, count=stack_size}}
+        player.cursor_stack.set_stack{name=item_name, count=player.get_main_inventory().remove{name=item_name, count=stack_size}}
       end
       if is_editor and shift then
         local index = #player.infinity_inventory_filters + 1
-        player.set_infinity_inventory_filter(index, {name=name, count=stack_size, mode="exactly", index=index})
+        player.set_infinity_inventory_filter(index, {name=item_name, count=stack_size, mode="exactly", index=index})
       end
       close_gui = true
     end
@@ -126,15 +126,15 @@ function gui_functions.take_action(player, player_table, action_type, name, coun
       set_ghost_cursor()
       close_gui = true
     elseif shift then
-
+      gui_functions.show_request_pane(player, player_table, item_name)
     else
-
+      -- TODO set temporary request for a stack
     end
   elseif action_type == "unavailable" then
     if shift then
       if player.cheat_mode then
         if player.clean_cursor() then
-          player.cursor_stack.set_stack{name=name, count=stack_size}
+          player.cursor_stack.set_stack{name=item_name, count=stack_size}
           close_gui = true
         end
       else
@@ -147,6 +147,44 @@ function gui_functions.take_action(player, player_table, action_type, name, coun
   end
 
   return close_gui
+end
+
+function gui_functions.show_request_pane(player, player_table, item_name)
+  local gui_data = player_table.gui
+  local request_gui_data = gui_data.request
+
+  -- detect if this item is being requested already
+  local character = player.character
+  local get_slot = character.get_personal_logistic_slot
+  local request_data
+  for i=1,character.character_logistic_slot_count do
+    local slot = get_slot(i)
+    if slot.name and slot.name == item_name then
+      slot.index = i
+      request_data = slot
+      break
+    end
+  end
+  if request_data then
+    request_gui_data.label.caption = {"qis-gui.edit-request"}
+  else
+    request_gui_data.label.caption = {"qis-gui.set-request"}
+    request_data = {name=item_name, min=1, max=4294967295}
+  end
+  request_gui_data.min_setter.textfield.caption = request_data.min
+  if request_data.max == 4294967295 then
+    request_gui_data.max_setter.textfield.caption = "inf"
+  else
+    request_gui_data.max_setter.textfield.caption = request_data.max
+  end
+  gui_data.request.data = request_data
+
+  -- set GUI state
+  gui_data.state = "set_min_request_amount"
+  gui_data.search.pane.visible = false
+  request_gui_data.pane.visible = true
+  request_gui_data.min_setter.textfield.focus()
+  player.opened = request_gui_data.min_setter.textfield
 end
 
 function gui_functions.set_request()

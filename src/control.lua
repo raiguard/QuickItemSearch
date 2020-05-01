@@ -102,6 +102,10 @@ event.on_player_joined_game(function(e)
   end
 end)
 
+event.on_player_main_inventory_changed(function(e)
+
+end)
+
 event.on_player_removed(function(e)
   global.players[e.player_index] = nil
 end)
