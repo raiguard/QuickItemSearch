@@ -10,10 +10,14 @@ return {
     "qis-nav-control-confirm",
     "qis-nav-shift-confirm"
   },
-  nav_offsets = {
+  results_nav_offsets = {
     down = 5,
     left = -1,
     right = 1,
     up = -5
+  },
+  request_type_switcheroos = {
+    temporary = "persistent",
+    persistent = "temporary"
   }
 }

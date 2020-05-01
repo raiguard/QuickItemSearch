@@ -2,6 +2,7 @@ local qis_gui = {}
 
 local gui = require("__flib__.control.gui")
 
+local constants = require("scripts.constants")
 local gui_functions = require("scripts.gui.functions")
 local util = require("scripts.util")
 
@@ -92,7 +93,7 @@ gui.add_handlers{
         local gui_data = player_table.gui
 
         if #gui_data.search.results_table.children > 0 then
-          qis_gui.move_selection(player_table)
+          qis_gui.move_result(player_table)
 
           gui_data.state = "select_result"
           player.opened = gui_data.search.results_scrollpane
@@ -139,24 +140,99 @@ gui.add_handlers{
           local player = game.get_player(e.player_index)
           local player_table = global.players[e.player_index]
           local gui_data = player_table.gui
+
+          if type == "min" and gui_data.state ~= "set_min_request" then
+            gui_data.state = "set_min_request"
+            local textfield = gui_data.request.min_setter.textfield
+            textfield.focus()
+            player.opened = textfield
+            if gui_data.request.selected_type then
+              gui_data.request["set_"..gui_data.request.selected_type.."_request_button"].style = "button"
+              gui_data.request.selected_type = nil
+            end
+          elseif type == "max" and gui_data.state ~= "set_max_request"then
+            gui_data.state = "set_max_request"
+            local textfield = gui_data.request.max_setter.textfield
+            textfield.focus()
+            player.opened = textfield
+            if gui_data.request.selected_type then
+              gui_data.request["set_"..gui_data.request.selected_type.."_request_button"].style = "button"
+              gui_data.request.selected_type = nil
+            end
+          end
+        end,
+        on_gui_closed = function(e)
+          local _, _, type = string.find(e.element.name, "qis_setter_(.-)_textfield")
+          local player = game.get_player(e.player_index)
+          local player_table = global.players[e.player_index]
+          local gui_data = player_table.gui
+
+          if type == "min" and gui_data.state == "set_min_request" then
+            gui_data.state = "select_result"
+            gui_data.search.pane.visible = true
+            gui_data.request.pane.visible = false
+            gui_data.search.results_scrollpane.focus()
+            player.opened = gui_data.search.results_scrollpane
+          elseif type == "max" and gui_data.state == "set_max_request" then
+            gui_data.state = "set_min_request"
+            local textfield = gui_data.request.min_setter.textfield
+            textfield.focus()
+            player.opened = textfield
+          end
         end,
         on_gui_confirmed = function(e)
           local _, _, type = string.find(e.element.name, "qis_setter_(.-)_textfield")
           local player = game.get_player(e.player_index)
           local player_table = global.players[e.player_index]
           local gui_data = player_table.gui
+
+          if type == "min" then
+            gui_data.state = "set_max_request"
+            local textfield = gui_data.request.max_setter.textfield
+            textfield.focus()
+            player.opened = textfield
+          elseif type == "max" then
+            gui_data.state = "select_request_type"
+            gui_data.request.selected_type = "temporary"
+            local button = gui_data.request.set_temporary_request_button
+            button.style = "qis_active_button"
+            player.opened = button
+          end
         end,
         on_gui_text_changed = function(e)
           local _, _, type = string.find(e.element.name, "qis_setter_(.-)_textfield")
           local player = game.get_player(e.player_index)
           local player_table = global.players[e.player_index]
           local gui_data = player_table.gui
+
+          if type == "min" then
+
+          elseif type == "max" then
+
+          end
         end
       }
     },
     set_request_button = {
       on_gui_click = function(e)
-        game.print(serpent.block(e))
+        local player = game.get_player(e.player_index)
+        local player_table = global.players[e.player_index]
+        qis_gui.destroy(player, player_table)
+      end,
+      on_gui_closed = function(e)
+        -- only the temporary request button ever gets opened, so we don't need to check the type
+        local player = game.get_player(e.player_index)
+        local player_table = global.players[e.player_index]
+        local gui_data = player_table.gui
+
+        if gui_data.state == "select_request_type" then
+          gui_data.request["set_"..gui_data.request.selected_type.."_request_button"].style = "button"
+          gui_data.request.selected_type = nil
+          gui_data.state = "set_max_request"
+          local textfield = gui_data.request.max_setter.textfield
+          textfield.focus()
+          player.opened = textfield
+        end
       end
     }
   }
@@ -221,7 +297,7 @@ function qis_gui.cancel_selection(gui_data)
   gui_data.search.selected_index = nil
 end
 
-function qis_gui.move_selection(player_table, offset)
+function qis_gui.move_result(player_table, offset)
   local gui_data = player_table.gui
   local children = gui_data.search.results_table.children
   local selected_index = gui_data.search.selected_index
@@ -244,13 +320,28 @@ function qis_gui.move_selection(player_table, offset)
   gui_data.search.selected_index = selected_index
 end
 
-function qis_gui.confirm_selection(player_index, gui_data, input_name)
+function qis_gui.confirm_result(player_index, gui_data, input_name)
   gui.handlers.search.result_button.on_gui_click{
     player_index = player_index,
     element = gui_data.search.results_table.children[gui_data.search.selected_index],
     shift = input_name == "qis-nav-shift-confirm",
     control = input_name == "qis-nav-control-confirm"
   }
+end
+
+function qis_gui.move_request_type(player_table)
+  local request_gui_data = player_table.gui.request
+  local selected_type = request_gui_data.selected_type
+  request_gui_data["set_"..selected_type.."_request_button"].style = "button"
+  local new_type = constants.request_type_switcheroos[selected_type]
+  request_gui_data["set_"..new_type.."_request_button"].style = "qis_active_button"
+  request_gui_data.selected_type = new_type
+end
+
+function qis_gui.confirm_request_type(player_index, player_table)
+  local request_gui_data = player_table.gui.request
+  local element = request_gui_data["set_"..request_gui_data.selected_type.."_request_button"]
+  gui.handlers.request.set_request_button.on_gui_click{player_index=player_index, element=element}
 end
 
 return qis_gui

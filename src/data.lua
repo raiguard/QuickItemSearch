@@ -98,6 +98,16 @@ for _,data in ipairs(slot_button_data) do
   styles["qis_active_slot_button_"..data.name] = slot_button(data.y, data.glow, 80)
 end
 
+styles.qis_active_button = {
+  type = "button_style",
+  parent = "button",
+  default_graphical_set = {
+    base = {position = {34, 17}, corner_size = 8},
+    shadow = default_dirt,
+    -- glow = default_glow(default_glow_color, 0.5) -- no glow!
+  }
+}
+
 -- --------------------------------------
 -- FRAME STYLES
 

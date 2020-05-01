@@ -65,15 +65,24 @@ event.register(constants.nav_arrow_events, function(e)
   local player = game.get_player(e.player_index)
   local player_table = global.players[e.player_index]
   local gui_data = player_table.gui
-  if gui_data and gui_data.state == "select_result" then
-    qis_gui.move_selection(player_table, constants.nav_offsets[string.gsub(e.input_name, "qis%-nav%-", "")])
+  if gui_data then
+    if gui_data.state == "select_result" then
+      qis_gui.move_result(player_table, constants.results_nav_offsets[string.gsub(e.input_name, "qis%-nav%-", "")])
+    elseif gui_data.state == "select_request_type" then
+      qis_gui.move_request_type(player_table)
+    end
   end
 end)
 
 event.register(constants.nav_confirm_events, function(e)
-  local gui_data = global.players[e.player_index].gui
-  if gui_data and gui_data.state == "select_result" then
-    qis_gui.confirm_selection(e.player_index, gui_data, e.input_name)
+  local player_table = global.players[e.player_index]
+  local gui_data = player_table.gui
+  if gui_data then
+    if gui_data.state == "select_result" then
+      qis_gui.confirm_result(e.player_index, gui_data, e.input_name)
+    elseif gui_data.state == "select_request_type" then
+      qis_gui.confirm_request_type(e.player_index, player_table)
+    end
   end
 end)
 

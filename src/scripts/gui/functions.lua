@@ -180,7 +180,7 @@ function gui_functions.show_request_pane(player, player_table, item_name)
   gui_data.request.data = request_data
 
   -- set GUI state
-  gui_data.state = "set_min_request_amount"
+  gui_data.state = "set_min_request"
   gui_data.search.pane.visible = false
   request_gui_data.pane.visible = true
   request_gui_data.min_setter.textfield.focus()
