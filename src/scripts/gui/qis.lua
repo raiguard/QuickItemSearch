@@ -2,103 +2,10 @@ local qis_gui = {}
 
 local gui = require("__flib__.control.gui")
 
-local constants = require("scripts.constants")
+local gui_functions = require("scripts.gui.functions")
 local util = require("scripts.util")
 
 local string = string
-
-local function search(player, player_table, query)
-  local player_settings = player_table.settings
-  local results_table = player_table.gui.results_table
-  local children = results_table.children
-  local translations = player_table.translations
-  local item_data = global.item_data
-  local add = results_table.add
-  local index = 0
-  local results = {}
-  local button_indexes = {}
-
-  local show_hidden = player_settings.search_hidden
-
-  -- add or update the next result button
-  local function set_result(type, name, number)
-    index = index + 1
-    results[name] = number
-    local button = children[index]
-    if button then
-      button.style = "qis_slot_button_"..type
-      button.sprite = "item/"..name
-      button.tooltip = translations[name]
-      button.number = number
-    else
-      button = add{type="sprite-button", name="qis_result_button__"..index, style="qis_slot_button_"..type, sprite="item/"..name, number=number,
-        tooltip=translations[name], mouse_button_filter={"left"}}
-    end
-    button_indexes[index] = button.index
-  end
-
-  -- match the query to the given name
-  local function match_query(name, translation, ignore_unique)
-    return (ignore_unique or not results[name]) and (show_hidden or not item_data[name].hidden)
-      and string.find(string.lower(translation or translations[name]), query)
-  end
-
-  -- map editor
-  if player.controller_type == defines.controllers.editor then
-    local contents = player.get_main_inventory().get_contents()
-    for internal,translated in pairs(translations) do
-      -- we don't care about hidden or other results, so use an optimised condition
-      if string.find(string.lower(translated), query) then
-        set_result("inventory", internal, contents[internal])
-      end
-    end
-  else
-    -- player inventory
-    if player_settings.search_inventory then
-      local contents = player.get_main_inventory().get_contents()
-      for name,count in pairs(contents) do
-        if match_query(name) then
-          set_result("inventory", name, count)
-        end
-      end
-    end
-    -- logistic network(s)
-    if player.character and player_settings.search_logistics then
-      local ignore_unique = not player_settings.logistics_unique_only
-      local character = player.character
-      local network_contents = {}
-      for _,point in ipairs(character.get_logistic_point()) do
-        local network = point.logistic_network
-        if network.valid and network.all_logistic_robots > 0 then
-          local contents = point.logistic_network.get_contents()
-          for name,count in pairs(contents) do
-            if match_query(name, nil, not network_contents[name] and ignore_unique) then
-              network_contents[name] = count
-              set_result("logistics", name, count)
-            end
-          end
-        end
-      end
-    end
-    -- unavailable
-    if player_settings.search_unavailable then
-      for internal,translated in pairs(translations) do
-        if match_query(internal, translated) then
-          set_result("unavailable", internal)
-        end
-      end
-    end
-  end
-
-  -- remove extra buttons, if any
-  for i=index+1, #children do
-    children[i].destroy()
-  end
-end
-
-local function take_action(player, player_table, selected_element, control, shift)
-  game.print("ACTION")
-end
 
 local sanitizers = {
   ["%("] = "%%(",
@@ -169,7 +76,7 @@ gui.add_handlers{
           return
         end
 
-        search(player, player_table, query)
+        gui_functions.search(player, player_table, query)
       end,
       on_gui_confirmed = function(e)
         local player = game.get_player(e.player_index)
@@ -194,8 +101,10 @@ gui.add_handlers{
       on_gui_click = function(e)
         local player = game.get_player(e.player_index)
         local player_table = global.players[e.player_index]
+        local element = e.element
+        local _, _, action_type = string.find(string.gsub(element.style.name, "qis_active", "qis"), "qis_(.-)_slot_button")
 
-        take_action(player, player_table, e.element, e.control, e.shift)
+        gui_functions.take_action(player, player_table, action_type, util.sprite_to_item_name(element.sprite), element.count, e.control, e.shift)
       end
     }
   }

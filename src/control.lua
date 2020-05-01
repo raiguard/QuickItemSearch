@@ -8,7 +8,7 @@ local global_data = require("scripts.global-data")
 local migrations = require("scripts.migrations")
 local on_tick_manager = require("scripts.on-tick-manager")
 local player_data = require("scripts.player-data")
-local qis_gui = require("scripts.qis-gui")
+local qis_gui = require("scripts.gui.qis")
 
 local string = string
 
@@ -115,6 +115,7 @@ event.on_runtime_mod_setting_changed(function(e)
 end)
 
 -- TRANSLATIONS
+-- TODO somehow this isn't save/load safe
 
 event.on_string_translated(function(e)
   translation.sort_string(e)
