@@ -2,7 +2,7 @@ local gui_functions = {}
 
 function gui_functions.search(player, player_table, query)
   local player_settings = player_table.settings
-  local results_table = player_table.gui.results_table
+  local results_table = player_table.gui.search.results_table
   local children = results_table.children
   local translations = player_table.translations
   local item_data = global.item_data
@@ -67,7 +67,7 @@ function gui_functions.search(player, player_table, query)
           for name,count in pairs(contents) do
             if match_query(name, nil, not network_contents[name] and ignore_unique) then
               network_contents[name] = count
-              set_result("logistics", name, count)
+              set_result("logistic", name, count)
             end
           end
         end
@@ -94,10 +94,6 @@ function gui_functions.take_action(player, player_table, action_type, name, coun
     Logistic:
       default: request a temporary stack from the network
       shift: set custom temporary request
-      control: set ghost cursor
-    Unavailable:
-      default: set ghost cursor
-      shift (cheat mode): spawn stack into cursor
   ]]
   local item_data = global.item_data[name]
   local stack_size = item_data.stack_size
@@ -126,7 +122,14 @@ function gui_functions.take_action(player, player_table, action_type, name, coun
       close_gui = true
     end
   elseif action_type == "logistic" then
+    if control then
+      set_ghost_cursor()
+      close_gui = true
+    elseif shift then
 
+    else
+
+    end
   elseif action_type == "unavailable" then
     if shift then
       if player.cheat_mode then
