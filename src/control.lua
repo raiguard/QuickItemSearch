@@ -6,6 +6,7 @@ local translation = require("__flib__.control.translation")
 local constants = require("scripts.constants")
 local global_data = require("scripts.global-data")
 local migrations = require("scripts.migrations")
+local on_tick_manager = require("scripts.on-tick-manager")
 local player_data = require("scripts.player-data")
 local qis_gui = require("scripts.qis-gui")
 
@@ -24,6 +25,7 @@ commands.add_command("QuickItemSearch", " [parameter]\nrefresh-player-data - ret
 
 -- -----------------------------------------------------------------------------
 -- EVENT HANDLERS
+-- on_tick handler is kept in scripts.on-tick-manager
 
 -- BOOTSTRAP
 
@@ -40,6 +42,7 @@ event.on_init(function()
 end)
 
 event.on_load(function()
+  on_tick_manager.update()
   gui.build_lookup_tables()
 end)
 
@@ -58,17 +61,6 @@ end)
 
 gui.register_handlers()
 
-event.register("qis-search", function(e)
-  local player = game.get_player(e.player_index)
-  local player_table = global.players[e.player_index]
-  if player_table.flags.can_open_gui then
-    qis_gui.create(player, player_table)
-  else
-    player.print{"qis-message.cannot-open-gui"}
-    player_table.flags.show_message_after_translation = true
-  end
-end)
-
 event.register(constants.nav_arrow_events, function(e)
   local player = game.get_player(e.player_index)
   local player_table = global.players[e.player_index]
@@ -85,14 +77,21 @@ event.register(constants.nav_confirm_events, function(e)
   end
 end)
 
+event.register("qis-search", function(e)
+  local player = game.get_player(e.player_index)
+  local player_table = global.players[e.player_index]
+  if player_table.flags.can_open_gui then
+    qis_gui.create(player, player_table)
+  else
+    player.print{"qis-message.cannot-open-gui"}
+    player_table.flags.show_message_after_translation = true
+  end
+end)
+
 -- PLAYER
 
 event.on_player_created(function(e)
   player_data.init(e.player_index)
-end)
-
-event.on_player_removed(function(e)
-  global.players[e.player_index] = nil
 end)
 
 event.on_player_joined_game(function(e)
@@ -103,20 +102,15 @@ event.on_player_joined_game(function(e)
   end
 end)
 
+event.on_player_removed(function(e)
+  global.players[e.player_index] = nil
+end)
+
 -- SETTINGS
 
 event.on_runtime_mod_setting_changed(function(e)
   if string.sub(e.setting, 1, 4) == "qis-" then
     player_data.update_settings(game.get_player(e.player_index), global.players[e.player_index])
-  end
-end)
-
--- TICK
--- TODO register this conditionally
-
-event.on_tick(function()
-  if global.__flib.translation.active_translations_count > 0 then
-    translation.translate_batch()
   end
 end)
 
@@ -138,4 +132,6 @@ translation.on_finished(function(e)
   player_table.flags.can_open_gui = true
   player_table.flags.translate_on_join = false
   player_table.flags.show_message_after_translation = false
+  -- update on_tick
+  on_tick_manager.update()
 end)

@@ -2,6 +2,8 @@ local player_data = {}
 
 local translation = require("__flib__.control.translation")
 
+local on_tick_manager = require("scripts.on-tick-manager")
+
 local string = string
 
 function player_data.init(player_index)
@@ -48,6 +50,7 @@ end
 
 function player_data.start_translations(player_index)
   translation.start(player_index, "items", global.translation_data, {include_failed_translations=true})
+  on_tick_manager.update()
 end
 
 return player_data
