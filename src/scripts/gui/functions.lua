@@ -89,29 +89,61 @@ function gui_functions.search(player, player_table, query)
   end
 end
 
-function gui_functions.take_action(player, player_table, type, name, count, control, shift)
+function gui_functions.take_action(player, player_table, action_type, name, count, control, shift)
   --[[
-    Inventory:
-    default: put stack into cursor
     Logistic:
-    default: request a temporary stack from the network
-    shift: set custom temporary request
-    control: set ghost cursor
+      default: request a temporary stack from the network
+      shift: set custom temporary request
+      control: set ghost cursor
     Unavailable:
-    default: set ghost cursor
-    shift (cheat mode): spawn stack into cursor
-    Editor:
-    default: put/spawn stack into cursor
-    shift: put/spawn stack into cursor, set inventory filter for a stack
+      default: set ghost cursor
+      shift (cheat mode): spawn stack into cursor
   ]]
-  local prototype = global.item_prototypes[name]
-  local function set_ghost_cursor(player, name)
-    if prototype.place_result then
+  local item_data = global.item_data[name]
+  local stack_size = item_data.stack_size
+  local function set_ghost_cursor()
+    if item_data.place_result then
       if player.clean_cursor() then
-
+        player.cursor_ghost = name
       end
     end
   end
+
+  local close_gui = false
+
+  if action_type == "inventory" then
+    local is_editor = player.controller_type == defines.controllers.editor
+    if player.clean_cursor() then
+      if count == 0 and is_editor then
+        player.cursor_stack.set_stack{name=name, count=stack_size}
+      else
+        player.cursor_stack.set_stack{name=name, count=player.get_main_inventory().remove{name=name, count=stack_size}}
+      end
+      if is_editor and shift then
+        local index = #player.infinity_inventory_filters + 1
+        player.set_infinity_inventory_filter(index, {name=name, count=stack_size, mode="exactly", index=index})
+      end
+      close_gui = true
+    end
+  elseif action_type == "logistic" then
+
+  elseif action_type == "unavailable" then
+    if shift then
+      if player.cheat_mode then
+        if player.clean_cursor() then
+          player.cursor_stack.set_stack{name=name, count=stack_size}
+          close_gui = true
+        end
+      else
+        player.print{'qis-message.not-in-cheat-mode'}
+      end
+    else
+      set_ghost_cursor()
+      close_gui = true
+    end
+  end
+
+  return close_gui
 end
 
 function gui_functions.set_request()

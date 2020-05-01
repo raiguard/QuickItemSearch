@@ -58,6 +58,7 @@ gui.add_handlers{
         local player = game.get_player(e.player_index)
         local player_table = global.players[e.player_index]
         local query = e.text
+        player_table.gui.search_query = query
 
         -- fuzzy search
         if player_table.settings.fuzzy_search then
@@ -67,8 +68,6 @@ gui.add_handlers{
         for pattern, replacement in pairs(sanitizers) do
           query = string.gsub(query, pattern, replacement)
         end
-
-        player_table.gui.search_query = query
 
         -- TODO: non-essential search smarts
         if query == "" then
@@ -102,9 +101,12 @@ gui.add_handlers{
         local player = game.get_player(e.player_index)
         local player_table = global.players[e.player_index]
         local element = e.element
-        local _, _, action_type = string.find(string.gsub(element.style.name, "qis_active", "qis"), "qis_(.-)_slot_button")
+        local _, _, action_type = string.find(string.gsub(element.style.name, "qis_active", "qis"), "qis_slot_button_(.*)")
+        local item_name = util.sprite_to_item_name(element.sprite)
 
-        gui_functions.take_action(player, player_table, action_type, util.sprite_to_item_name(element.sprite), element.count, e.control, e.shift)
+        if gui_functions.take_action(player, player_table, action_type, item_name, element.number or 0, e.control, e.shift) then
+          qis_gui.destroy(player, player_table)
+        end
       end
     }
   }
@@ -188,7 +190,7 @@ end
 function qis_gui.confirm_selection(player_index, gui_data, input_name)
   gui.handlers.search.result_button.on_gui_click{
     player_index = player_index,
-    element = gui_data.results_scrollpane.children[gui_data.selected_index],
+    element = gui_data.results_table.children[gui_data.selected_index],
     shift = input_name == "qis-nav-shift-confirm",
     control = input_name == "qis-nav-control-confirm"
   }
