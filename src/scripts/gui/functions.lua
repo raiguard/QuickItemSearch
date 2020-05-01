@@ -90,11 +90,6 @@ function gui_functions.search(player, player_table, query)
 end
 
 function gui_functions.take_action(player, player_table, action_type, item_name, item_count, control, shift)
-  --[[
-    Logistic:
-      default: request a temporary stack from the network
-      shift: set custom temporary request
-  ]]
   local item_data = global.item_data[item_name]
   local stack_size = item_data.stack_size
   local function set_ghost_cursor()
@@ -122,13 +117,11 @@ function gui_functions.take_action(player, player_table, action_type, item_name,
       close_gui = true
     end
   elseif action_type == "logistic" then
-    if control then
+    if shift then
       set_ghost_cursor()
       close_gui = true
-    elseif shift then
-      gui_functions.show_request_pane(player, player_table, item_name)
     else
-      -- TODO set temporary request for a stack
+      gui_functions.show_request_pane(player, player_table, item_name)
     end
   elseif action_type == "unavailable" then
     if shift then
