@@ -1,17 +1,10 @@
--- -------------------------------------------------------------------------------------------------------------------------------------------------------------
--- GUI
+local qis_gui = {}
 
-local event = require("__flib__.control.event")
 local gui = require("__flib__.control.gui")
 
 local string_find = string.find
 local string_gsub = string.gsub
 local string_lower = string.lower
-
-local qis_gui = {}
-
--- -----------------------------------------------------------------------------
--- SEARCH AND ACTIONS
 
 local function search(player, player_table, query)
   local player_settings = player_table.settings
@@ -102,9 +95,6 @@ local function search(player, player_table, query)
   end
 end
 
--- -----------------------------------------------------------------------------
--- GUI DATA
-
 local sanitizers = {
   ["%("] = "%%(",
   ["%)"] = "%%)",
@@ -119,14 +109,14 @@ local sanitizers = {
   ["%$"] = "%%$"
 }
 
-gui.templates:extend{
+gui.add_templates{
   logistic_request_setter = {type="flow", style_mods={vertical_align="center", horizontal_spacing=10}, children={
     {type="slider", style_mods={minimal_width=130, horizontally_stretchable=true}},
     {type="textfield", style_mods={width=60, horizontal_align="center"}, numerical=true, lose_focus_on_confirm=true}
   }}
 }
 
-gui.handlers:extend{
+gui.add_handlers{
   search_textfield = {
     on_gui_click = function(e)
       local player = game.get_player(e.player_index)
@@ -141,7 +131,7 @@ gui.handlers:extend{
     on_gui_text_changed = function(e)
       local player = game.get_player(e.player_index)
       local player_table = global.players[e.player_index]
-      local query = e.element.text
+      local query = e.text
 
       -- fuzzy search
       if player_table.settings.fuzzy_search then
@@ -153,6 +143,10 @@ gui.handlers:extend{
       end
 
       -- TODO: non-essential search smarts
+      if query == "" then
+        player_table.gui.results_table.clear()
+        return
+      end
 
       search(player, player_table, query)
     end,
@@ -162,21 +156,23 @@ gui.handlers:extend{
       game.print(serpent.block(e))
     end
   },
-  result_button_click = {id=defines.events.on_gui_click, handler=function(e)
-    local player = game.get_player(e.player_index)
-    local player_table = global.players[e.player_index]
-    game.print(serpent.block(e))
-  end, gui_filters="qis_result_button_", options={match_filter_strings=true}},
-  keys_nav = {id={"qis-nav-left", "qis-nav-up", "qis-nav-right", "qis-nav-down"}, handler=function(e)
-    local player = game.get_player(e.player_index)
-    local player_table = global.players[e.player_index]
-    game.print(serpent.block(e))
-  end},
-  keys_confirm = {id={"qis-nav-confirm", "qis-nav-shift-confirm", "qis-nav-control-confirm"}, handler=function(e)
-    local player = game.get_player(e.player_index)
-    local player_table = global.players[e.player_index]
-    game.print(serpent.block(e))
-  end}
+  result_button = {
+    on_gui_click = function(e)
+      local player = game.get_player(e.player_index)
+      local player_table = global.players[e.player_index]
+      game.print(serpent.block(e))
+    end
+  }
+  -- keys_nav = {id={"qis-nav-left", "qis-nav-up", "qis-nav-right", "qis-nav-down"}, handler=function(e)
+  --   local player = game.get_player(e.player_index)
+  --   local player_table = global.players[e.player_index]
+  --   game.print(serpent.block(e))
+  -- end},
+  -- keys_confirm = {id={"qis-nav-confirm", "qis-nav-shift-confirm", "qis-nav-control-confirm"}, handler=function(e)
+  --   local player = game.get_player(e.player_index)
+  --   local player_table = global.players[e.player_index]
+  --   game.print(serpent.block(e))
+  -- end}
 }
 
 function qis_gui.create(player, player_table)
@@ -207,7 +203,7 @@ function qis_gui.create(player, player_table)
     }}
   })
 
-  event.enable("gui.result_button_click", player.index)
+  gui.update_filters("result_button", player.index, {"qis_result_button"}, "add")
 
   gui_data.window.force_auto_center()
   gui_data.search_textfield.focus()
