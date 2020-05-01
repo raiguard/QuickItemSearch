@@ -9,8 +9,7 @@ local migrations = require("scripts.migrations")
 local player_data = require("scripts.player-data")
 local qis_gui = require("scripts.qis-gui")
 
-local string_gsub = string.gsub
-local string_sub = string.sub
+local string = string
 
 -- -----------------------------------------------------------------------------
 -- COMMANDS
@@ -75,7 +74,7 @@ event.register(constants.nav_arrow_events, function(e)
   local player_table = global.players[e.player_index]
   local gui_data = player_table.gui
   if gui_data and gui_data.state == "select_result" then
-    qis_gui.move_selection(player_table, constants.nav_offsets[string_gsub(e.input_name, "qis%-nav%-", "")])
+    qis_gui.move_selection(player_table, constants.nav_offsets[string.gsub(e.input_name, "qis%-nav%-", "")])
   end
 end)
 
@@ -107,7 +106,7 @@ end)
 -- SETTINGS
 
 event.on_runtime_mod_setting_changed(function(e)
-  if string_sub(e.setting, 1, 4) == "qis-" then
+  if string.sub(e.setting, 1, 4) == "qis-" then
     player_data.update_settings(game.get_player(e.player_index), global.players[e.player_index])
   end
 end)
