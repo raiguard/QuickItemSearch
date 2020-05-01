@@ -31,7 +31,7 @@ local function search(player, player_table, query)
       button.tooltip = translations[name]
       button.number = number
     else
-      button = add{type="sprite-button", name="qis_result_button_"..index, style="qis_slot_button_"..type, sprite="item/"..name, number=number,
+      button = add{type="sprite-button", name="qis_result_button__"..index, style="qis_slot_button_"..type, sprite="item/"..name, number=number,
         tooltip=translations[name], mouse_button_filter={"left"}}
     end
     button_indexes[index] = button.index
@@ -96,8 +96,8 @@ local function search(player, player_table, query)
   end
 end
 
-local function take_action(player, player_table, result)
-
+local function take_action(player, player_table, selected_element, control, shift)
+  game.print("ACTION")
 end
 
 local sanitizers = {
@@ -175,10 +175,13 @@ gui.add_handlers{
         local player = game.get_player(e.player_index)
         local player_table = global.players[e.player_index]
         local gui_data = player_table.gui
-        qis_gui.move_selection(player, player_table)
 
-        gui_data.state = "select_result"
-        player.opened = gui_data.results_scrollpane
+        if #gui_data.results_table.children > 0 then
+          qis_gui.move_selection(player_table)
+
+          gui_data.state = "select_result"
+          player.opened = gui_data.results_scrollpane
+        end
       end
     },
     results_scrollpane = {
@@ -191,7 +194,8 @@ gui.add_handlers{
       on_gui_click = function(e)
         local player = game.get_player(e.player_index)
         local player_table = global.players[e.player_index]
-        game.print(serpent.block(e))
+
+        take_action(player, player_table, e.element, e.control, e.shift)
       end
     }
   }
@@ -249,7 +253,7 @@ function qis_gui.cancel_selection(gui_data)
   gui_data.selected_index = nil
 end
 
-function qis_gui.move_selection(player, player_table, offset)
+function qis_gui.move_selection(player_table, offset)
   local gui_data = player_table.gui
   local children = gui_data.results_table.children
   local selected_index = gui_data.selected_index
@@ -270,6 +274,15 @@ function qis_gui.move_selection(player, player_table, offset)
   gui_data.search_textfield.text = player_table.translations[util.sprite_to_item_name(selected_element.sprite)]
   -- update index in global
   gui_data.selected_index = selected_index
+end
+
+function qis_gui.confirm_selection(player_index, gui_data, input_name)
+  gui.handlers.search.result_button.on_gui_click{
+    player_index = player_index,
+    element = gui_data.results_scrollpane.children[gui_data.selected_index],
+    shift = input_name == "qis-nav-shift-confirm",
+    control = input_name == "qis-nav-control-confirm"
+  }
 end
 
 return qis_gui
