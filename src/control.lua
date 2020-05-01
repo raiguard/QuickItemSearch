@@ -7,7 +7,7 @@ local constants = require("scripts.constants")
 local global_data = require("scripts.global-data")
 local migrations = require("scripts.migrations")
 local player_data = require("scripts.player-data")
-local qis_gui = require("scripts.gui")
+local qis_gui = require("scripts.qis-gui")
 
 local string_gsub = string.gsub
 local string_sub = string.sub
