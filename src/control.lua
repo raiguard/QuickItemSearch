@@ -112,7 +112,11 @@ event.on_player_joined_game(function(e)
 end)
 
 event.on_player_main_inventory_changed(function(e)
-
+  local player = game.get_player(e.player_index)
+  local player_table = global.players[e.player_index]
+  if player.controller_type == defines.controllers.character and player_table.flags.has_temporary_requests then
+    player_data.check_temporary_requests(player, player_table)
+  end
 end)
 
 event.on_player_removed(function(e)

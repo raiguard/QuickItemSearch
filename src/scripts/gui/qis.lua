@@ -4,6 +4,7 @@ local gui = require("__flib__.control.gui")
 
 local constants = require("scripts.constants")
 local gui_functions = require("scripts.gui.functions")
+local player_data = require("scripts.player-data")
 local util = require("scripts.util")
 
 local string = string
@@ -250,7 +251,10 @@ gui.add_handlers{
       on_gui_click = function(e)
         local player = game.get_player(e.player_index)
         local player_table = global.players[e.player_index]
-        qis_gui.destroy(player, player_table)
+        local _, _, type = string.find(e.element.name, "qis_set_(.-)_request")
+        if player_data.set_request(player, player_table, player_table.gui.request.data, type == "temporary") then
+          qis_gui.destroy(player, player_table)
+        end
       end,
       on_gui_closed = function(e)
         -- only the temporary request button ever gets opened, so we don't need to check the type
@@ -288,10 +292,6 @@ function qis_gui.create(player, player_table)
           }},
           {type="flow", style_mods={top_padding=2, left_padding=10, right_padding=8, bottom_padding=8}, direction="vertical", children={
             gui.templates.logistic_request_setter("min", 37),
-            -- {type="flow", children={
-            --   {template="pushers.horizontal"},
-            --   {type="label", style="bold_label", style_mods={top_margin=-3, bottom_margin=-2}, caption="to"}
-            -- }},
             gui.templates.logistic_request_setter("max", 38),
             {template="pushers.vertical"},
             gui.templates.set_request_button("temporary"),
@@ -356,7 +356,6 @@ function qis_gui.confirm_result(player_index, gui_data, input_name)
     player_index = player_index,
     element = gui_data.search.results_table.children[gui_data.search.selected_index],
     shift = input_name == "qis-nav-shift-confirm",
-    -- control = input_name == "qis-nav-control-confirm",
     keyboard_confirm = true
   }
 end

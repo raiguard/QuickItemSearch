@@ -1,6 +1,7 @@
 local gui_functions = {}
 
 local constants = require("scripts.constants")
+local player_data = require("scripts.player-data")
 
 function gui_functions.search(player, player_table, query)
   local player_settings = player_table.settings
@@ -148,18 +149,8 @@ function gui_functions.show_request_pane(player, player_table, item_name)
   local gui_data = player_table.gui
   local request_gui_data = gui_data.request
 
-  -- detect if this item is being requested already
-  local character = player.character
-  local get_slot = character.get_personal_logistic_slot
-  local request_data
-  for i=1,character.character_logistic_slot_count do
-    local slot = get_slot(i)
-    if slot.name and slot.name == item_name then
-      slot.index = i
-      request_data = slot
-      break
-    end
-  end
+  local request_data = player_data.find_request(player, item_name)
+
   if request_data then
     request_gui_data.label.caption = {"qis-gui.edit-request"}
   else
@@ -222,10 +213,6 @@ function gui_functions.set_value(request_gui_data, type, value, source)
     request_data.min = request_data.max
     gui_functions.set_value(request_gui_data, "min", request_data.min)
   end
-end
-
-function gui_functions.set_request()
-  -- TODO
 end
 
 return gui_functions
