@@ -46,13 +46,7 @@ data:extend{
     name = "qis-nav-shift-confirm",
     key_sequence = "SHIFT + ENTER",
     order = "bf"
-  },
-  -- {
-  --   type = "custom-input",
-  --   name = "qis-nav-control-confirm",
-  --   key_sequence = "CONTROL + ENTER",
-  --   order = "bg"
-  -- }
+  }
 }
 
 -- -----------------------------------------------------------------------------
