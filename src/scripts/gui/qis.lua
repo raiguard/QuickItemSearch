@@ -48,19 +48,28 @@ gui.add_handlers{
       on_gui_click = function(e)
         local player = game.get_player(e.player_index)
         local player_table = global.players[e.player_index]
+        local gui_data = player_table.gui
         local element = e.element
         local _, _, action_type = string.find(string.gsub(element.style.name, "qis_active", "qis"), "qis_slot_button_(.*)")
         local item_name = util.sprite_to_item_name(element.sprite)
 
-        if gui_functions.take_action(player, player_table, action_type, item_name, element.number or 0, e.control, e.shift) then
+        if e.keyboard_confirm then
+          gui_data.search.used_keyboard_confirm = true
+        end
+
+        if gui_functions.take_action(player, player_table, action_type, item_name, element.number or 0, e.shift) then
           qis_gui.destroy(player, player_table)
+        elseif not e.keyboard_confirm and gui_data.state == "set_min_request" then
+          gui_data.search.textfield.text = player_table.translations[util.sprite_to_item_name(element.sprite)]
         end
       end
     },
     results_scrollpane = {
       on_gui_closed = function(e)
         local player_table = global.players[e.player_index]
-        gui.handlers.search.textfield.on_gui_click{player_index=e.player_index, element=player_table.gui.search.textfield}
+        if player_table.gui.state == "select_result" then
+          gui.handlers.search.textfield.on_gui_click{player_index=e.player_index, element=player_table.gui.search.textfield}
+        end
       end
     },
     textfield = {
@@ -70,8 +79,13 @@ gui.add_handlers{
         local gui_data = player_table.gui
         local element = e.element
 
-        if gui_data.state == "select_result" then
-          qis_gui.cancel_selection(gui_data)
+        if gui_data.state ~= "search" then
+          if gui_data.search.selected_index then
+            qis_gui.cancel_selection(gui_data)
+          end
+
+          gui_data.search.pane.visible = true
+          gui_data.request.pane.visible = false
 
           gui_data.state = "search"
           element.text = gui_data.search.query
@@ -182,13 +196,18 @@ gui.add_handlers{
           local gui_data = player_table.gui
 
           if type == "min" and gui_data.state == "set_min_request" then
-            gui_functions.set_value(gui_data.request, type, gui_data.request.data[type])
-            -- gui_functions.validate_request_amounts(gui_data.request)
-            gui_data.state = "select_result"
+            -- gui_functions.set_value(gui_data.request, type, gui_data.request.data[type])
             gui_data.search.pane.visible = true
             gui_data.request.pane.visible = false
-            gui_data.search.results_scrollpane.focus()
-            player.opened = gui_data.search.results_scrollpane
+
+            if gui_data.search.used_keyboard_confirm then
+              gui_data.search.used_keyboard_confirm = nil
+              gui_data.state = "select_result"
+              gui_data.search.results_scrollpane.focus()
+              player.opened = gui_data.search.results_scrollpane
+            else
+              gui.handlers.search.textfield.on_gui_click{player_index=e.player_index, element=gui_data.search.textfield}
+            end
           elseif type == "max" and gui_data.state == "set_max_request" then
             gui_functions.set_value(gui_data.request, type, gui_data.request.data[type])
             -- gui_functions.validate_request_amounts(gui_data.request)
@@ -337,7 +356,8 @@ function qis_gui.confirm_result(player_index, gui_data, input_name)
     player_index = player_index,
     element = gui_data.search.results_table.children[gui_data.search.selected_index],
     shift = input_name == "qis-nav-shift-confirm",
-    control = input_name == "qis-nav-control-confirm"
+    -- control = input_name == "qis-nav-control-confirm",
+    keyboard_confirm = true
   }
 end
 

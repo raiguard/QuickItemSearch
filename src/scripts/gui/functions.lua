@@ -91,7 +91,7 @@ function gui_functions.search(player, player_table, query)
   end
 end
 
-function gui_functions.take_action(player, player_table, action_type, item_name, item_count, control, shift)
+function gui_functions.take_action(player, player_table, action_type, item_name, item_count, shift)
   local item_data = global.item_data[item_name]
   local stack_size = item_data.stack_size
   local function set_ghost_cursor()
