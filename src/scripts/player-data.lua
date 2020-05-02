@@ -6,7 +6,7 @@ local on_tick_manager = require("scripts.on-tick-manager")
 
 local string = string
 
-function player_data.init(player_index)
+function player_data.init(player_index, skip_refresh)
   global.players[player_index] = {
     flags = {
       can_open_gui = false,
@@ -19,7 +19,9 @@ function player_data.init(player_index)
     translations = nil,
     settings = nil
   }
-  player_data.refresh(game.get_player(player_index), global.players[player_index])
+  if not skip_refresh then
+    player_data.refresh(game.get_player(player_index), global.players[player_index])
+  end
 end
 
 function player_data.update_settings(player, player_table)
@@ -34,7 +36,6 @@ function player_data.update_settings(player, player_table)
 end
 
 function player_data.refresh(player, player_table)
-  -- TODO: destroy GUI(s)
   -- set flag
   player_table.flags.can_open_gui = false
 

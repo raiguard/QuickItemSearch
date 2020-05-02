@@ -1,9 +1,3 @@
--- -------------------------------------------------------------------------------------------------------------------------------------------------------------
--- QUICK ITEM SEARCH PROTOTYPES
-
--- -----------------------------------------------------------------------------
--- CUSTOM INPUTS
-
 data:extend{
   {
     type = "custom-input",
@@ -54,7 +48,6 @@ data:extend{
 
 local styles = data.raw["gui-style"].default
 
--- --------------------------------------
 -- BUTTON STYLES
 
 local tileset = "__QuickItemSearch__/graphics/button-tileset.png"
@@ -83,7 +76,7 @@ local slot_button_data = {
   {name="inventory", y=0, glow=default_glow_color},
   -- {name="light_grey", y=80, glow=default_glow_color},
   {name="unavailable", y=160, glow={255,166,123,128}},
-  {name="recipe", y=240, glow={34,255,75,128}},
+  -- {name="recipe", y=240, glow={34,255,75,128}},
   {name="logistic", y=320, glow={34,181,255,128}},
 }
 
@@ -102,7 +95,6 @@ styles.qis_active_button = {
   }
 }
 
--- --------------------------------------
 -- FRAME STYLES
 
 styles.qis_content_frame = {
@@ -128,7 +120,6 @@ styles.qis_results_frame = {
   }
 }
 
--- --------------------------------------
 -- SCROLLPANE STYLES
 
 styles.qis_results_scroll_pane = {
@@ -152,7 +143,6 @@ styles.qis_results_scroll_pane = {
   }
 }
 
--- --------------------------------------
 -- TABLE STYLES
 
 styles.qis_results_table = {
@@ -161,27 +151,9 @@ styles.qis_results_table = {
   width = 200
 }
 
--- --------------------------------------
 -- TEXTFIELD STYLES
 
 styles.qis_search_textfield = {
   type = "textbox_style",
   width = 224
-}
-
-styles.qis_invalid_value_textfield = {
-  type = "textbox_style",
-  parent = "short_number_textfield",
-  default_background = {
-    base = {position = {0, 913}, corner_size = 8},
-    shadow = textbox_dirt
-  },
-  active_background = {
-    base = {position = {0, 913}, corner_size = 8},
-    shadow = textbox_dirt
-  },
-  disabled_background = {
-    base = {position = {0, 913}, corner_size = 8},
-    shadow = textbox_dirt
-  }
 }

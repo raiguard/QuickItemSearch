@@ -129,7 +129,6 @@ gui.add_handlers{
           query = string.gsub(query, pattern, replacement)
         end
 
-        -- TODO: non-essential search smarts
         if query == "" then
           player_table.gui.search.results_table.clear()
           return

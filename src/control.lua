@@ -18,7 +18,12 @@ local string = string
 commands.add_command("QuickItemSearch", " [parameter]\nrefresh-player-data - retranslate dictionaries and update settings",
   function(e)
     if e.parameter == "refresh-player-data" then
-      player_data.refresh(game.get_player(e.player_index), global.players[e.player_index])
+      local player = game.get_player(e.player_index)
+      local player_table = global.players[e.player_index]
+      if player_table.gui then
+        qis_gui.destroy(player, player_table)
+      end
+      player_data.refresh(player, player_table)
     end
   end
 )
@@ -52,7 +57,11 @@ event.on_configuration_changed(function(e)
     global_data.build_prototypes()
     -- refresh all player information
     for i, player in pairs(game.players) do
-      player_data.refresh(player, global.players[i])
+      local player_table = global.players[i]
+      if player_table.gui then
+        qis_gui.destroy(player, player_table)
+      end
+      player_data.refresh(player, player_table)
     end
   end
 end)
@@ -62,7 +71,6 @@ end)
 gui.register_handlers()
 
 event.register(constants.nav_arrow_events, function(e)
-  local player = game.get_player(e.player_index)
   local player_table = global.players[e.player_index]
   local gui_data = player_table.gui
   if gui_data then

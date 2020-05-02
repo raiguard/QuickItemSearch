@@ -2,11 +2,13 @@
 Version: 1.5.0
 Date: ????
   Features:
+    - Added the ability to permanently edit the logistic request, instead of just making a temporary request
     - Redesigned custom request screen - now you can set minimum and maximum limits for the request
-    - Added the ability to permanently edit the logistic request, instead of making a temporary request
   Changes:
     - Refactored the mod to improve performance and code structure
     - Switched from RaiLuaLib to FLib
+    - General GUI style improvements
+    - Removed "request-a-stack" functionality - the new request screen defaults to a stack instead
     - Removed Death Markers incompatibility
 ---------------------------------------------------------------------------------------------------
 Version: 1.4.0
