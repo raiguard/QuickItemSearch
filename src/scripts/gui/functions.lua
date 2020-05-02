@@ -60,7 +60,6 @@ function gui_functions.search(player, player_table, query)
     end
     -- logistic network(s)
     if player.character and player_settings.search_logistics then
-      local ignore_unique = not player_settings.logistics_unique_only
       local character = player.character
       local network_contents = {}
       for _,point in ipairs(character.get_logistic_point()) do
@@ -68,7 +67,7 @@ function gui_functions.search(player, player_table, query)
         if network.valid and network.all_logistic_robots > 0 then
           local contents = point.logistic_network.get_contents()
           for name,count in pairs(contents) do
-            if match_query(name, nil, not network_contents[name] and ignore_unique) then
+            if match_query(name, nil, not network_contents[name]) then
               network_contents[name] = count
               set_result("logistic", name, count)
             end

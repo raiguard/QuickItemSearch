@@ -17,7 +17,7 @@ data:extend{
     type = 'bool-setting',
     name = 'qis-search-unavailable',
     setting_type = 'runtime-per-user',
-    default_value = false,
+    default_value = true,
     order = 'ac'
   },
   {
@@ -33,12 +33,5 @@ data:extend{
     setting_type = 'runtime-per-user',
     default_value = false,
     order = 'ae'
-  },
-  {
-    type = 'bool-setting',
-    name = 'qis-logistics-unique-only',
-    setting_type = 'runtime-per-user',
-    default_value = true,
-    order = 'af'
   }
 }
