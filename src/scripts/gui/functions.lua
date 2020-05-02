@@ -166,13 +166,9 @@ function gui_functions.show_request_pane(player, player_table, item_name)
     request_gui_data.label.caption = {"qis-gui.set-request"}
     request_data = {name=item_name, min=global.item_data[item_name].stack_size, max=constants.max_integer}
   end
-  request_gui_data.min_setter.textfield.caption = request_data.min
-  if request_data.max == constants.max_integer then
-    request_gui_data.max_setter.textfield.caption = "inf"
-  else
-    request_gui_data.max_setter.textfield.caption = request_data.max
-  end
   gui_data.request.data = request_data
+  gui_functions.set_value(gui_data.request, "min", request_data.min)
+  gui_functions.set_value(gui_data.request, "max", request_data.max)
 
   -- set GUI state
   gui_data.state = "set_min_request"
@@ -182,19 +178,50 @@ function gui_functions.show_request_pane(player, player_table, item_name)
   player.opened = request_gui_data.min_setter.textfield
 end
 
-function gui_functions.validate_request_amounts(request_gui_data)
-  local min_value = tonumber(request_gui_data.data.min)
-  local max_value = tonumber(request_gui_data.data.max)
-  local max_textfield = request_gui_data.max_setter.textfield
-  if min_value > max_value then
-    max_value = min_value
-    max_textfield.text = max_value
+function gui_functions.set_value(request_gui_data, type, value, source)
+  local setter = request_gui_data[type.."_setter"]
+  local request_data = request_gui_data.data
+
+  if value == "" then value = constants.max_integer end
+
+  if not source or source == "slider" then
+    if value == constants.max_integer then
+      setter.textfield.text = "inf"
+    else
+      setter.textfield.text = value
+    end
   end
-  if max_value == constants.max_integer then
-    max_textfield.text = "inf"
+
+  if not source then
+    if value ~= constants.max_integer then
+      local round = util.round
+      if value > 9 then
+        value = round(value/10) * 10
+        if value > 90 then
+          value = round(value/100) * 100
+          if value > 900 then
+            value = round(value/1000) * 1000
+          end
+        end
+      end
+    end
+    if value > 10000 then
+      setter.slider.slider_value = 38
+    else
+      setter.slider.slider_value = constants.slider_mapping.textfield_to_slider[value]
+    end
   end
-  request_gui_data.data.min = min_value
-  request_gui_data.data.max = max_value
+
+  request_data[type] = value
+
+  -- check values
+  if type == "min" and request_data.min > request_data.max then
+    request_data.max = request_data.min
+    gui_functions.set_value(request_gui_data, "max", request_data.min)
+  elseif type == "max" and request_data.min > request_data.max then
+    request_data.min = request_data.max
+    gui_functions.set_value(request_gui_data, "min", request_data.min)
+  end
 end
 
 function gui_functions.set_request()

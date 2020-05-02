@@ -23,10 +23,10 @@ local sanitizers = {
 }
 
 gui.add_templates{
-  logistic_request_setter = function(name)
+  logistic_request_setter = function(name, max_value)
     return {type="flow", style_mods={vertical_align="center", horizontal_spacing=10}, children={
-      {type="slider", name="qis_setter_"..name.."slider", style_mods={minimal_width=130, horizontally_stretchable=true}, minimum_value=1, maximum_value=40,
-        value_step=1, handlers="request.setter.slider", save_as="request."..name.."_setter.slider"},
+      {type="slider", name="qis_setter_"..name.."_slider", style_mods={minimal_width=130, horizontally_stretchable=true}, minimum_value=0,
+        maximum_value=max_value, handlers="request.setter.slider", save_as="request."..name.."_setter.slider"},
       {type="textfield", name="qis_setter_"..name.."_textfield", style_mods={width=60, horizontal_align="center"}, numeric=true, lose_focus_on_confirm=true,
         clear_and_focus_on_right_click=true, handlers="request.setter.textfield", save_as="request."..name.."_setter.textfield"}
     }}
@@ -129,10 +129,20 @@ gui.add_handlers{
       slider = {
         on_gui_value_changed = function(e)
           local _, _, type = string.find(e.element.name, "qis_setter_(.-)_slider")
-          local player = game.get_player(e.player_index)
-          local player_table = global.players[e.player_index]
-          local gui_data = player_table.gui
-          -- TODO do sliders...
+          local gui_data = global.players[e.player_index].gui
+
+          if gui_data.state ~= "set_min_request" then
+            gui_data.state = "switching_to_slider"
+            game.get_player(e.player_index).opened = gui_data.request.min_setter.textfield
+            gui_data.state = "set_min_request"
+          end
+
+          gui_functions.set_value(
+            global.players[e.player_index].gui.request,
+            type,
+            constants.slider_mapping.slider_to_textfield[e.element.slider_value],
+            "slider"
+          )
         end
       },
       textfield = {
@@ -171,17 +181,20 @@ gui.add_handlers{
           local player_table = global.players[e.player_index]
           local gui_data = player_table.gui
 
-
           if type == "min" and gui_data.state == "set_min_request" then
-            gui_functions.validate_request_amounts(gui_data.request)
+            gui_functions.set_value(gui_data.request, type, gui_data.request.data[type])
+            -- gui_functions.validate_request_amounts(gui_data.request)
             gui_data.state = "select_result"
             gui_data.search.pane.visible = true
             gui_data.request.pane.visible = false
             gui_data.search.results_scrollpane.focus()
             player.opened = gui_data.search.results_scrollpane
           elseif type == "max" and gui_data.state == "set_max_request" then
-            gui_functions.validate_request_amounts(gui_data.request)
+            gui_functions.set_value(gui_data.request, type, gui_data.request.data[type])
+            -- gui_functions.validate_request_amounts(gui_data.request)
             gui.handlers.request.setter.textfield.on_gui_click{player_index=e.player_index, element=gui_data.request.min_setter.textfield}
+          elseif type == "max" and gui_data.state == "switching_to_slider" then
+            gui_functions.set_value(gui_data.request, type, gui_data.request.data[type])
           end
         end,
         on_gui_confirmed = function(e)
@@ -190,7 +203,7 @@ gui.add_handlers{
           local player_table = global.players[e.player_index]
           local gui_data = player_table.gui
 
-          gui_functions.validate_request_amounts(gui_data.request)
+          gui_functions.set_value(gui_data.request, type, gui_data.request.data[type])
 
           if type == "min" then
             gui.handlers.request.setter.textfield.on_gui_click{player_index=e.player_index, element=gui_data.request.max_setter.textfield}
@@ -222,7 +235,6 @@ gui.add_handlers{
       end,
       on_gui_closed = function(e)
         -- only the temporary request button ever gets opened, so we don't need to check the type
-        local player = game.get_player(e.player_index)
         local player_table = global.players[e.player_index]
         local gui_data = player_table.gui
 
@@ -230,6 +242,8 @@ gui.add_handlers{
           gui_data.request["set_"..gui_data.request.selected_type.."_request_button"].style = "button"
           gui_data.request.selected_type = nil
           gui.handlers.request.setter.textfield.on_gui_click{player_index=e.player_index, element=gui_data.request.max_setter.textfield}
+        elseif gui_data.state == "switching_to_slider" then
+          gui_data.request["set_"..gui_data.request.selected_type.."_request_button"].style = "button"
         end
       end
     }
@@ -254,12 +268,12 @@ function qis_gui.create(player, player_table)
             {template="pushers.horizontal"}
           }},
           {type="flow", style_mods={top_padding=2, left_padding=10, right_padding=8, bottom_padding=8}, direction="vertical", children={
-            gui.templates.logistic_request_setter("min"),
+            gui.templates.logistic_request_setter("min", 37),
             -- {type="flow", children={
             --   {template="pushers.horizontal"},
             --   {type="label", style="bold_label", style_mods={top_margin=-3, bottom_margin=-2}, caption="to"}
             -- }},
-            gui.templates.logistic_request_setter("max"),
+            gui.templates.logistic_request_setter("max", 38),
             {template="pushers.vertical"},
             gui.templates.set_request_button("temporary"),
             gui.templates.set_request_button("persistent")
