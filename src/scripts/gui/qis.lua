@@ -170,6 +170,7 @@ gui.add_handlers{
           if type == "min" and gui_data.state ~= "set_min_request" then
             gui_data.state = "set_min_request"
             local textfield = gui_data.request.min_setter.textfield
+            textfield.select_all()
             textfield.focus()
             player.opened = textfield
             if gui_data.request.selected_type then
@@ -179,6 +180,7 @@ gui.add_handlers{
           elseif type == "max" and gui_data.state ~= "set_max_request"then
             gui_data.state = "set_max_request"
             local textfield = gui_data.request.max_setter.textfield
+            textfield.select_all()
             textfield.focus()
             if textfield.text == "" or textfield.text == "inf" then
               textfield.text = ""
