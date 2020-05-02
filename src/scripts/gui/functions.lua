@@ -1,5 +1,7 @@
 local gui_functions = {}
 
+local constants = require("scripts.constants")
+
 function gui_functions.search(player, player_table, query)
   local player_settings = player_table.settings
   local results_table = player_table.gui.search.results_table
@@ -162,10 +164,10 @@ function gui_functions.show_request_pane(player, player_table, item_name)
     request_gui_data.label.caption = {"qis-gui.edit-request"}
   else
     request_gui_data.label.caption = {"qis-gui.set-request"}
-    request_data = {name=item_name, min=1, max=4294967295}
+    request_data = {name=item_name, min=global.item_data[item_name].stack_size, max=constants.max_integer}
   end
   request_gui_data.min_setter.textfield.caption = request_data.min
-  if request_data.max == 4294967295 then
+  if request_data.max == constants.max_integer then
     request_gui_data.max_setter.textfield.caption = "inf"
   else
     request_gui_data.max_setter.textfield.caption = request_data.max
@@ -178,6 +180,21 @@ function gui_functions.show_request_pane(player, player_table, item_name)
   request_gui_data.pane.visible = true
   request_gui_data.min_setter.textfield.focus()
   player.opened = request_gui_data.min_setter.textfield
+end
+
+function gui_functions.validate_request_amounts(request_gui_data)
+  local min_value = tonumber(request_gui_data.data.min)
+  local max_value = tonumber(request_gui_data.data.max)
+  local max_textfield = request_gui_data.max_setter.textfield
+  if min_value > max_value then
+    max_value = min_value
+    max_textfield.text = max_value
+  end
+  if max_value == constants.max_integer then
+    max_textfield.text = "inf"
+  end
+  request_gui_data.data.min = min_value
+  request_gui_data.data.max = max_value
 end
 
 function gui_functions.set_request()

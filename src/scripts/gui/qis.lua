@@ -132,6 +132,7 @@ gui.add_handlers{
           local player = game.get_player(e.player_index)
           local player_table = global.players[e.player_index]
           local gui_data = player_table.gui
+          -- TODO do sliders...
         end
       },
       textfield = {
@@ -154,6 +155,9 @@ gui.add_handlers{
             gui_data.state = "set_max_request"
             local textfield = gui_data.request.max_setter.textfield
             textfield.focus()
+            if textfield.text == "" or textfield.text == "inf" then
+              textfield.text = ""
+            end
             player.opened = textfield
             if gui_data.request.selected_type then
               gui_data.request["set_"..gui_data.request.selected_type.."_request_button"].style = "button"
@@ -167,17 +171,17 @@ gui.add_handlers{
           local player_table = global.players[e.player_index]
           local gui_data = player_table.gui
 
+
           if type == "min" and gui_data.state == "set_min_request" then
+            gui_functions.validate_request_amounts(gui_data.request)
             gui_data.state = "select_result"
             gui_data.search.pane.visible = true
             gui_data.request.pane.visible = false
             gui_data.search.results_scrollpane.focus()
             player.opened = gui_data.search.results_scrollpane
           elseif type == "max" and gui_data.state == "set_max_request" then
-            gui_data.state = "set_min_request"
-            local textfield = gui_data.request.min_setter.textfield
-            textfield.focus()
-            player.opened = textfield
+            gui_functions.validate_request_amounts(gui_data.request)
+            gui.handlers.request.setter.textfield.on_gui_click{player_index=e.player_index, element=gui_data.request.min_setter.textfield}
           end
         end,
         on_gui_confirmed = function(e)
@@ -186,11 +190,10 @@ gui.add_handlers{
           local player_table = global.players[e.player_index]
           local gui_data = player_table.gui
 
+          gui_functions.validate_request_amounts(gui_data.request)
+
           if type == "min" then
-            gui_data.state = "set_max_request"
-            local textfield = gui_data.request.max_setter.textfield
-            textfield.focus()
-            player.opened = textfield
+            gui.handlers.request.setter.textfield.on_gui_click{player_index=e.player_index, element=gui_data.request.max_setter.textfield}
           elseif type == "max" then
             gui_data.state = "select_request_type"
             gui_data.request.selected_type = "temporary"
@@ -201,14 +204,12 @@ gui.add_handlers{
         end,
         on_gui_text_changed = function(e)
           local _, _, type = string.find(e.element.name, "qis_setter_(.-)_textfield")
-          local player = game.get_player(e.player_index)
-          local player_table = global.players[e.player_index]
-          local gui_data = player_table.gui
+          local request_gui_data = global.players[e.player_index].gui.request
 
           if type == "min" then
-
+            request_gui_data.data.min = tonumber(e.text) or 0
           elseif type == "max" then
-
+            request_gui_data.data.max = tonumber(e.text) or constants.max_integer
           end
         end
       }
@@ -228,10 +229,7 @@ gui.add_handlers{
         if gui_data.state == "select_request_type" then
           gui_data.request["set_"..gui_data.request.selected_type.."_request_button"].style = "button"
           gui_data.request.selected_type = nil
-          gui_data.state = "set_max_request"
-          local textfield = gui_data.request.max_setter.textfield
-          textfield.focus()
-          player.opened = textfield
+          gui.handlers.request.setter.textfield.on_gui_click{player_index=e.player_index, element=gui_data.request.max_setter.textfield}
         end
       end
     }
