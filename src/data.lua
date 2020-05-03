@@ -1,4 +1,25 @@
+local function mipped_icon(name, position, filename, size, mipmap_count, mods)
+  local def = {
+    type = "sprite",
+    name = name,
+    filename = filename,
+    position = position,
+    size = size or 32,
+    mipmap_count = mipmap_count or 2,
+    flags = {"icon"}
+  }
+  if mods then
+    for k, v in pairs(mods) do
+      def[k] = v
+    end
+  end
+  return def
+end
+
+local shortcut_file = "__QuickItemSearch__/graphics/shortcut.png"
+
 data:extend{
+  -- custom inputs
   {
     type = "custom-input",
     name = "qis-search",
@@ -40,6 +61,18 @@ data:extend{
     name = "qis-nav-shift-confirm",
     key_sequence = "SHIFT + ENTER",
     order = "bf"
+  },
+  -- shortcut
+  {
+    type = "shortcut",
+    name = "qis-search",
+    icon = mipped_icon(nil, {0,0}, shortcut_file, 32, 2),
+    disabled_icon = mipped_icon(nil, {48,0}, shortcut_file, 32, 2),
+    small_icon = mipped_icon(nil, {0,32}, shortcut_file, 24, 2),
+    disabled_small_icon = mipped_icon(nil, {36,32}, shortcut_file, 24, 2),
+    toggleable = true,
+    action = "lua",
+    associated_control_input = "qis-search"
   }
 }
 

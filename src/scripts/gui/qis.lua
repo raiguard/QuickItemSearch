@@ -313,6 +313,8 @@ function qis_gui.create(player, player_table)
   gui_data.state = "search"
 
   player_table.gui = gui_data
+
+  player.set_shortcut_toggled("qis-search", true)
 end
 
 function qis_gui.destroy(player, player_table)
@@ -320,6 +322,8 @@ function qis_gui.destroy(player, player_table)
   gui.update_filters("request", player.index, nil, "remove")
   player_table.gui.window.destroy()
   player_table.gui = nil
+
+  player.set_shortcut_toggled("qis-search", false)
 end
 
 function qis_gui.cancel_selection(gui_data)

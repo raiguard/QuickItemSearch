@@ -39,6 +39,10 @@ function player_data.refresh(player, player_table)
   -- set flag
   player_table.flags.can_open_gui = false
 
+  -- set shortcut state
+  player.set_shortcut_toggled("qis-search", false)
+  player.set_shortcut_available("qis-search", false)
+
   -- update settings
   player_data.update_settings(player, player_table)
 

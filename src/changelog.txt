@@ -2,6 +2,7 @@
 Version: 1.5.0
 Date: ????
   Features:
+    - Added a search button to the shortcut bar that will toggle the GUI
     - Added the ability to permanently edit a logistic request, instead of just making a temporary request
     - Redesigned custom request screen - now you can set minimum and maximum limits for the request
   Changes:
