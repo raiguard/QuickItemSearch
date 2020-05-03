@@ -10,6 +10,7 @@ Date: ????
     - Switched from RaiLuaLib to FLib
     - General GUI style improvements
     - Searching unavailable items is now enabled by default
+    - Items that contain entity data, inventories, or tags will be excluded from the results, as retrieving them would destroy their data
     - Removed setting that required logistic results to be unique
     - Removed "request-a-stack" functionality - the new request screen defaults to a stack instead
     - Removed Death Markers incompatibility

@@ -1,6 +1,17 @@
 local max_integer = 4294967295
 
 return {
+  ignored_item_types = {
+    ["blueprint-book"] = true,
+    ["blueprint"] = true,
+    ["copy-paste-tool"] = true,
+    ["deconstruction-item"] = true,
+    ["item-with-entity-data"] = true,
+    ["item-with-inventory"] = true,
+    ["item-with-tags"] = true,
+    ["selection-tool"] = true,
+    ["upgrade-item"] = true
+  },
   max_integer = max_integer,
   nav_arrow_events = {
     "qis-nav-down",

@@ -35,7 +35,7 @@ function gui_functions.search(player, player_table, query)
 
   -- match the query to the given name
   local function match_query(name, translation, ignore_unique)
-    return (ignore_unique or not results[name]) and (show_hidden or not item_data[name].hidden)
+    return item_data[name] and (ignore_unique or not results[name]) and (show_hidden or not item_data[name].hidden)
       and string.find(string.lower(translation or translations[name]), query)
   end
 
