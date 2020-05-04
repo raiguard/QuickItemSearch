@@ -2,6 +2,7 @@ local player_data = {}
 
 local translation = require("__flib__.control.translation")
 
+local constants = require("scripts.constants")
 local on_tick_manager = require("scripts.on-tick-manager")
 
 local string = string
@@ -25,13 +26,28 @@ function player_data.init(player_index, skip_refresh)
 end
 
 function player_data.update_settings(player, player_table)
+  local player_mod_settings = player.mod_settings
   local settings = {}
-  for name, t in pairs(player.mod_settings) do
-    if string.sub(name, 1,4) == "qis-" then
-      name = string.gsub(name, "qis%-", "")
-      settings[string.gsub(name, "%-", "_")] = t.value
+  settings.search_inventory = player_mod_settings["qis-search-inventory"].value
+  settings.search_logistics = player_mod_settings["qis-search-logistics"].value
+  settings.search_unavailable = player_mod_settings["qis-search-unavailable"].value
+  settings.search_hidden = player_mod_settings["qis-search-hidden"].value
+  settings.fuzzy_search = player_mod_settings["qis-fuzzy-search"].value
+
+  local excludes = game.json_to_table(player_mod_settings["qis-quick-trash-all-excludes"].value)
+  -- turn excludes list inside-out
+  if excludes then
+    for i=1,#excludes do
+      local name = excludes[i]
+      excludes[name] = true
+      excludes[i] = nil
     end
+  else
+    player.print{"qis-message.invalid-quick-trash-all-excludes-format"}
+    excludes = {}
   end
+  settings.quick_trash_all_excludes = excludes
+
   player_table.settings = settings
 end
 
@@ -147,6 +163,28 @@ function player_data.check_temporary_requests(player, player_table)
 
   if num_requests == 0 then
     player_table.flags.has_temporary_requests = false
+  end
+end
+
+function player_data.quick_trash(player, player_table, item_name)
+  local request = player_data.find_request(player, item_name)
+  if request then
+    request.max = request.min
+  else
+    request = {name=item_name, min=0, max=0}
+  end
+  player_data.set_request(player, player_table, request, true)
+end
+
+-- TODO spread out over multiple ticks
+function player_data.quick_trash_all(player, player_table)
+  local contents = player.get_main_inventory().get_contents()
+  local excludes = player_table.settings.quick_trash_all_excludes
+  local item_data = global.item_data
+  for name in pairs(contents) do
+    if item_data[name] and not excludes[name] then
+      player_data.quick_trash(player, player_table, name)
+    end
   end
 end
 

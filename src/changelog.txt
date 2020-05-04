@@ -3,9 +3,10 @@ Version: 1.5.0
 Date: ????
   Features:
     - Added a search button to the shortcut bar that will toggle the GUI
-    - Added a shift-action to inventory slots - quick-trash the item if it is greater than its minimum request amount
+    - Added a shift-action to inventory slots that will quick-trash the item if it is greater than its minimum request amount
     - Added the ability to permanently edit a logistic request, instead of just making a temporary request
-    - Redesigned custom request screen - now you can set minimum and maximum limits for the request
+    - Added the ability to edit the minimum and maximum amounts for a request
+    - Added quick-trash-all hotkey that will reduce all items in your inventory to their minimum request amounts
   Changes:
     - Refactored the mod to improve performance and code structure
     - Switched from RaiLuaLib to FLib

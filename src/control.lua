@@ -136,6 +136,12 @@ event.on_player_removed(function(e)
   global.players[e.player_index] = nil
 end)
 
+event.register("qis-quick-trash-all", function(e)
+  local player = game.get_player(e.player_index)
+  local player_table = global.players[e.player_index]
+  player_data.quick_trash_all(player, player_table)
+end)
+
 -- SETTINGS
 
 event.on_runtime_mod_setting_changed(function(e)

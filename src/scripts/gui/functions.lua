@@ -119,13 +119,7 @@ function gui_functions.take_action(player, player_table, action_type, item_name,
         end
       else
         if shift then
-          local request = player_data.find_request(player, item_name)
-          if request then
-            request.max = request.min
-          else
-            request = {name=item_name, min=0, max=0}
-          end
-          player_data.set_request(player, player_table, request, true)
+          player_data.quick_trash(player, player_table, item_name)
         else
           player.cursor_stack.set_stack{name=item_name, count=player.get_main_inventory().remove{name=item_name, count=stack_size}}
         end

@@ -62,6 +62,12 @@ data:extend{
     key_sequence = "SHIFT + ENTER",
     order = "bf"
   },
+  {
+    type = "custom-input",
+    name = "qis-quick-trash-all",
+    key_sequence = "CONTROL + SHIFT + T",
+    order = "c"
+  },
   -- shortcut
   {
     type = "shortcut",
