@@ -6,7 +6,7 @@ return {
     ["blueprint"] = true,
     ["copy-paste-tool"] = true,
     ["deconstruction-item"] = true,
-    ["item-with-entity-data"] = true,
+    -- ["item-with-entity-data"] = true,
     ["item-with-inventory"] = true,
     ["item-with-tags"] = true,
     ["selection-tool"] = true,

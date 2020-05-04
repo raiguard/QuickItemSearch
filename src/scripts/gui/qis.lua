@@ -326,6 +326,17 @@ function qis_gui.destroy(player, player_table)
   player.set_shortcut_toggled("qis-search", false)
 end
 
+function qis_gui.toggle(player, player_table)
+  if player_table.gui then
+    qis_gui.destroy(player, player_table)
+  elseif player_table.flags.can_open_gui then
+    qis_gui.create(player, player_table)
+  else
+    player.print{"qis-message.cannot-open-gui"}
+    player_table.flags.show_message_after_translation = true
+  end
+end
+
 function qis_gui.cancel_selection(gui_data)
   local selected_index = gui_data.search.selected_index
   local selected_element = gui_data.search.results_table.children[selected_index]

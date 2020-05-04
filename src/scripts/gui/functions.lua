@@ -107,15 +107,30 @@ function gui_functions.take_action(player, player_table, action_type, item_name,
   if action_type == "inventory" then
     local is_editor = player.controller_type == defines.controllers.editor
     if player.clean_cursor() then
-      if item_count == 0 and is_editor then
-        player.cursor_stack.set_stack{name=item_name, count=stack_size}
+      if is_editor then
+        if item_count == 0 then
+          player.cursor_stack.set_stack{name=item_name, count=stack_size}
+        else
+          player.cursor_stack.set_stack{name=item_name, count=player.get_main_inventory().remove{name=item_name, count=stack_size}}
+        end
+        if shift then
+          local index = #player.infinity_inventory_filters + 1
+          player.set_infinity_inventory_filter(index, {name=item_name, count=stack_size, mode="exactly", index=index})
+        end
       else
-        player.cursor_stack.set_stack{name=item_name, count=player.get_main_inventory().remove{name=item_name, count=stack_size}}
+        if shift then
+          local request = player_data.find_request(player, item_name)
+          if request then
+            request.max = request.min
+          else
+            request = {name=item_name, min=0, max=0}
+          end
+          player_data.set_request(player, player_table, request, true)
+        else
+          player.cursor_stack.set_stack{name=item_name, count=player.get_main_inventory().remove{name=item_name, count=stack_size}}
+        end
       end
-      if is_editor and shift then
-        local index = #player.infinity_inventory_filters + 1
-        player.set_infinity_inventory_filter(index, {name=item_name, count=stack_size, mode="exactly", index=index})
-      end
+
       close_gui = true
     end
   elseif action_type == "logistic" then

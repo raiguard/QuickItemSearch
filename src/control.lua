@@ -94,18 +94,19 @@ event.register(constants.nav_confirm_events, function(e)
   end
 end)
 
-event.register({"qis-search", defines.events.on_lua_shortcut}, function(e)
-  if e.input_name or (e.prototype_name == "qis-search") then
+event.register("qis-search", function(e)
+  local player = game.get_player(e.player_index)
+  local player_table = global.players[e.player_index]
+  if not player.opened then
+    qis_gui.toggle(player, player_table)
+  end
+end)
+
+event.on_lua_shortcut(function(e)
+  if e.prototype_name == "qis-search" then
     local player = game.get_player(e.player_index)
     local player_table = global.players[e.player_index]
-    if player_table.gui then
-      qis_gui.destroy(player, player_table)
-    elseif player_table.flags.can_open_gui then
-      qis_gui.create(player, player_table)
-    else
-      player.print{"qis-message.cannot-open-gui"}
-      player_table.flags.show_message_after_translation = true
-    end
+    qis_gui.toggle(player, player_table)
   end
 end)
 
