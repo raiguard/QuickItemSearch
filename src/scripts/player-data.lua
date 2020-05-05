@@ -17,7 +17,7 @@ function player_data.init(player_index, skip_refresh)
     },
     gui = nil,
     temporary_requests = {},
-    translations = nil,
+    translations = {},
     settings = nil
   }
   if not skip_refresh then
@@ -63,7 +63,7 @@ function player_data.refresh(player, player_table)
   player_data.update_settings(player, player_table)
 
   -- run translations
-  player_table.translations = nil
+  player_table.translations = {}
   if player.connected then
     player_data.start_translations(player.index)
   else
@@ -72,7 +72,7 @@ function player_data.refresh(player, player_table)
 end
 
 function player_data.start_translations(player_index)
-  translation.start(player_index, "items", global.translation_data, {include_failed_translations=true})
+  translation.add_requests(player_index, global.translation_data)
   on_tick_manager.update()
 end
 

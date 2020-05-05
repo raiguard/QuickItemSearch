@@ -20,7 +20,7 @@ function global_data.build_prototypes()
         place_result = prototype.place_result,
         stack_size = prototype.stack_size
       }
-      translation_data[#translation_data+1] = {localised=prototype.localised_name, internal=prototype.name}
+      translation_data[#translation_data+1] = {dictionary="items", localised=prototype.localised_name, internal=prototype.name}
     end
   end
   global.item_data = item_data

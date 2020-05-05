@@ -151,27 +151,32 @@ event.on_runtime_mod_setting_changed(function(e)
 end)
 
 -- TRANSLATIONS
--- TODO somehow this isn't save/load safe
 
 event.on_string_translated(function(e)
-  translation.sort_string(e)
-end)
-
-translation.on_finished(function(e)
-  -- add translations to player table
-  local player = game.get_player(e.player_index)
-  local player_table = global.players[e.player_index]
-  player_table.translations = e.translations
-  -- show message if needed
-  if player_table.flags.show_message_after_translation then
-    player.print{'qis-message.can-open-gui'}
+  local names, finished = translation.process_result(e)
+  if e.translated and names then
+    local player_table = global.players[e.player_index]
+    local translations = player_table.translations
+    local internal_names = names.items
+    for i=1,#internal_names do
+      translations[internal_names[i]] = e.result
+    end
   end
-  -- update flags
-  player_table.flags.can_open_gui = true
-  player_table.flags.translate_on_join = false
-  player_table.flags.show_message_after_translation = false
-  -- enable shortcut
-  player.set_shortcut_available("qis-search", true)
-  -- update on_tick
-  on_tick_manager.update()
+  if finished then
+    -- add translations to player table
+    local player = game.get_player(e.player_index)
+    local player_table = global.players[e.player_index]
+    -- show message if needed
+    if player_table.flags.show_message_after_translation then
+      player.print{'qis-message.can-open-gui'}
+    end
+    -- update flags
+    player_table.flags.can_open_gui = true
+    player_table.flags.translate_on_join = false
+    player_table.flags.show_message_after_translation = false
+    -- enable shortcut
+    player.set_shortcut_available("qis-search", true)
+    -- update on_tick
+    on_tick_manager.update()
+  end
 end)
