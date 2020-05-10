@@ -1,6 +1,6 @@
-local gui = require("__flib__.control.gui")
+local gui = require("__flib__.gui")
 local mod_gui = require("__core__.lualib.mod-gui")
-local translation = require("__flib__.control.translation")
+local translation = require("__flib__.translation")
 
 local player_data = require("scripts.player-data")
 
