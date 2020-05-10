@@ -15,15 +15,17 @@ local string = string
 -- -----------------------------------------------------------------------------
 -- COMMANDS
 
-commands.add_command("QuickItemSearch", " [parameter]\nrefresh-player-data - retranslate dictionaries and update settings",
+commands.add_command("QuickItemSearch", {"qis-message.command-help"},
   function(e)
+    local player = game.get_player(e.player_index)
     if e.parameter == "refresh-player-data" then
-      local player = game.get_player(e.player_index)
       local player_table = global.players[e.player_index]
       if player_table.gui then
         qis_gui.destroy(player, player_table)
       end
       player_data.refresh(player, player_table)
+    else
+      player.print{"qis-message.invalid-parameter"}
     end
   end
 )
@@ -163,7 +165,6 @@ event.on_string_translated(function(e)
     end
   end
   if finished then
-    -- add translations to player table
     local player = game.get_player(e.player_index)
     local player_table = global.players[e.player_index]
     -- show message if needed

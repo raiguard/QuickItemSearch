@@ -12,6 +12,19 @@ return {
     ["selection-tool"] = true,
     ["upgrade-item"] = true
   },
+  input_sanitizers = {
+    ["%("] = "%%(",
+    ["%)"] = "%%)",
+    ["%.^[%*]"] = "%%.",
+    ["%+"] = "%%+",
+    ["%-"] = "%%-",
+    ["^[%.]%*"] = "%%*",
+    ["%?"] = "%%?",
+    ["%["] = "%%[",
+    ["%]"] = "%%]",
+    ["%^"] = "%%^",
+    ["%$"] = "%%$"
+  },
   max_integer = max_integer,
   nav_arrow_events = {
     "qis-nav-down",

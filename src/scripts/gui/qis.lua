@@ -9,20 +9,6 @@ local util = require("scripts.util")
 
 local string = string
 
-local sanitizers = {
-  ["%("] = "%%(",
-  ["%)"] = "%%)",
-  ["%.^[%*]"] = "%%.",
-  ["%+"] = "%%+",
-  ["%-"] = "%%-",
-  ["^[%.]%*"] = "%%*",
-  ["%?"] = "%%?",
-  ["%["] = "%%[",
-  ["%]"] = "%%]",
-  ["%^"] = "%%^",
-  ["%$"] = "%%$"
-}
-
 gui.add_templates{
   logistic_request_setter = function(name, max_value)
     return {type="flow", style_mods={vertical_align="center", horizontal_spacing=10}, children={
@@ -125,7 +111,7 @@ gui.add_handlers{
           query = string.gsub(query, ".", "%1.*")
         end
         -- input sanitization
-        for pattern, replacement in pairs(sanitizers) do
+        for pattern, replacement in pairs(constants.input_sanitizers) do
           query = string.gsub(query, pattern, replacement)
         end
 
