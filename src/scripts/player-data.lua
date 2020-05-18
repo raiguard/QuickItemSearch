@@ -146,11 +146,16 @@ function player_data.check_temporary_requests(player, player_table)
     local remove_request = false
     local current_request = get_request(temporary_request.index)
     if tostring(current_request.name) == temporary_request.name then
-      -- check request fulfillment
-      if item_count >= temporary_request.min and item_count <= temporary_request.max then
-        local previous_request = requests.previous_request
-        set_request(temporary_request.index, previous_request)
+      -- check if the conditions have changed
+      if current_request.min ~= temporary_request.min or current_request.max ~= temporary_request.max then
         remove_request = true
+      else
+        -- check request fulfillment
+        if item_count >= temporary_request.min and item_count <= temporary_request.max then
+          local previous_request = requests.previous_request
+          set_request(temporary_request.index, previous_request)
+          remove_request = true
+        end
       end
     else
       remove_request = true
