@@ -265,7 +265,7 @@ function qis_gui.create(player, player_table)
     {type="frame", style="dialog_frame", direction="vertical", save_as="window", children={
       {type="textfield", style="qis_search_textfield", clear_and_focus_on_right_click=true, handlers="search.textfield", save_as="search.textfield"},
       {type="flow", children={
-        {type="frame", style="qis_content_frame", style_mods={padding=12}, elem_mods={visible=true}, save_as="search.pane", children={
+        {type="frame", style="qis_content_frame", style_mods={padding=12, right_padding=0}, elem_mods={visible=true}, save_as="search.pane", children={
           {type="frame", style="qis_results_frame", children={
             {type="scroll-pane", style="qis_results_scroll_pane", handlers="search.results_scrollpane", save_as="search.results_scrollpane", children={
               {type="table", style="qis_results_table", column_count=5, save_as="search.results_table"}
