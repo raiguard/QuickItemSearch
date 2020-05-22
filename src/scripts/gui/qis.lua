@@ -11,21 +11,20 @@ local string = string
 
 gui.add_templates{
   logistic_request_setter = function(name, max_value)
-    return {type="flow", style_mods={vertical_align="center", horizontal_spacing=10}, children={
-      {type="slider", name="qis_setter_"..name.."_slider", style_mods={minimal_width=130, horizontally_stretchable=true}, minimum_value=0,
+    return {type="flow", style="qis_request_setter_flow", children={
+      {type="slider", name="qis_setter_"..name.."_slider", style="qis_request_setter_slider", minimum_value=0,
         maximum_value=max_value, handlers="request.setter.slider", save_as="request."..name.."_setter.slider"},
-      {type="textfield", name="qis_setter_"..name.."_textfield", style_mods={width=60, horizontal_align="center"}, numeric=true, lose_focus_on_confirm=true,
+      {type="textfield", name="qis_setter_"..name.."_textfield", style="qis_request_setter_textfield", numeric=true, lose_focus_on_confirm=true,
         clear_and_focus_on_right_click=true, handlers="request.setter.textfield", save_as="request."..name.."_setter.textfield"}
     }}
   end,
   pushers = {
-    horizontal = {type="empty-widget", style_mods={horizontally_stretchable=true}},
-    vertical = {type="empty-widget", style_mods={vertically_stretchable=true}}
+    horizontal = {type="empty-widget", style="qis_horizontal_pusher"},
+    vertical = {type="empty-widget", style="qis_vertical_pusher"}
   },
   set_request_button = function(name)
-    return {type="button", name="qis_set_"..name.."_request", style_mods={horizontally_stretchable=true, right_margin=2},
-      caption={"qis-gui.set-"..name.."-request"}, tooltip={"qis-gui.set-"..name.."-request-description"}, handlers="request.set_request_button",
-      save_as="request.set_"..name.."_request_button"}
+    return {type="button", name="qis_set_"..name.."_request", style="qis_set_request_button", caption={"qis-gui.set-"..name.."-request"},
+      tooltip={"qis-gui.set-"..name.."-request-description"}, handlers="request.set_request_button", save_as="request.set_"..name.."_request_button"}
   end
 }
 
@@ -265,19 +264,19 @@ function qis_gui.create(player, player_table)
     {type="frame", style="dialog_frame", direction="vertical", save_as="window", children={
       {type="textfield", style="qis_search_textfield", clear_and_focus_on_right_click=true, handlers="search.textfield", save_as="search.textfield"},
       {type="flow", children={
-        {type="frame", style="qis_content_frame", style_mods={padding=12, right_padding=0}, elem_mods={visible=true}, save_as="search.pane", children={
+        {type="frame", style="qis_search_content_frame", elem_mods={visible=true}, save_as="search.pane", children={
           {type="frame", style="qis_results_frame", children={
             {type="scroll-pane", style="qis_results_scroll_pane", handlers="search.results_scrollpane", save_as="search.results_scrollpane", children={
               {type="table", style="qis_results_table", column_count=5, save_as="search.results_table"}
             }}
           }}
         }},
-        {type="frame", style="qis_content_frame", style_mods={padding=0}, direction="vertical", elem_mods={visible=false}, save_as="request.pane", children={
-          {type="frame", style="subheader_frame", style_mods={height=30}, children={
-            {type="label", style="caption_label", style_mods={left_margin=4}, save_as="request.label"},
+        {type="frame", style="qis_content_frame", direction="vertical", elem_mods={visible=false}, save_as="request.pane", children={
+          {type="frame", style="subheader_frame", children={
+            {type="label", style="qis_request_label", save_as="request.label"},
             {template="pushers.horizontal"}
           }},
-          {type="flow", style_mods={top_padding=2, left_padding=10, right_padding=8, bottom_padding=8}, direction="vertical", children={
+          {type="flow", style="qis_request_content_flow", direction="vertical", children={
             gui.templates.logistic_request_setter("min", 37),
             gui.templates.logistic_request_setter("max", 38),
             {template="pushers.vertical"},

@@ -47,14 +47,56 @@ styles.qis_active_button = {
   }
 }
 
+styles.qis_set_request_button = {
+  type = "button_style",
+  horizontally_stretchable = "on",
+  right_margin = 2
+}
+
+-- EMPTY WIDGET STYLES
+
+styles.qis_horizontal_pusher = {
+  type = "empty_widget_style",
+  horizontally_stretchable = "on"
+}
+
+styles.qis_vertical_pusher = {
+  type = "empty_widget_style",
+  vertically_stretchable = "on"
+}
+
+-- FLOW STYLES
+
+styles.qis_request_content_flow = {
+  type = "vertical_flow_style",
+  bottom_padding = 8,
+  left_padding = 10,
+  right_padding = 8,
+  top_padding = 2
+}
+
+styles.qis_request_setter_flow = {
+  type = "horizontal_flow_style",
+  vertical_align = "center",
+  horizontal_spacing = 10
+}
+
 -- FRAME STYLES
 
 styles.qis_content_frame = {
   type = "frame_style",
   parent = "window_content_frame",
+  padding = 0,
   width = 224,
   height = 184,
   top_margin = 6
+}
+
+styles.qis_search_content_frame = {
+  type = "frame_style",
+  parent = "qis_content_frame",
+  padding = 12,
+  right_padding = 0
 }
 
 styles.qis_results_frame = {
@@ -70,6 +112,20 @@ styles.qis_results_frame = {
     },
     shadow = default_inner_shadow
   }
+}
+
+styles.qis_short_toolbar_frame = {
+  type = "frame_style",
+  parent = "subheader_frame",
+  height = 30
+}
+
+-- LABEL STYLES
+
+styles.qis_request_label = {
+  type = "label_style",
+  parent = "caption_label",
+  left_margin = 4
 }
 
 -- SCROLLPANE STYLES
@@ -95,6 +151,14 @@ styles.qis_results_scroll_pane = {
   }
 }
 
+-- SLIDER STYLES
+
+styles.qis_request_setter_slider = {
+  type = "slider_style",
+  minimal_width = 0,
+  horizontally_stretchable = "on"
+}
+
 -- TABLE STYLES
 
 styles.qis_results_table = {
@@ -108,4 +172,10 @@ styles.qis_results_table = {
 styles.qis_search_textfield = {
   type = "textbox_style",
   width = 224
+}
+
+styles.qis_request_setter_textfield = {
+  type = "textbox_style",
+  width = 60,
+  horizontal_align = "center"
 }
