@@ -120,12 +120,12 @@ function gui_functions.take_action(player, player_table, action_type, item_name,
       else
         if shift then
           player_data.quick_trash(player, player_table, item_name)
+          player.print{"qis-message.quick-trashed", player_table.translations[item_name]}
         else
           player.cursor_stack.set_stack{name=item_name, count=player.get_main_inventory().remove{name=item_name, count=stack_size}}
+          close_gui = true
         end
       end
-
-      close_gui = true
     end
   elseif action_type == "logistic" then
     if shift then
