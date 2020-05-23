@@ -7,7 +7,7 @@ local tileset = "__QuickItemSearch__/graphics/button-tileset.png"
 local function slot_button(y, glow_color, default_x)
   return {
     type = "button_style",
-    parent = "quick_bar_slot_button",
+    parent = "slot_button",
     default_graphical_set = {
       base = {border=4, position={(default_x or 0),y}, size=80, filename=tileset},
       shadow = offset_by_2_rounded_corners_glow(default_dirt_color),
@@ -72,7 +72,7 @@ styles.qis_request_content_flow = {
   bottom_padding = 8,
   left_padding = 10,
   right_padding = 8,
-  top_padding = 2
+  top_padding = 6
 }
 
 styles.qis_request_setter_flow = {
@@ -85,8 +85,7 @@ styles.qis_request_setter_flow = {
 
 styles.qis_content_frame = {
   type = "frame_style",
-  parent = "window_content_frame",
-  padding = 0,
+  parent = "inside_shallow_frame",
   width = 224,
   height = 184,
   top_margin = 6
@@ -97,21 +96,6 @@ styles.qis_search_content_frame = {
   parent = "qis_content_frame",
   padding = 12,
   right_padding = 0
-}
-
-styles.qis_results_frame = {
-  type = "frame_style",
-  parent = "inside_deep_frame",
-  padding = 0,
-  graphical_set = {
-    base = {
-      position = {85,0},
-      corner_size = 8,
-      draw_type = "outer",
-      center = {position={42,8}, size=1}
-    },
-    shadow = default_inner_shadow
-  }
 }
 
 styles.qis_short_toolbar_frame = {
@@ -163,7 +147,7 @@ styles.qis_request_setter_slider = {
 
 styles.qis_results_table = {
   type = "table_style",
-  parent = "filter_slot_table",
+  parent = "slot_table",
   width = 200
 }
 

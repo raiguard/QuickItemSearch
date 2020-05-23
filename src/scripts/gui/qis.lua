@@ -265,14 +265,14 @@ function qis_gui.create(player, player_table)
       {type="textfield", style="qis_search_textfield", clear_and_focus_on_right_click=true, handlers="search.textfield", save_as="search.textfield"},
       {type="flow", children={
         {type="frame", style="qis_search_content_frame", elem_mods={visible=true}, save_as="search.pane", children={
-          {type="frame", style="qis_results_frame", children={
+          {type="frame", style="deep_frame_in_shallow_frame", children={
             {type="scroll-pane", style="qis_results_scroll_pane", handlers="search.results_scrollpane", save_as="search.results_scrollpane", children={
               {type="table", style="qis_results_table", column_count=5, save_as="search.results_table"}
             }}
           }}
         }},
         {type="frame", style="qis_content_frame", direction="vertical", elem_mods={visible=false}, save_as="request.pane", children={
-          {type="frame", style="subheader_frame", children={
+          {type="frame", style="qis_short_toolbar_frame", children={
             {type="label", style="qis_request_label", save_as="request.label"},
             {template="pushers.horizontal"}
           }},
