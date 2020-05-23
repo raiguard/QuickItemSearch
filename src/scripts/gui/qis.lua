@@ -261,7 +261,7 @@ gui.add_handlers{
 
 function qis_gui.create(player, player_table)
   local gui_data = gui.build(player.gui.screen, {
-    {type="frame", style="dialog_frame", direction="vertical", save_as="window", children={
+    {type="frame", style="inner_frame_in_outer_frame", direction="vertical", save_as="window", children={
       {type="textfield", style="qis_search_textfield", clear_and_focus_on_right_click=true, handlers="search.textfield", save_as="search.textfield"},
       {type="flow", children={
         {type="frame", style="qis_search_content_frame", elem_mods={visible=true}, save_as="search.pane", children={
