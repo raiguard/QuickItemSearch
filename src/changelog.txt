@@ -1,6 +1,6 @@
 ---------------------------------------------------------------------------------------------------
 Version: 1.5.0
-Date: ????
+Date: 2020-05-26
   Features:
     - Added a search button to the shortcut bar that will toggle the GUI
     - Added a shift-action to inventory slots that will quick-trash the item if it is greater than its minimum request amount
