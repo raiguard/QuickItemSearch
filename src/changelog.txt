@@ -1,6 +1,6 @@
 ---------------------------------------------------------------------------------------------------
 Version: 1.5.2
-Date: ????
+Date: 2020-05-27
   Bugfixes:
     - Fixed that quick-trash logic would not count ammo and guns, and would not check every request every time
 ---------------------------------------------------------------------------------------------------
