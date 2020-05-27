@@ -131,15 +131,27 @@ function player_data.set_request(player, player_table, request_data, temporary_r
 end
 
 function player_data.check_temporary_requests(player, player_table)
+  -- get inventory contents
   local inventory_contents = player.get_main_inventory().get_contents()
+  for _, inventory_type in ipairs{"character_guns", "character_ammo"} do
+    for name, count in pairs(player.get_inventory(defines.inventory[inventory_type]).get_contents()) do
+      inventory_contents[name] = count + (inventory_contents[name] or 0)
+    end
+  end
+  local cursor_stack = player.cursor_stack
+  if cursor_stack and cursor_stack.valid_for_read then
+    inventory_contents[cursor_stack.name] = cursor_stack.count + (inventory_contents[cursor_stack.name] or 0)
+  end
+
+  -- check temporary requests
   local temporary_requests = player_table.temporary_requests
   local character = player.character
   local set_request = character.set_personal_logistic_slot
   local get_request = character.get_personal_logistic_slot
-  local num_requests = 0
-  for i, requests in ipairs(temporary_requests) do
-    num_requests = num_requests + 1
-    local temporary_request = requests.temporary_request
+  local i = 1
+  local next_request = temporary_requests[i]
+  while next_request do
+    local temporary_request = next_request.temporary_request
     local item_count = inventory_contents[temporary_request.name] or 0
 
     -- check if request still exists
@@ -152,7 +164,7 @@ function player_data.check_temporary_requests(player, player_table)
       else
         -- check request fulfillment
         if item_count >= temporary_request.min and item_count <= temporary_request.max then
-          local previous_request = requests.previous_request
+          local previous_request = next_request.previous_request
           set_request(temporary_request.index, previous_request)
           remove_request = true
         end
@@ -162,11 +174,13 @@ function player_data.check_temporary_requests(player, player_table)
     end
     if remove_request then
       table.remove(temporary_requests, i)
-      num_requests = num_requests - 1
+    else
+      i = i + 1
     end
+    next_request = temporary_requests[i]
   end
 
-  if num_requests == 0 then
+  if i == 1 then
     player_table.flags.has_temporary_requests = false
   end
 end
