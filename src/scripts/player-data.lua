@@ -2,10 +2,7 @@ local player_data = {}
 
 local translation = require("__flib__.translation")
 
-local constants = require("scripts.constants")
-local on_tick_manager = require("scripts.on-tick-manager")
-
-local string = string
+local on_tick = require("scripts.on-tick")
 
 function player_data.init(player_index, skip_refresh)
   global.players[player_index] = {
@@ -73,7 +70,7 @@ end
 
 function player_data.start_translations(player_index)
   translation.add_requests(player_index, global.translation_data)
-  on_tick_manager.update()
+  on_tick.update()
 end
 
 function player_data.find_request(player, item_name)

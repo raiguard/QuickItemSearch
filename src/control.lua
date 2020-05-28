@@ -6,7 +6,7 @@ local translation = require("__flib__.translation")
 local constants = require("scripts.constants")
 local global_data = require("scripts.global-data")
 local migrations = require("scripts.migrations")
-local on_tick_manager = require("scripts.on-tick-manager")
+local on_tick = require("scripts.on-tick")
 local player_data = require("scripts.player-data")
 local qis_gui = require("scripts.gui.qis")
 
@@ -32,7 +32,7 @@ commands.add_command("QuickItemSearch", {"qis-message.command-help"},
 
 -- -----------------------------------------------------------------------------
 -- EVENT HANDLERS
--- on_tick handler is kept in scripts.on-tick-manager
+-- on_tick handler is kept in scripts.on-tick
 
 -- BOOTSTRAP
 
@@ -49,7 +49,7 @@ event.on_init(function()
 end)
 
 event.on_load(function()
-  on_tick_manager.update()
+  on_tick.update()
   gui.build_lookup_tables()
 end)
 
@@ -178,6 +178,6 @@ event.on_string_translated(function(e)
     -- enable shortcut
     player.set_shortcut_available("qis-search", true)
     -- update on_tick
-    on_tick_manager.update()
+    on_tick.update()
   end
 end)

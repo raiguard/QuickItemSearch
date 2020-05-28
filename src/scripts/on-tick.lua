@@ -1,4 +1,4 @@
-local on_tick_manager = {}
+local on_tick = {}
 
 local event = require("__flib__.event")
 local translation = require("__flib__.translation")
@@ -9,7 +9,7 @@ local function handler(e)
   end
 end
 
-function on_tick_manager.update()
+function on_tick.update()
   if global.__flib and global.__flib.translation.translating_players_count > 0 then
     event.on_tick(handler)
   else
@@ -17,4 +17,4 @@ function on_tick_manager.update()
   end
 end
 
-return on_tick_manager
+return on_tick
