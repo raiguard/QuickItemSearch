@@ -143,11 +143,11 @@ function gui_functions.take_action(player, player_table, action_type, item_name,
           close_gui = true
         end
       else
-        player.print{'qis-message.not-in-cheat-mode'}
+        set_ghost_cursor()
       end
-    else
-      set_ghost_cursor()
       close_gui = true
+    else
+      gui_functions.show_request_pane(player, player_table, item_name)
     end
   end
 

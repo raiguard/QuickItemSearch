@@ -2,6 +2,7 @@
 Version: 1.5.3
 Date: ????
   Changes:
+    - Unavaiable item actions are now identical to logistic item actions
 ---------------------------------------------------------------------------------------------------
 Version: 1.5.2
 Date: 2020-05-27
