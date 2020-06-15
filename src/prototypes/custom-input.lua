@@ -43,6 +43,12 @@ data:extend{
   },
   {
     type = "custom-input",
+    name = "qis-nav-control-confirm",
+    key_sequence = "CONTROL + ENTER",
+    order = "bg"
+  },
+  {
+    type = "custom-input",
     name = "qis-quick-trash-all",
     key_sequence = "CONTROL + SHIFT + T",
     order = "c"

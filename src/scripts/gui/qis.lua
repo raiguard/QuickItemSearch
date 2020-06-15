@@ -44,7 +44,7 @@ gui.add_handlers{
           gui_data.search.used_keyboard_confirm = true
         end
 
-        if gui_functions.take_action(player, player_table, action_type, item_name, element.number or 0, e.shift) then
+        if gui_functions.take_action(player, player_table, action_type, item_name, element.number or 0, e.shift, e.control) then
           qis_gui.destroy(player, player_table)
         elseif not e.keyboard_confirm and gui_data.state == "set_min_request" then
           gui_data.search.textfield.text = player_table.translations[util.sprite_to_item_name(element.sprite)]
@@ -358,6 +358,7 @@ function qis_gui.confirm_result(player_index, gui_data, input_name)
     player_index = player_index,
     element = gui_data.search.results_table.children[gui_data.search.selected_index],
     shift = input_name == "qis-nav-shift-confirm",
+    control = input_name == "qis-nav-control-confirm",
     keyboard_confirm = true
   }
 end

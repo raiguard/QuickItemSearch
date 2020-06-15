@@ -90,63 +90,66 @@ function gui_functions.search(player, player_table, query)
   end
 end
 
-function gui_functions.take_action(player, player_table, action_type, item_name, item_count, shift)
+function gui_functions.take_action(player, player_table, action_type, item_name, item_count, shift, control)
   local item_data = global.item_data[item_name]
   local stack_size = item_data.stack_size
-  local function set_ghost_cursor()
-    if item_data.place_result then
-      if player.clean_cursor() then
+
+  local function set_cursor()
+    if player.clean_cursor() then
+      local have_count = player.get_main_inventory().remove{name=item_name, count=stack_size}
+      if have_count > 0 then
+        player.cursor_stack.set_stack{name=item_name, count=have_count}
+      elseif player.cheat_mode then
+        player.cursor_stack.set_stack{name=item_name, count=stack_size}
+      elseif item_data.place_result then
         player.cursor_ghost = item_name
       end
     end
   end
 
+  -- local function set_cursor_ghost()
+  --   if player.clean_cursor() then
+  --     player.cursor_ghost = item_name
+  --   end
+  -- end
+
   local close_gui = false
 
   if action_type == "inventory" then
     local is_editor = player.controller_type == defines.controllers.editor
-    if player.clean_cursor() then
-      if is_editor then
-        if item_count == 0 then
-          player.cursor_stack.set_stack{name=item_name, count=stack_size}
-        else
-          player.cursor_stack.set_stack{name=item_name, count=player.get_main_inventory().remove{name=item_name, count=stack_size}}
-        end
-        if shift then
-          local index = #player.infinity_inventory_filters + 1
-          player.set_infinity_inventory_filter(index, {name=item_name, count=stack_size, mode="exactly", index=index})
-        end
-        close_gui = true
+    if is_editor then
+      if shift then
+        -- local index = #player.infinity_inventory_filters + 1
+        -- player.set_infinity_inventory_filter(index, {name=item_name, count=stack_size, mode="exactly", index=index})
+        game.print("SHOW FILTER EDITOR")
       else
-        if shift then
-          player_data.quick_trash(player, player_table, item_name)
-          player.print{"qis-message.quick-trashed", player_table.translations[item_name]}
-        else
-          player.cursor_stack.set_stack{name=item_name, count=player.get_main_inventory().remove{name=item_name, count=stack_size}}
-          close_gui = true
-        end
+        set_cursor()
+        close_gui = true
+      end
+    else
+      if control then
+        player_data.quick_trash(player, player_table, item_name)
+        player.print{"qis-message.quick-trashed", player_table.translations[item_name]}
+      elseif shift then
+        gui_functions.show_request_pane(player, player_table, item_name)
+      else
+        set_cursor()
+        close_gui = true
       end
     end
   elseif action_type == "logistic" then
     if shift then
-      set_ghost_cursor()
-      close_gui = true
-    else
       gui_functions.show_request_pane(player, player_table, item_name)
+    else
+      set_cursor()
+      close_gui = true
     end
   elseif action_type == "unavailable" then
     if shift then
-      if player.cheat_mode then
-        if player.clean_cursor() then
-          player.cursor_stack.set_stack{name=item_name, count=stack_size}
-          close_gui = true
-        end
-      else
-        set_ghost_cursor()
-      end
-      close_gui = true
-    else
       gui_functions.show_request_pane(player, player_table, item_name)
+    else
+      set_cursor()
+      close_gui = true
     end
   end
 
