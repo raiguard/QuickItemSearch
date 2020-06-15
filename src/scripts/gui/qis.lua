@@ -36,7 +36,8 @@ gui.add_handlers{
         local player_table = global.players[e.player_index]
         local gui_data = player_table.gui
         local element = e.element
-        local _, _, action_type = string.find(string.gsub(element.style.name, "qis_active", "qis"), "qis_slot_button_(.*)")
+        local _, _, action_type = string.find(string.gsub(element.style.name, "flib_selected_", "flib_"), "flib_slot_button_(.*)")
+        action_type = constants.color_mapping.color_to_action[action_type]
         local item_name = util.sprite_to_item_name(element.sprite)
 
         if e.keyboard_confirm then
@@ -325,7 +326,7 @@ end
 function qis_gui.cancel_selection(gui_data)
   local selected_index = gui_data.search.selected_index
   local selected_element = gui_data.search.results_table.children[selected_index]
-  selected_element.style = string.gsub(selected_element.style.name, "qis_active", "qis")
+  selected_element.style = string.gsub(selected_element.style.name, "flib_selected_", "flib_")
   gui_data.search.selected_index = nil
 end
 
@@ -342,7 +343,7 @@ function qis_gui.move_result(player_table, offset)
   end
   -- set new selected style
   local selected_element = children[selected_index]
-  selected_element.style = string.gsub(selected_element.style.name, "qis", "qis_active")
+  selected_element.style = string.gsub(selected_element.style.name, "flib_", "flib_selected_")
   selected_element.focus()
   -- scroll to selection
   gui_data.search.results_scrollpane.scroll_to_element(selected_element)

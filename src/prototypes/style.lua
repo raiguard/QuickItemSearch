@@ -2,41 +2,6 @@ local styles = data.raw["gui-style"].default
 
 -- BUTTON STYLES
 
-local tileset = "__QuickItemSearch__/graphics/button-tileset.png"
-
-local function slot_button(y, glow_color, default_x)
-  return {
-    type = "button_style",
-    parent = "slot_button",
-    default_graphical_set = {
-      base = {border=4, position={(default_x or 0),y}, size=80, filename=tileset},
-      shadow = offset_by_2_rounded_corners_glow(default_dirt_color),
-    },
-    hovered_graphical_set = {
-      base = {border=4, position={80,y}, size=80, filename=tileset},
-      shadow = offset_by_2_rounded_corners_glow(default_dirt_color),
-      glow = offset_by_2_rounded_corners_glow(glow_color)
-    },
-    clicked_graphical_set = {
-      base = {border=4, position={160,y}, size=80, filename=tileset},
-      shadow = offset_by_2_rounded_corners_glow(default_dirt_color),
-    }
-  }
-end
-
-local slot_button_data = {
-  {name="inventory", y=0, glow=default_glow_color},
-  -- {name="light_grey", y=80, glow=default_glow_color},
-  {name="unavailable", y=160, glow={255,166,123,128}},
-  -- {name="recipe", y=240, glow={34,255,75,128}},
-  {name="logistic", y=320, glow={34,181,255,128}},
-}
-
-for _,data in ipairs(slot_button_data) do
-  styles["qis_slot_button_"..data.name] = slot_button(data.y, data.glow)
-  styles["qis_active_slot_button_"..data.name] = slot_button(data.y, data.glow, 80)
-end
-
 styles.qis_active_button = {
   type = "button_style",
   parent = "button",

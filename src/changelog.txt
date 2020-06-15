@@ -2,6 +2,7 @@
 Version: 1.5.3
 Date: ????
   Changes:
+    - Adjusted slot button colors, now using styles provided by FLib
     - Unavaiable item actions are now identical to logistic item actions
   Bugfixes:
     - Fixed that a character's own inventory contents would be included in logistics results in certain circumstances

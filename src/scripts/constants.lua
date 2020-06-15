@@ -1,6 +1,18 @@
 local max_integer = 4294967295
 
 return {
+  color_mapping = {
+    action_to_color = {
+      inventory = "default",
+      logistic = "blue",
+      unavailable = "red"
+    },
+    color_to_action = {
+      default = "inventory",
+      blue = "logistic",
+      red = "unavailable"
+    }
+  },
   ignored_item_types = {
     ["blueprint-book"] = true,
     ["blueprint"] = true,

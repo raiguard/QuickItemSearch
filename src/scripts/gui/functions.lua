@@ -18,16 +18,17 @@ function gui_functions.search(player, player_table, query)
 
   -- add or update the next result button
   local function set_result(type, name, number)
+    type = constants.color_mapping.action_to_color[type]
     index = index + 1
     results[name] = number
     local button = children[index]
     if button then
-      button.style = "qis_slot_button_"..type
+      button.style = "flib_slot_button_"..type
       button.sprite = "item/"..name
       button.tooltip = translations[name]
       button.number = number
     else
-      button = add{type="sprite-button", name="qis_result_button__"..index, style="qis_slot_button_"..type, sprite="item/"..name, number=number,
+      button = add{type="sprite-button", name="qis_result_button__"..index, style="flib_slot_button_"..type, sprite="item/"..name, number=number,
         tooltip=translations[name], mouse_button_filter={"left"}}
     end
     button_indexes[index] = button.index
