@@ -113,8 +113,9 @@ function gui_functions.take_action(player, player_table, action_type, item_name,
     local is_editor = player.controller_type == defines.controllers.editor
     if is_editor then
       if shift then
-        -- local index = #player.infinity_inventory_filters + 1
-        -- player.set_infinity_inventory_filter(index, {name=item_name, count=stack_size, mode="exactly", index=index})
+        local index = #player.infinity_inventory_filters + 1
+        player.set_infinity_inventory_filter(index, {name=item_name, count=stack_size, mode="exactly", index=index})
+        player.print{"qis-message.set-infinity-inventory-filter", stack_size, player_table.translations[item_name]}
       end
       set_cursor()
       close_gui = true
