@@ -3,8 +3,11 @@ Version: 1.5.3
 Date: ????
   Features:
     - Added ability to edit logistic request for every type of item (inventory, logistics, and unavailable)
+    - Added ability to place tile ghosts when none of the item is available
   Changes:
     - Adjusted slot button colors, now using styles provided by FLib
+    - Changed quick-trash action from shift+click to control+click
+    - Unified set_cursor logic to pick from inventory first, else spawn items if cheating, else set cursor ghost
   Bugfixes:
     - Fixed that a character's own inventory contents would be included in logistics results in certain circumstances
 ---------------------------------------------------------------------------------------------------
