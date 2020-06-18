@@ -46,7 +46,8 @@ return {
   },
   nav_confirm_events = {
     "qis-nav-confirm",
-    "qis-nav-shift-confirm"
+    "qis-nav-shift-confirm",
+    "qis-nav-control-confirm"
   },
   results_nav_offsets = {
     down = 5,
