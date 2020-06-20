@@ -1,6 +1,6 @@
 ---------------------------------------------------------------------------------------------------
 Version: 1.5.3
-Date: ????
+Date: 2020-06-20
   Features:
     - Added ability to edit logistic request for every type of item (inventory, logistics, and unavailable)
     - Added ability to place tile ghosts when none of the item is available
