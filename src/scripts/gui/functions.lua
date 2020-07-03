@@ -43,7 +43,7 @@ function gui_functions.search(player, player_table, query)
   -- map editor
   if player.controller_type == defines.controllers.editor then
     local contents = player.get_main_inventory().get_contents()
-    for internal,translated in pairs(translations) do
+    for internal, translated in pairs(translations) do
       -- we don't care about hidden or other results, so use an optimised condition
       if string.find(string.lower(translated), query) then
         set_result("inventory", internal, contents[internal])
@@ -53,7 +53,7 @@ function gui_functions.search(player, player_table, query)
     -- player inventory
     if player_settings.search_inventory then
       local contents = player.get_main_inventory().get_contents()
-      for name,count in pairs(contents) do
+      for name, count in pairs(contents) do
         if match_query(name) then
           set_result("inventory", name, count)
         end
@@ -68,7 +68,7 @@ function gui_functions.search(player, player_table, query)
         local network = point.logistic_network
         if network.valid then
           local contents = network.get_contents()
-          for name,count in pairs(contents) do
+          for name, count in pairs(contents) do
             if match_query(name, nil, not network_contents[name]) then
               network_contents[name] = count
               set_result("logistic", name, count)
@@ -79,7 +79,7 @@ function gui_functions.search(player, player_table, query)
     end
     -- unavailable
     if player_settings.search_unavailable then
-      for internal,translated in pairs(translations) do
+      for internal, translated in pairs(translations) do
         if match_query(internal, translated) then
           set_result("unavailable", internal)
         end
@@ -88,7 +88,7 @@ function gui_functions.search(player, player_table, query)
   end
 
   -- remove extra buttons, if any
-  for i=index+1, #children do
+  for i = index + 1, #children do
     children[i].destroy()
   end
 end

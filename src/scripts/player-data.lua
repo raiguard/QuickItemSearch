@@ -35,7 +35,7 @@ function player_data.update_settings(player, player_table)
   local excludes = game.json_to_table(player_mod_settings["qis-quick-trash-all-excludes"].value)
   -- turn excludes list inside-out
   if excludes then
-    for i=1,#excludes do
+    for i = 1, #excludes do
       local name = excludes[i]
       excludes[name] = true
       excludes[i] = nil
@@ -78,7 +78,7 @@ function player_data.find_request(player, item_name)
   local character = player.character
   local get_slot = character.get_personal_logistic_slot
   local request_data
-  for i=1,character.character_logistic_slot_count do
+  for i = 1, character.character_logistic_slot_count do
     local slot = get_slot(i)
     if tostring(slot.name) == item_name then
       slot.index = i
