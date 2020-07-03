@@ -22,23 +22,30 @@ data:extend{
   },
   {
     type = "bool-setting",
+    name = "qis-search-utility-items",
+    setting_type = "runtime-per-user",
+    default_value = true,
+    order = "ad"
+  },
+  {
+    type = "bool-setting",
     name = "qis-search-hidden",
     setting_type = "runtime-per-user",
     default_value = false,
-    order = "ad"
+    order = "b"
   },
   {
     type = "bool-setting",
     name = "qis-fuzzy-search",
     setting_type = "runtime-per-user",
     default_value = false,
-    order = "ae"
+    order = "c"
   },
   {
     type = "string-setting",
     name = "qis-quick-trash-all-excludes",
     setting_type = "runtime-per-user",
     default_value = "[]",
-    order = "b"
+    order = "d"
   }
 }

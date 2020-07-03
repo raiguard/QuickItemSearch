@@ -28,6 +28,7 @@ function player_data.update_settings(player, player_table)
   settings.search_inventory = player_mod_settings["qis-search-inventory"].value
   settings.search_logistics = player_mod_settings["qis-search-logistics"].value
   settings.search_unavailable = player_mod_settings["qis-search-unavailable"].value
+  settings.search_utility_items = player_mod_settings["qis-search-utility-items"].value
   settings.search_hidden = player_mod_settings["qis-search-hidden"].value
   settings.fuzzy_search = player_mod_settings["qis-fuzzy-search"].value
 
