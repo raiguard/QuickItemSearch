@@ -4,23 +4,19 @@ constants.color_mapping = {
   action_to_color = {
     inventory = "default",
     logistic = "blue",
-    unavailable = "red"
+    unavailable = "red",
+    utility = "green"
   },
   color_to_action = {
     default = "inventory",
     blue = "logistic",
-    red = "unavailable"
+    red = "unavailable",
+    green = "utility"
   }
 }
 constants.ignored_item_types = {
-  ["blueprint-book"] = true,
-  ["blueprint"] = true,
-  ["copy-paste-tool"] = true,
-  ["deconstruction-item"] = true,
   ["item-with-inventory"] = true,
   ["item-with-tags"] = true,
-  ["selection-tool"] = true,
-  ["upgrade-item"] = true
 }
 constants.input_sanitizers = {
   ["%("] = "%%(",
@@ -140,6 +136,14 @@ constants.slider_mapping = {
     [10000] = 37,
     [constants.max_integer] = 38
   }
+}
+constants.utility_item_types = {
+  ["blueprint-book"] = true,
+  ["blueprint"] = true,
+  ["copy-paste-tool"] = true,
+  ["deconstruction-item"] = true,
+  ["selection-tool"] = true,
+  ["upgrade-item"] = true
 }
 
 return constants

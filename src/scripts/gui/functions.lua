@@ -9,6 +9,7 @@ function gui_functions.search(player, player_table, query)
   local children = results_table.children
   local translations = player_table.translations
   local item_data = global.item_data
+  local utility_items = global.utility_items
   local add = results_table.add
   local index = 0
   local results = {}
@@ -35,9 +36,10 @@ function gui_functions.search(player, player_table, query)
   end
 
   -- match the query to the given name
-  local function match_query(name, translation, ignore_unique)
-    return item_data[name] and (ignore_unique or not results[name]) and (show_hidden or not item_data[name].hidden)
-      and string.find(string.lower(translation or translations[name]), query)
+  local function match_query(name, translation, ignore_unique, match_utility)
+    local this_item_data = item_data[name]
+    return this_item_data and (not this_item_data.is_utility_item or match_utility) and (ignore_unique or not results[name]) and
+      (match_utility or show_hidden or not this_item_data.hidden) and string.find(string.lower(translation or translations[name] or ""), query)
   end
 
   -- map editor
@@ -85,6 +87,14 @@ function gui_functions.search(player, player_table, query)
         end
       end
     end
+    -- utility items
+    if player_settings.search_utility_items then
+      for _, item_name in pairs(utility_items) do
+        if match_query(item_name, nil, nil, true) then
+          set_result("utility", item_name)
+        end
+      end
+    end
   end
 
   -- remove extra buttons, if any
@@ -97,15 +107,20 @@ function gui_functions.take_action(player, player_table, action_type, item_name,
   local item_data = global.item_data[item_name]
   local stack_size = item_data.stack_size
 
-  local function set_cursor()
+  local function set_cursor(spawn)
     if player.clean_cursor() then
-      local have_count = player.get_main_inventory().remove{name=item_name, count=stack_size}
-      if have_count > 0 then
-        player.cursor_stack.set_stack{name=item_name, count=have_count}
-      elseif player.cheat_mode then
+      if spawn then
         player.cursor_stack.set_stack{name=item_name, count=stack_size}
-      elseif item_data.place_result then
-        player.cursor_ghost = item_name
+        return
+      else
+        local have_count = player.get_main_inventory().remove{name=item_name, count=stack_size}
+        if have_count > 0 then
+          player.cursor_stack.set_stack{name=item_name, count=have_count}
+        elseif player.cheat_mode then
+          player.cursor_stack.set_stack{name=item_name, count=stack_size}
+        elseif item_data.place_result then
+          player.cursor_ghost = item_name
+        end
       end
     end
   end
@@ -147,6 +162,9 @@ function gui_functions.take_action(player, player_table, action_type, item_name,
       set_cursor()
       close_gui = true
     end
+  elseif action_type == "utility" then
+    set_cursor(true)
+    close_gui = true
   end
 
   return close_gui
