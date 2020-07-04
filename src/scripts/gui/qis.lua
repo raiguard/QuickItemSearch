@@ -75,7 +75,7 @@ gui.add_handlers{
           gui_data.request.pane.visible = false
 
           gui_data.state = "search"
-          element.text = gui_data.search.query
+          element.text = gui_data.search.query or ""
           element.focus()
           player.opened = element
         end
