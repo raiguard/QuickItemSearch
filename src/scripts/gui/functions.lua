@@ -38,20 +38,36 @@ function gui_functions.search(player, player_table, query)
   -- match the query to the given name
   local function match_query(name, translation, ignore_unique, match_utility)
     local this_item_data = item_data[name]
-    return this_item_data and (not this_item_data.is_utility_item or match_utility) and (ignore_unique or not results[name]) and
-      (match_utility or show_hidden or not this_item_data.hidden) and string.find(string.lower(translation or translations[name] or ""), query)
+    return (query ~= "" or match_utility) and this_item_data and (not this_item_data.is_utility_item or match_utility) and (ignore_unique or not results[name])
+      and (match_utility or show_hidden or not this_item_data.hidden) and string.find(string.lower(translation or translations[name] or ""), query)
   end
 
   -- map editor
   if player.controller_type == defines.controllers.editor then
+    -- utility items
+    if player_settings.search_utility_items then
+      for _, item_name in pairs(utility_items) do
+        if match_query(item_name, nil, nil, true) then
+          set_result("utility", item_name)
+        end
+      end
+    end
+    -- normal items
     local contents = player.get_main_inventory().get_contents()
     for internal, translated in pairs(translations) do
-      -- we don't care about hidden or other results, so use an optimised condition
-      if string.find(string.lower(translated), query) then
+      if match_query(internal, translated) then
         set_result("inventory", internal, contents[internal])
       end
     end
   else
+    -- utility items
+    if player_settings.search_utility_items then
+      for _, item_name in pairs(utility_items) do
+        if match_query(item_name, nil, nil, true) then
+          set_result("utility", item_name)
+        end
+      end
+    end
     -- player inventory
     if player_settings.search_inventory then
       local contents = player.get_main_inventory().get_contents()
@@ -84,14 +100,6 @@ function gui_functions.search(player, player_table, query)
       for internal, translated in pairs(translations) do
         if match_query(internal, translated) then
           set_result("unavailable", internal)
-        end
-      end
-    end
-    -- utility items
-    if player_settings.search_utility_items then
-      for _, item_name in pairs(utility_items) do
-        if match_query(item_name, nil, nil, true) then
-          set_result("utility", item_name)
         end
       end
     end

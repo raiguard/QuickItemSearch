@@ -145,5 +145,13 @@ constants.utility_item_types = {
   ["selection-tool"] = true,
   ["upgrade-item"] = true
 }
+constants.utility_item_blacklist = {
+  ["selection-tool"] = true
+}
+constants.utility_item_whitelist = {
+  -- Tapeline (https://mods.factorio.com/mod/Tapeline)
+  ["tl-draw-capsule"] = true,
+  ["tl-edit-capsule"] = true
+}
 
 return constants

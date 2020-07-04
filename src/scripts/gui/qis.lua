@@ -115,11 +115,6 @@ gui.add_handlers{
           query = string.gsub(query, pattern, replacement)
         end
 
-        if query == "" then
-          player_table.gui.search.results_table.clear()
-          return
-        end
-
         gui_functions.search(player, player_table, query)
       end
     }
@@ -301,6 +296,8 @@ function qis_gui.create(player, player_table)
   player_table.gui = gui_data
 
   player.set_shortcut_toggled("qis-search", true)
+
+  gui_functions.search(player, player_table, "")
 end
 
 function qis_gui.destroy(player, player_table)
