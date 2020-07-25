@@ -93,6 +93,11 @@ gui.add_handlers{
         local player_table = global.players[e.player_index]
         local gui_data = player_table.gui
 
+        if gui_data.state ~= "search" then
+          gui_data.search.results_scrollpane.focus()
+          return
+        end
+
         if #gui_data.search.results_table.children > 0 then
           qis_gui.move_result(player_table)
 
@@ -103,8 +108,24 @@ gui.add_handlers{
       on_gui_text_changed = function(e)
         local player = game.get_player(e.player_index)
         local player_table = global.players[e.player_index]
+        local gui_data = player_table.gui
+
+        -- reset search contents if they tabbed into the textfield
+        if gui_data.state ~= "search" then
+          if gui_data.state == "select_result" then
+            qis_gui.cancel_selection(gui_data)
+          else
+            gui_data.search.pane.visible = true
+            gui_data.request.pane.visible = false
+          end
+          gui_data.state = "search"
+          e.element.text = gui_data.search.query
+          e.element.focus()
+          player.opened = e.element
+        end
+
         local query = e.text
-        player_table.gui.search.query = query
+        gui_data.search.query = query
 
         -- fuzzy search
         if player_table.settings.fuzzy_search then
@@ -116,7 +137,7 @@ gui.add_handlers{
         end
 
         if query == "" then
-          player_table.gui.search.results_table.clear()
+          gui_data.search.results_table.clear()
           return
         end
 

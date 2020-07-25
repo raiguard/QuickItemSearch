@@ -1,7 +1,8 @@
 ---------------------------------------------------------------------------------------------------
 Version: 1.5.5
 Date: ????
-  Changes:
+  Bugfixes:
+    - Fixed several crashes related to tabbing into the search textfield at inappropriate times
 ---------------------------------------------------------------------------------------------------
 Version: 1.5.4
 Date: 2020-06-24
