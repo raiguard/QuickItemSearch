@@ -2,6 +2,7 @@ local gui_functions = {}
 
 local constants = require("scripts.constants")
 local player_data = require("scripts.player-data")
+local util = require("scripts.util")
 
 function gui_functions.search(player, player_table, query)
   local player_settings = player_table.settings
