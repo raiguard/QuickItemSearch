@@ -65,6 +65,8 @@ event.on_configuration_changed(function(e)
       end
       player_data.refresh(player, player_table)
     end
+
+    gui.check_filter_validity()
   end
 end)
 

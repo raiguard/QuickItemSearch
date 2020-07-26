@@ -3,6 +3,7 @@ Version: 1.5.6
 Date: ????
   Bugfixes:
     - Fixed that the GUI would never become available because of a botched fix in v1.5.5
+    - Fixed a potential crash if a GUI handler was removed between versions
 ---------------------------------------------------------------------------------------------------
 Version: 1.5.5
 Date: 2020-07-26
