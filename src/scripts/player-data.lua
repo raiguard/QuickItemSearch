@@ -61,7 +61,7 @@ function player_data.refresh(player, player_table)
 
   -- run translations
   player_table.translations = {}
-  if player.connected and not game.is_multiplayer then
+  if player.connected and not game.is_multiplayer() then
     player_data.start_translations(player.index)
   else
     player_table.flags.translate_on_join = true
