@@ -1,6 +1,6 @@
 ---------------------------------------------------------------------------------------------------
 Version: 1.5.5
-Date: ????
+Date: 2020-07-26
   Bugfixes:
     - Fixed several crashes related to tabbing into the search textfield at inappropriate times
     - Fixed a crash when an item has no localised name
