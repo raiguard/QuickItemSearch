@@ -126,6 +126,13 @@ event.on_player_joined_game(function(e)
   end
 end)
 
+event.on_player_left_game(function(e)
+  -- cancel translation if a player is translating
+  if global.__flib.translation.players[e.player_index] then
+    translation.cancel(e.player_index)
+  end
+end)
+
 event.on_player_main_inventory_changed(function(e)
   local player = game.get_player(e.player_index)
   local player_table = global.players[e.player_index]

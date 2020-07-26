@@ -4,6 +4,7 @@ Date: ????
   Bugfixes:
     - Fixed several crashes related to tabbing into the search textfield at inappropriate times
     - Fixed a crash when an item has no localised name
+    - Fixed a desync related to player.connected during on_configuration_changed on multiplayer servers
 ---------------------------------------------------------------------------------------------------
 Version: 1.5.4
 Date: 2020-06-24
