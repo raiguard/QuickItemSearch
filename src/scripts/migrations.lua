@@ -24,5 +24,12 @@ return {
       -- completely reset player data
       player_data.init(i, true)
     end
+  end,
+  ["1.5.6"] = function()
+    -- the last version would set this to true for absolutely everyone, so unset it for absolutely everyone
+    for _, player_table in pairs(global.players) do
+      player_table.flags.show_message_after_translation = false
+      player_table.flags.translate_on_join = false
+    end
   end
 }
