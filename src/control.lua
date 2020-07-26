@@ -127,8 +127,7 @@ event.on_player_joined_game(function(e)
 end)
 
 event.on_player_left_game(function(e)
-  -- cancel translation if a player is translating
-  if global.__flib.translation.players[e.player_index] then
+  if translation.is_translating(e.player_index) then
     translation.cancel(e.player_index)
   end
 end)
@@ -185,7 +184,5 @@ event.on_string_translated(function(e)
     player_table.flags.show_message_after_translation = false
     -- enable shortcut
     player.set_shortcut_available("qis-search", true)
-    -- update on_tick
-    on_tick.update()
   end
 end)
