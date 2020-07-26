@@ -156,12 +156,13 @@ end)
 
 event.on_string_translated(function(e)
   local names, finished = translation.process_result(e)
-  if e.translated and names then
+  if names then
     local player_table = global.players[e.player_index]
     local translations = player_table.translations
     local internal_names = names.items
     for i=1,#internal_names do
-      translations[internal_names[i]] = e.result
+      local internal_name = internal_names[i]
+      translations[internal_name] = e.translated and e.result or internal_name
     end
   end
   if finished then
