@@ -55,8 +55,15 @@ end)
 
 event.on_configuration_changed(function(e)
   if migration.on_config_changed(e, migrations) then
+    -- flib module migrations
+    gui.check_filter_validity()
+    translation.init()
+    -- deregister on_tick
+    on_tick.update()
+
     -- update translation data
     global_data.build_prototypes()
+
     -- refresh all player information
     for i, player in pairs(game.players) do
       local player_table = global.players[i]
@@ -65,8 +72,6 @@ event.on_configuration_changed(function(e)
       end
       player_data.refresh(player, player_table)
     end
-
-    gui.check_filter_validity()
   end
 end)
 
