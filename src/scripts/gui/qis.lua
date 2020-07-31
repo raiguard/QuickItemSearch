@@ -316,12 +316,14 @@ function qis_gui.create(player, player_table)
   gui_data.window.force_auto_center()
   gui_data.search.textfield.focus()
 
-  player.opened = gui_data.search.textfield
   gui_data.state = "search"
 
   player_table.gui = gui_data
 
   player.set_shortcut_toggled("qis-search", true)
+
+  -- set this last to avoid problems with other mods
+  player.opened = gui_data.search.textfield
 end
 
 function qis_gui.destroy(player, player_table)
