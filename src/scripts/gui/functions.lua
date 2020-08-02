@@ -98,6 +98,8 @@ function gui_functions.take_action(player, player_table, action_type, item_name,
   local item_data = global.item_data[item_name]
   local stack_size = item_data.stack_size
 
+  local has_character = player.character and true or false
+
   local function set_cursor()
     if player.clean_cursor() then
       local have_count = player.get_main_inventory().remove{name=item_name, count=stack_size}
@@ -125,10 +127,18 @@ function gui_functions.take_action(player, player_table, action_type, item_name,
       close_gui = true
     else
       if control then
-        player_data.quick_trash(player, player_table, item_name)
-        player.print{"qis-message.quick-trashed", player_table.translations[item_name]}
+        if has_character then
+          player_data.quick_trash(player, player_table, item_name)
+          player.print{"qis-message.quick-trashed", player_table.translations[item_name]}
+        else
+          player.print{"qis-message.character-needed"}
+        end
       elseif shift then
-        gui_functions.show_request_pane(player, player_table, item_name)
+        if has_character then
+          gui_functions.show_request_pane(player, player_table, item_name)
+        else
+          player.print{"qis-message.character-needed"}
+        end
       else
         set_cursor()
         close_gui = true
@@ -136,14 +146,22 @@ function gui_functions.take_action(player, player_table, action_type, item_name,
     end
   elseif action_type == "logistic" then
     if shift then
+      if has_character then
+        gui_functions.show_request_pane(player, player_table, item_name)
+      else
+        player.print{"qis-message.character-needed"}
+      end
+    else
       set_cursor()
       close_gui = true
-    else
-      gui_functions.show_request_pane(player, player_table, item_name)
     end
   elseif action_type == "unavailable" then
     if shift then
-      gui_functions.show_request_pane(player, player_table, item_name)
+      if has_character then
+        gui_functions.show_request_pane(player, player_table, item_name)
+      else
+        player.print{"qis-message.character-needed"}
+      end
     else
       set_cursor()
       close_gui = true

@@ -4,6 +4,7 @@ Date: ????
   Bugfixes:
     - Fixed a crash when a mod would removed while translations were running, but before those translations translated all of that mod's strings
     - Fixed a crash when using the hotkey while the Space Exploration Universe Explorer window is open
+    - Fixed a crash when trying to set a personal logistic request when in a non-character controller.
 ---------------------------------------------------------------------------------------------------
 Version: 1.5.6
 Date: 2020-07-26
