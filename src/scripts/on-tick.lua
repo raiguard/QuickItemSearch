@@ -14,8 +14,6 @@ end
 function on_tick.update()
   if global.__flib and translation.translating_players_count() > 0 then
     event.on_tick(handler)
-  else
-    event.on_tick(nil)
   end
 end
 
