@@ -1,6 +1,6 @@
 ---------------------------------------------------------------------------------------------------
 Version: 1.5.7
-Date: ????
+Date: 2020-08-10
   Changes:
     - Logistic results now have the same actions as everything else, instead of being reversed
   Bugfixes:
