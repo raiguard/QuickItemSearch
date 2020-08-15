@@ -2,6 +2,8 @@
 Version: 1.5.8
 Date: ????
   Changes:
+    - Updated to Factorio 1.0
+    - Marked the base mod as optional to allow compatibility with total overhaul mods
 ---------------------------------------------------------------------------------------------------
 Version: 1.5.7
 Date: 2020-08-10
