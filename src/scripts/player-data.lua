@@ -30,6 +30,7 @@ function player_data.update_settings(player, player_table)
   settings.search_unavailable = player_mod_settings["qis-search-unavailable"].value
   settings.search_hidden = player_mod_settings["qis-search-hidden"].value
   settings.fuzzy_search = player_mod_settings["qis-fuzzy-search"].value
+  settings.spawn_items_when_cheating = player_mod_settings["qis-spawn-items-when-cheating"].value
 
   local excludes = game.json_to_table(player_mod_settings["qis-quick-trash-all-excludes"].value)
   -- turn excludes list inside-out
