@@ -3,6 +3,7 @@ Version: 1.5.9
 Date: ????
   Features:
     - Added setting to spawn items when cheating (to allow for disabling it)
+      - This fixes QIS spawning items on the ground when in Space Exploration's satellite view
 ---------------------------------------------------------------------------------------------------
 Version: 1.5.8
 Date: 2020-08-15
