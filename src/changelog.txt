@@ -1,6 +1,6 @@
 ---------------------------------------------------------------------------------------------------
 Version: 1.5.10
-Date: ????
+Date: 2020-08-29
   Changes:
     - QIS will automatically disable item spawning if in the Space Exploration navigation satellite
 ---------------------------------------------------------------------------------------------------
