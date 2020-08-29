@@ -103,9 +103,17 @@ function gui_functions.take_action(player, player_table, action_type, item_name,
   local function set_cursor()
     if player.clean_cursor() then
       local have_count = player.get_main_inventory().remove{name=item_name, count=stack_size}
+
+      -- space exploration compatibility: if they're in god mode, they're in the satellite view, so don't spawn items
+      -- see https://discordapp.com/channels/419526714721566720/571307802648248341/749068067497181284
+      local allow_spawn = true
+      if script.active_mods["space-exploration"] then
+        allow_spawn = player.controller_type ~= defines.controllers.god
+      end
+
       if have_count > 0 then
         player.cursor_stack.set_stack{name=item_name, count=have_count}
-      elseif player.cheat_mode and player_table.settings.spawn_items_when_cheating then
+      elseif allow_spawn and player.cheat_mode and player_table.settings.spawn_items_when_cheating then
         player.cursor_stack.set_stack{name=item_name, count=stack_size}
       elseif item_data.place_result then
         player.cursor_ghost = item_name
