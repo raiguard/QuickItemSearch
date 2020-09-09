@@ -1,5 +1,3 @@
-log(serpent.block(mods))
-
 local spawn_item_tooltip = {
   "",
   {"mod-setting-description.qis-spawn-items-when-cheating"},
