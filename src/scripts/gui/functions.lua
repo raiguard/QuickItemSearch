@@ -115,7 +115,7 @@ function gui_functions.take_action(player, player_table, action_type, item_name,
         player.cursor_stack.set_stack{name=item_name, count=have_count}
       elseif allow_spawn and player.cheat_mode and player_table.settings.spawn_items_when_cheating then
         player.cursor_stack.set_stack{name=item_name, count=stack_size}
-      elseif item_data.place_result then
+      else
         player.cursor_ghost = item_name
       end
     end

@@ -17,7 +17,6 @@ function global_data.build_prototypes()
       item_data[name] = {
         hidden = prototype.has_flag("hidden"),
         localised_name = prototype.localised_name,
-        place_result = prototype.place_result or prototype.place_as_tile_result,
         stack_size = prototype.stack_size
       }
       translation_data[#translation_data+1] = {dictionary="items", localised=prototype.localised_name, internal=prototype.name}

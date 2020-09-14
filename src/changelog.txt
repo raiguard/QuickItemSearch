@@ -2,6 +2,7 @@
 Version: 1.5.11
 Date: ????
   Changes:
+    - The ghost cursor will always be set for items you don't have, whether or not they place an entity
 ---------------------------------------------------------------------------------------------------
 Version: 1.5.10
 Date: 2020-08-29
