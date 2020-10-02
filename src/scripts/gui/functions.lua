@@ -238,8 +238,6 @@ function gui_functions.set_value(request_gui_data, type, value, source)
     end
   end
 
-  request_data[type] = value
-
   -- check values
   if type == "min" and request_data.min > request_data.max then
     request_data.max = request_data.min
