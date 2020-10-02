@@ -3,6 +3,7 @@ Version: 1.5.12
 Date: ????
   Bugfixes:
     - Fixed temporary request amount being rounded when using keyboard navigation
+    - Fixed that temporary requests would not update if the items were inserted into the ammo, armor, or gun inventories
 ---------------------------------------------------------------------------------------------------
 Version: 1.5.11
 Date: 2020-09-14

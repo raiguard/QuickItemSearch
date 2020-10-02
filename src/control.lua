@@ -140,13 +140,21 @@ event.on_player_left_game(function(e)
   end
 end)
 
-event.on_player_main_inventory_changed(function(e)
-  local player = game.get_player(e.player_index)
-  local player_table = global.players[e.player_index]
-  if player.controller_type == defines.controllers.character and player_table.flags.has_temporary_requests then
-    player_data.check_temporary_requests(player, player_table)
+event.register(
+  {
+    defines.events.on_player_ammo_inventory_changed,
+    defines.events.on_player_armor_inventory_changed,
+    defines.events.on_player_gun_inventory_changed,
+    defines.events.on_player_main_inventory_changed
+  },
+  function(e)
+    local player = game.get_player(e.player_index)
+    local player_table = global.players[e.player_index]
+    if player.controller_type == defines.controllers.character and player_table.flags.has_temporary_requests then
+      player_data.check_temporary_requests(player, player_table)
+    end
   end
-end)
+)
 
 event.on_player_removed(function(e)
   global.players[e.player_index] = nil
