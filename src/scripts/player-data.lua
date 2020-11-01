@@ -120,6 +120,7 @@ function player_data.set_request(player, player_table, request_data, temporary_r
     end
   end
 
+  player.character.clear_personal_logistic_slot(request_data.index)
   player.character.set_personal_logistic_slot(request_data.index, request_data)
   if temporary_request then
     player_table.flags.has_temporary_requests = true
@@ -146,6 +147,7 @@ function player_data.check_temporary_requests(player, player_table)
   local character = player.character
   local set_request = character.set_personal_logistic_slot
   local get_request = character.get_personal_logistic_slot
+  local clear_request = character.clear_personal_logistic_slot
   local i = 1
   local next_request = temporary_requests[i]
   while next_request do
@@ -163,6 +165,7 @@ function player_data.check_temporary_requests(player, player_table)
         -- check request fulfillment
         if item_count >= temporary_request.min and item_count <= temporary_request.max then
           local previous_request = next_request.previous_request
+          clear_request(temporary_request.index)
           set_request(temporary_request.index, previous_request)
           remove_request = true
         end
