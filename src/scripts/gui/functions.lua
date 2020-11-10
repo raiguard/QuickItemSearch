@@ -45,7 +45,7 @@ function gui_functions.search(player, player_table, query)
   if player.controller_type == defines.controllers.editor then
     local contents = player.get_main_inventory().get_contents()
     for internal,translated in pairs(translations) do
-      -- we don't care about hidden or other results, so use an optimised condition
+      -- we don't care about hidden or other results, so use an optimized condition
       if string.find(string.lower(translated), query) then
         set_result("inventory", internal, contents[internal])
       end

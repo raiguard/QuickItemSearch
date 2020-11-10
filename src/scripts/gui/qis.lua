@@ -149,8 +149,10 @@ gui.add_handlers{
     setter = {
       slider = {
         on_gui_value_changed = function(e)
-          local _, _, type = string.find(e.element.name, "qis_setter_(.-)_slider")
+          local _, _, request_type = string.find(e.element.name, "qis_setter_(.-)_slider")
           local gui_data = global.players[e.player_index].gui
+          local request_gui_data = gui_data.request
+          local slider_value = constants.slider_mapping.slider_to_textfield[e.element.slider_value]
 
           if gui_data.state ~= "set_min_request" then
             gui_data.state = "switching_to_slider"
@@ -158,10 +160,12 @@ gui.add_handlers{
             gui_data.state = "set_min_request"
           end
 
+          request_gui_data.data[request_type] = slider_value
+
           gui_functions.set_value(
-            global.players[e.player_index].gui.request,
-            type,
-            constants.slider_mapping.slider_to_textfield[e.element.slider_value],
+            gui_data.request,
+            request_type,
+            slider_value,
             "slider"
           )
         end
