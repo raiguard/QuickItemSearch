@@ -13,7 +13,6 @@ function gui_functions.search(player, player_table, query)
   local add = results_table.add
   local index = 0
   local results = {}
-  local button_indexes = {}
 
   local show_hidden = player_settings.search_hidden
 
@@ -32,7 +31,6 @@ function gui_functions.search(player, player_table, query)
       button = add{type="sprite-button", name="qis_result_button__"..index, style="flib_slot_button_"..type, sprite="item/"..name, number=number,
         tooltip=translations[name], mouse_button_filter={"left"}}
     end
-    button_indexes[index] = button.index
   end
 
   -- match the query to the given name
@@ -94,7 +92,7 @@ function gui_functions.search(player, player_table, query)
   end
 end
 
-function gui_functions.take_action(player, player_table, action_type, item_name, item_count, shift, control)
+function gui_functions.take_action(player, player_table, action_type, item_name, _, shift, control)
   local item_data = global.item_data[item_name]
   local stack_size = item_data.stack_size
 
