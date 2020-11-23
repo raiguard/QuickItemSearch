@@ -101,7 +101,7 @@ function gui_functions.take_action(player, player_table, action_type, item_name,
   local has_character = player.character and true or false
 
   local function set_cursor()
-    if player.clean_cursor() then
+    if player.clear_cursor() then
       local have_count = player.get_main_inventory().remove{name=item_name, count=stack_size}
 
       -- space exploration compatibility: if they're in god mode, they're in the satellite view, so don't spawn items
@@ -214,7 +214,7 @@ function gui_functions.set_value(request_gui_data, type, value, source)
     if value == constants.max_integer then
       setter.textfield.text = "inf"
     else
-      setter.textfield.text = value
+      setter.textfield.text = tostring(value)
     end
   end
 
@@ -222,11 +222,11 @@ function gui_functions.set_value(request_gui_data, type, value, source)
     if value ~= constants.max_integer then
       local round = util.round
       if value > 9 then
-        value = round(value/10) * 10
+        value = round(value / 10) * 10
         if value > 90 then
-          value = round(value/100) * 100
+          value = round(value / 100) * 100
           if value > 900 then
-            value = round(value/1000) * 1000
+            value = round(value / 1000) * 1000
           end
         end
       end
