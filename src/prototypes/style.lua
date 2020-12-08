@@ -120,7 +120,9 @@ styles.qis_results_table = {
 
 styles.qis_search_textfield = {
   type = "textbox_style",
-  width = 224
+  width = 0,
+  horizontally_stretchable = "on",
+  bottom_margin = 6
 }
 
 styles.qis_request_setter_textfield = {

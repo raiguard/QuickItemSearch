@@ -3,12 +3,15 @@ if __DebugAdapter then
 end
 
 local event = require("__flib__.event")
+local gui = require("__flib__.gui-beta")
 local migration = require("__flib__.migration")
 local translation = require("__flib__.translation")
 
 local global_data = require("scripts.global-data")
 local migrations = require("scripts.migrations")
 local player_data = require("scripts.player-data")
+
+local search_gui = require("scripts.gui.search")
 
 -- -----------------------------------------------------------------------------
 -- EVENT HANDLERS
@@ -38,11 +41,22 @@ event.on_configuration_changed(function(e)
   end
 end)
 
--- SHORTCUT
+-- CUSTOM INPUT
 
-event.on_lua_shortcut(function(e)
-  if e.prototype_name == "qis-search" then
+event.register("qis-search", function(e)
+  local player = game.get_player(e.player_index)
+  local player_table = global.players[e.player_index]
+  if player_table.flags.can_open_gui then
+    search_gui.toggle(player, player_table)
+  end
+end)
 
+-- GUI
+
+gui.hook_events(function(e)
+  local msg = gui.read_action(e)
+  if msg then
+    search_gui.handle_action(e, msg)
   end
 end)
 
@@ -73,6 +87,18 @@ event.on_player_removed(function(e)
   global.players[e.player_index] = nil
 end)
 
+-- SHORTCUT
+
+event.on_lua_shortcut(function(e)
+  if e.prototype_name == "qis-search" then
+    local player = game.get_player(e.player_index)
+    local player_table = global.players[e.player_index]
+    if player_table.flags.can_open_gui then
+      search_gui.toggle(player, player_table)
+    end
+  end
+end)
+
 -- TICK
 
 local function on_tick(e)
@@ -83,7 +109,7 @@ local function on_tick(e)
   end
 end
 
-REGISTER_ON_TICK = function(e)
+REGISTER_ON_TICK = function()
   if translation.translating_players_count() > 0 then
     event.on_tick(on_tick)
   end
@@ -113,6 +139,8 @@ event.on_string_translated(function(e)
     player_table.flags.can_open_gui = true
     player_table.flags.translate_on_join = false
     player_table.flags.show_message_after_translation = false
+    -- create GUI
+    search_gui.build(player, player_table)
     -- enable shortcut
     player.set_shortcut_available("qis-search", true)
   end

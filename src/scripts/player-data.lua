@@ -1,5 +1,7 @@
 local translation = require("__flib__.translation")
 
+local search_gui = require("scripts.gui.search")
+
 local player_data = {}
 
 function player_data.init(player_index)
@@ -15,8 +17,10 @@ function player_data.init(player_index)
 end
 
 function player_data.refresh(player, player_table)
-  -- set flag
-  player_table.flags.can_open_gui = false
+  -- destroy GUI
+  if player_table.guis.search then
+    search_gui.destroy(player_table)
+  end
 
   -- set shortcut state
   player.set_shortcut_toggled("qis-search", false)
