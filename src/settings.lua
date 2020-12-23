@@ -14,7 +14,7 @@ data:extend{
   },
   {
     type = "bool-setting",
-    name = "qis-search-logistics",
+    name = "qis-search-logistic-network",
     setting_type = "runtime-per-user",
     default_value = true,
     order = "ab"
@@ -28,7 +28,7 @@ data:extend{
   },
   {
     type = "bool-setting",
-    name = "qis-search-hidden",
+    name = "qis-show-hidden",
     setting_type = "runtime-per-user",
     default_value = false,
     order = "ad"

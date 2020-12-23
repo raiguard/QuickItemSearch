@@ -1,5 +1,7 @@
 local translation = require("__flib__.translation")
 
+local constants = require("constants")
+
 local search_gui = require("scripts.gui.search")
 
 local player_data = {}
@@ -27,7 +29,7 @@ function player_data.refresh(player, player_table)
   player.set_shortcut_available("qis-search", false)
 
   -- update settings
-  -- player_data.update_settings(player, player_table)
+  player_data.update_settings(player, player_table)
 
   -- run translations
   player_table.translations = {}
@@ -41,6 +43,17 @@ end
 function player_data.start_translations(player_index)
   translation.add_requests(player_index, global.strings)
   REGISTER_ON_TICK()
+end
+
+function player_data.update_settings(player, player_table)
+  local player_settings = player.mod_settings
+  local settings = {}
+
+  for internal, prototype in pairs(constants.settings) do
+    settings[internal] = player_settings[prototype].value
+  end
+
+  player_table.settings = settings
 end
 
 return player_data

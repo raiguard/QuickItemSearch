@@ -2,6 +2,8 @@ local gui = require("__flib__.gui-beta")
 
 local constants = require("constants")
 
+local search = require("scripts.search")
+
 local search_gui = {}
 
 function search_gui.build(player, player_table)
@@ -96,6 +98,7 @@ function search_gui.handle_action(e, msg)
     state.query = query
 
     if #e.text > 1 then
+      search.run(player, player_table, query)
       -- TODO: update results
     else
       -- TODO: clear results
