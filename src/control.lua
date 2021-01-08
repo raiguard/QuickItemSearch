@@ -35,6 +35,8 @@ event.on_configuration_changed(function(e)
     -- reset running translations
     translation.init()
 
+    global_data.build_strings()
+
     for i, player_table in pairs(global.players) do
       player_data.refresh(game.get_player(i), player_table)
     end
