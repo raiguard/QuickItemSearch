@@ -1,24 +1,17 @@
 local styles = data.raw["gui-style"].default
 
--- BUTTON STYLES
+-- LABEL STYLES
 
-styles.qis_list_box_item = {
-  type = "button_style",
-  parent = "list_box_item",
-  left_padding = 4,
-  right_padding = 4,
-  horizontally_squashable = "on",
-  horizontally_stretchable = "on",
-  disabled_graphical_set = styles.list_box_item.default_graphical_set,
-  disabled_font_color = styles.list_box_item.default_font_color
+local hovered_label_color = {
+  r = 0.5 * (1 + default_orange_color.r),
+  g = 0.5 * (1 + default_orange_color.g),
+  b = 0.5 * (1 + default_orange_color.b)
 }
 
-styles.qis_invisible_list_box_item = {
-  type = "button_style",
-  parent = "list_box_item",
-  padding = 0,
-  margin = 0,
-  -- graphical_set = {}
+styles.qis_clickable_label = {
+  type = "label_style",
+  hovered_font_color = hovered_label_color,
+  disabled_font_color = hovered_label_color
 }
 
 -- SCROLLPANE STYLES

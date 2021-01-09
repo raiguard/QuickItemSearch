@@ -42,7 +42,7 @@ function search_gui.build(player, player_table)
           children = {
             {
               type = "textfield",
-              style_mods = {width = 350},
+              style_mods = {width = 400},
               ref = {"search_textfield"},
               actions = {
                 on_confirmed = "enter_result_selection",
@@ -50,35 +50,13 @@ function search_gui.build(player, player_table)
               }
             },
             {type = "frame", style = "deep_frame_in_shallow_frame", style_mods = {top_margin = 10}, children = {
-              {type = "scroll-pane", style = "qis_list_box_scroll_pane", style_mods = {height = 28 * 8}, children = {
-                {type = "table", style = "qis_list_box_table", column_count = 3, children = {
+              {type = "scroll-pane", style = "qis_list_box_scroll_pane", style_mods = {height = 28 * 10}, children = {
+                {type = "table", style = "qis_list_box_table", column_count = 3, ref = {"results_table"}, children = {
+                  -- dummy elements for the borked first row
+                  -- the first column needs to be stretchy
                   {type = "empty-widget", style_mods = {horizontally_stretchable = true}},
                   {type = "empty-widget"},
-                  {type = "empty-widget"},
-                  {type = "label", caption = "[item=iron-plate]  Iron plate"},
-                  {type = "label", caption = "100 / [color=128, 206, 240]2,318[/color]"},
-                  {type = "label", caption = "100 / inf"},
-                  {type = "label", caption = "[item=copper-plate]  Copper plate"},
-                  {type = "label", caption = "100 / [color=128, 206, 240]15,498[/color]"},
-                  {type = "label", caption = "100 / 1500"},
-                  {type = "label", caption = "[item=steel-plate]  Steel plate"},
-                  {type = "label", caption = "100 / [color=128, 206, 240]62[/color]"},
-                  {type = "label", caption = "100 / inf"},
-                  {type = "label", caption = "[item=steel-plate]  Steel plate"},
-                  {type = "label", caption = "100 / [color=128, 206, 240]62[/color]"},
-                  {type = "label", caption = "100 / inf"},
-                  {type = "label", caption = "[item=steel-plate]  Steel plate"},
-                  {type = "label", caption = "100 / [color=128, 206, 240]62[/color]"},
-                  {type = "label", caption = "100 / inf"},
-                  {type = "label", caption = "[item=steel-plate]  Steel plate"},
-                  {type = "label", caption = "100 / [color=128, 206, 240]62[/color]"},
-                  {type = "label", caption = "100 / inf"},
-                  {type = "label", caption = "[item=steel-plate]  Steel plate"},
-                  {type = "label", caption = "100 / [color=128, 206, 240]62[/color]"},
-                  {type = "label", caption = "100 / inf"},
-                  {type = "label", caption = "[item=steel-plate]  Steel plate"},
-                  {type = "label", caption = "100 / [color=128, 206, 240]62[/color]"},
-                  {type = "label", caption = "100 / inf"},
+                  {type = "empty-widget"}
                 }},
               }}
             }}
@@ -153,11 +131,39 @@ function search_gui.handle_action(e, msg)
     end
     state.query = query
 
+    local results_table = refs.results_table
+
     if #e.text > 1 then
-      search.run(player, player_table, query)
-      -- TODO: update results
-    else
-      -- TODO: clear results
+      local i = 0
+      local results, connected_to_network = search.run(player, player_table, query)
+      for _, row in ipairs(results) do
+        i = i + 1
+        if not results_table.children[(i * 3) + 1] then
+          for j = 1, 3 do
+            results_table.add{type = "label", style = j == 1 and "qis_clickable_label" or nil}
+          end
+        end
+        local hidden_abbrev = row.hidden and "[font=default-semibold](H)[/font]  " or ""
+        results_table.children[(i * 3) + 1].caption = hidden_abbrev.."[item="..row.name.."]  "..row.translation
+        results_table.children[(i * 3) + 2].caption = (row.inventory or 0).." / [color=128, 206, 240]"..(row.logistic or 0).."[/color]"
+        local request = row.request or {min = 0}
+        local max = request.max or "inf"
+        if max == constants.max_integer then
+          max = "inf"
+        end
+        results_table.children[(i * 3) + 3].caption = request.min.." / "..max
+      end
+      for j = #results_table.children, ((i + 1) * 3) + 1, -1 do
+        results_table.children[j].destroy()
+      end
+    elseif #results_table.children > 3 then
+      -- clear results
+      results_table.clear()
+      -- add new dummy elements
+      for _ = 1, 3 do
+        results_table.add{type = "empty-widget"}
+      end
+      results_table.children[1].style.horizontally_stretchable = true
     end
   elseif msg == "enter_result_selection" then
   end

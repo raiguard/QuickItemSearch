@@ -25,6 +25,8 @@ constants.input_sanitizers = {
   ["%$"] = "%%$"
 }
 
+constants.max_integer = 4294967295
+
 constants.settings = {
   search_inventory = "qis-search-inventory",
   search_logistic_network = "qis-search-logistic-network",
