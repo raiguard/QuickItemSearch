@@ -18,6 +18,12 @@ constants.ignored_item_types = {
   ["upgrade-item"] = true
 }
 
+constants.infinity_filter_mode_to_symbol = {
+  ["at-least"] = ">=",
+  ["at-most"] = "<=",
+  ["exactly"] = "="
+}
+
 constants.input_sanitizers = {
   ["%("] = "%%(",
   ["%)"] = "%%)",

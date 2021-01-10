@@ -154,14 +154,22 @@ function search_gui.handle_action(e, msg)
         end
         local hidden_abbrev = row.hidden and "[font=default-semibold](H)[/font]  " or ""
         results_table.children[(i * 3) + 1].caption = hidden_abbrev.."[item="..row.name.."]  "..row.translation
-        results_table.children[(i * 3) + 2].caption = (row.inventory or 0).." / [color=128, 206, 240]"..(row.logistic or 0).."[/color]"
+        if player.controller_type == defines.controllers.character and connected_to_network then
+          results_table.children[(i * 3) + 2].caption = (row.inventory or 0).." / [color=128, 206, 240]"..(row.logistic or 0).."[/color]"
+        else
+          results_table.children[(i * 3) + 2].caption = (row.inventory or 0)
+        end
         local request = row.request or {min = 0}
         local max = request.max or "inf"
         if max == constants.max_integer then
           max = "inf"
         end
-        results_table.children[(i * 3) + 3].caption = request.min.." / "..max
-        results_table.children[(i * 3) + 3].style.font_color = constants.colors[row.request_color or "normal"]
+        if player.controller_type == defines.controllers.editor then
+          results_table.children[(i * 3) + 3].caption = row.infinity_filter or "--"
+        else
+          results_table.children[(i * 3) + 3].caption = request.min.." / "..max
+          results_table.children[(i * 3) + 3].style.font_color = constants.colors[row.request_color or "normal"]
+        end
       end
       for j = #results_table.children, ((i + 1) * 3) + 1, -1 do
         results_table.children[j].destroy()

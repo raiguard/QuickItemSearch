@@ -1,3 +1,5 @@
+local constants = require("constants")
+
 local search = {}
 
 function search.run(player, player_table, query)
@@ -10,10 +12,10 @@ function search.run(player, player_table, query)
   local i = 0
 
   -- TODO: limit search result count
+  -- TODO: OPTIMIZE
 
   local connected_to_network = false
 
-  -- TODO: optimize
   local function match(name, type, count)
     local translation = translations[name]
     if translation and string.find(string.lower(translation), query) then
@@ -33,6 +35,7 @@ function search.run(player, player_table, query)
   local main_inventory = player.get_main_inventory()
   -- don't bother doing anything if they don't have an inventory
   if main_inventory and main_inventory.valid then
+    -- iterate inventory contents
     local inventory_contents = main_inventory.get_contents()
     for name, count in pairs(inventory_contents) do
       match(name, "inventory", count)
@@ -83,13 +86,22 @@ function search.run(player, player_table, query)
           end
         end
       end
+      -- iterate items being picked up
+      local provider_point = player.character.get_logistic_point(defines.logistic_member_index.character_provider)
+      if provider_point and provider_point.valid then
+        for name in pairs(provider_point.targeted_items_pickup) do
+          if lookup[name] then
+            results[lookup[name]].request_color = "emptying"
+          end
+        end
+      end
     end
-    -- iterate items being picked up
-    local provider_point = player.character.get_logistic_point(defines.logistic_member_index.character_provider)
-    if provider_point and provider_point.valid then
-      for name in pairs(provider_point.targeted_items_pickup) do
-        if lookup[name] then
-          results[lookup[name]].request_color = "emptying"
+
+    -- if in editor, iterate infinity filters
+    if player.controller_type == defines.controllers.editor then
+      for _, filter in ipairs(player.infinity_inventory_filters) do
+        if lookup[filter.name] then
+          results[lookup[filter.name]].infinity_filter = constants.infinity_filter_mode_to_symbol[filter.mode].." "..filter.count
         end
       end
     end
