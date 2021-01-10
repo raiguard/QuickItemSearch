@@ -1,5 +1,12 @@
 local constants = {}
 
+constants.colors = {
+  emptying = {69, 255, 69},
+  normal = {255, 255, 255},
+  on_the_way ={255, 240, 69},
+  unsatisfied = {255, 69, 69},
+}
+
 constants.ignored_item_types = {
   ["blueprint-book"] = true,
   ["blueprint"] = true,

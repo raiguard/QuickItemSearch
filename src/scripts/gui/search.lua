@@ -15,25 +15,32 @@ function search_gui.build(player, player_table)
       ref = {"window"},
       actions = {on_closed = "close"},
       children = {
-        {type = "flow", ref = {"titlebar", "flow"}, children = {
-          {
-            type = "label",
-            style = "frame_title",
-            caption = {"mod-name.QuickItemSearch"},
-            ignored_by_interaction = true
+        {
+          type = "flow",
+          ref = {"titlebar_flow"},
+          actions = {
+            on_click = "recenter"
           },
-          {type = "empty-widget", style = "flib_titlebar_drag_handle", ignored_by_interaction = true},
-          {
-            type = "sprite-button",
-            style = "frame_action_button",
-            sprite = "utility/close_white",
-            hovered_sprite = "utility/close_black",
-            clicked_sprite = "utility/close_black",
-            actions = {
-              on_click = "close"
+          children = {
+            {
+              type = "label",
+              style = "frame_title",
+              caption = {"mod-name.QuickItemSearch"},
+              ignored_by_interaction = true
+            },
+            {type = "empty-widget", style = "flib_titlebar_drag_handle", ignored_by_interaction = true},
+            {
+              type = "sprite-button",
+              style = "frame_action_button",
+              sprite = "utility/close_white",
+              hovered_sprite = "utility/close_black",
+              clicked_sprite = "utility/close_black",
+              actions = {
+                on_click = "close"
+              }
             }
           }
-        }},
+        },
         {
           type = "frame",
           style = "inside_shallow_frame_with_padding",
@@ -67,7 +74,7 @@ function search_gui.build(player, player_table)
   })
 
   refs.window.force_auto_center()
-  refs.titlebar.flow.drag_target = refs.window
+  refs.titlebar_flow.drag_target = refs.window
 
   player_table.guis.search = {
     refs = refs,
@@ -124,6 +131,8 @@ function search_gui.handle_action(e, msg)
 
   if msg == "close" then
     search_gui.close(player, player_table)
+  elseif msg == "recenter" and e.button == defines.mouse_button_type.middle then
+    refs.window.force_auto_center()
   elseif msg == "update_search_query" then
     local query = e.text
     for pattern, replacement in pairs(constants.input_sanitizers) do
@@ -152,6 +161,7 @@ function search_gui.handle_action(e, msg)
           max = "inf"
         end
         results_table.children[(i * 3) + 3].caption = request.min.." / "..max
+        results_table.children[(i * 3) + 3].style.font_color = constants.colors[row.request_color or "normal"]
       end
       for j = #results_table.children, ((i + 1) * 3) + 1, -1 do
         results_table.children[j].destroy()
