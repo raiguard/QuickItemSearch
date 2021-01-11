@@ -35,7 +35,6 @@ constants.input_sanitizers = {
   ["%^"] = "%%^",
   ["%$"] = "%%$"
 }
-constants.max_integer = 4294967295
 constants.nav_arrow_events = {
   "qis-nav-down",
   "qis-nav-left",

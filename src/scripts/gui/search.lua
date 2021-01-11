@@ -1,8 +1,76 @@
 local gui = require("__flib__.gui-beta")
+local math = require("__flib__.math")
 
 local constants = require("constants")
-
+local cursor = require("scripts.cursor")
 local search = require("scripts.search")
+
+local function perform_search(player, player_table, state, refs)
+  local query = state.query
+  local results_table = refs.results_table
+  local children = results_table.children
+
+  if #query > 1 then
+    local i = 0
+    local results, connected_to_network = search.run(player, player_table, query)
+    for _, row in ipairs(results) do
+      i = i + 1
+      local i3 = i * 3
+      if not results_table.children[i3 + 1] then
+        results_table.add{
+          type = "label",
+          style = "qis_clickable_label",
+          tags = {
+            [script.mod_name] = {
+              flib = {
+                on_click = "handle_item_click"
+              }
+            }
+          }
+        }
+        for _ = 1, 2 do
+          results_table.add{type = "label"}
+        end
+        -- update our copy of the table
+        children = results_table.children
+      end
+      -- item label
+      local item_label = children[i3 + 1]
+      local hidden_abbrev = row.hidden and "[font=default-semibold](H)[/font]  " or ""
+      item_label.caption = hidden_abbrev.."[item="..row.name.."]  "..row.translation
+      -- item counts
+      if player.controller_type == defines.controllers.character and connected_to_network then
+        children[i3 + 2].caption = (row.inventory or 0).." / [color=128, 206, 240]"..(row.logistic or 0).."[/color]"
+      else
+        children[i3 + 2].caption = (row.inventory or 0)
+      end
+      -- request / infinity filter
+      local request_label = children[i3 + 3]
+      if player.controller_type == defines.controllers.editor then
+        request_label.caption = row.infinity_filter or "--"
+      else
+        local request = row.request or {min = 0}
+        local max = request.max or "inf"
+        if max == math.max_uint then
+          max = "inf"
+        end
+        request_label.caption = request.min.." / "..max
+        request_label.style.font_color = constants.colors[row.request_color or "normal"]
+      end
+    end
+    for j = #results_table.children, ((i + 1) * 3) + 1, -1 do
+      results_table.children[j].destroy()
+    end
+  elseif #results_table.children > 3 then
+    -- clear results
+    results_table.clear()
+    -- add new dummy elements
+    for _ = 1, 3 do
+      results_table.add{type = "empty-widget"}
+    end
+    results_table.children[1].style.horizontally_stretchable = true
+  end
+end
 
 local search_gui = {}
 
@@ -101,6 +169,9 @@ function search_gui.open(player, player_table)
   -- TODO: set state to search
   gui_data.refs.search_textfield.focus()
   gui_data.refs.search_textfield.select_all()
+
+  -- update the table right away
+  perform_search(player, player_table, gui_data.state, gui_data.refs)
 end
 
 function search_gui.close(player, player_table)
@@ -139,51 +210,16 @@ function search_gui.handle_action(e, msg)
       query = string.gsub(query, pattern, replacement)
     end
     state.query = query
-
-    local results_table = refs.results_table
-
-    if #e.text > 1 then
-      local i = 0
-      local results, connected_to_network = search.run(player, player_table, query)
-      for _, row in ipairs(results) do
-        i = i + 1
-        if not results_table.children[(i * 3) + 1] then
-          for j = 1, 3 do
-            results_table.add{type = "label", style = j == 1 and "qis_clickable_label" or nil}
-          end
-        end
-        local hidden_abbrev = row.hidden and "[font=default-semibold](H)[/font]  " or ""
-        results_table.children[(i * 3) + 1].caption = hidden_abbrev.."[item="..row.name.."]  "..row.translation
-        if player.controller_type == defines.controllers.character and connected_to_network then
-          results_table.children[(i * 3) + 2].caption = (row.inventory or 0).." / [color=128, 206, 240]"..(row.logistic or 0).."[/color]"
-        else
-          results_table.children[(i * 3) + 2].caption = (row.inventory or 0)
-        end
-        local request = row.request or {min = 0}
-        local max = request.max or "inf"
-        if max == constants.max_integer then
-          max = "inf"
-        end
-        if player.controller_type == defines.controllers.editor then
-          results_table.children[(i * 3) + 3].caption = row.infinity_filter or "--"
-        else
-          results_table.children[(i * 3) + 3].caption = request.min.." / "..max
-          results_table.children[(i * 3) + 3].style.font_color = constants.colors[row.request_color or "normal"]
-        end
-      end
-      for j = #results_table.children, ((i + 1) * 3) + 1, -1 do
-        results_table.children[j].destroy()
-      end
-    elseif #results_table.children > 3 then
-      -- clear results
-      results_table.clear()
-      -- add new dummy elements
-      for _ = 1, 3 do
-        results_table.add{type = "empty-widget"}
-      end
-      results_table.children[1].style.horizontally_stretchable = true
-    end
+    perform_search(player, player_table, state, refs)
+  elseif msg == "perform_search" then
+    -- perform search without updating query
+    perform_search(player, player_table, state, refs)
   elseif msg == "enter_result_selection" then
+  elseif msg == "handle_item_click" then
+    local _, _, item = string.find(e.element.caption, "^.-%[item=(.-)%]  .*$")
+    if not e.shift and not e.control then
+      cursor.set_stack(player, player.cursor_stack, player_table, item)
+    end
   end
 end
 

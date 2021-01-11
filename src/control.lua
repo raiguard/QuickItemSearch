@@ -89,6 +89,16 @@ event.on_player_removed(function(e)
   global.players[e.player_index] = nil
 end)
 
+-- SETTINGS
+
+event.on_runtime_mod_setting_changed(function(e)
+  if string.sub(e.setting, 1, 4) == "qis-" and e.setting_type == "runtime-per-user" then
+    local player = game.get_player(e.player_index)
+    local player_table = global.players[e.player_index]
+    player_data.update_settings(player, player_table)
+  end
+end)
+
 -- SHORTCUT
 
 event.on_lua_shortcut(function(e)
@@ -102,6 +112,7 @@ event.on_lua_shortcut(function(e)
 end)
 
 -- TICK
+-- TODO: update the search results on inventory changed, player moved, or every two seconds
 
 local function on_tick(e)
   if translation.translating_players_count() > 0 then
