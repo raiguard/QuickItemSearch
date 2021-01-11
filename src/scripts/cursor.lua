@@ -1,15 +1,5 @@
 local cursor = {}
 
-function cursor.check_stack(cursor_stack, cursor_ghost)
-  if cursor_stack and cursor_stack.valid_for_read then
-    return cursor_stack.name
-  elseif cursor_ghost then
-    return cursor_ghost.name
-  else
-    return
-  end
-end
-
 function cursor.set_stack(player, cursor_stack, player_table, item_name)
   local is_cheating = player.cheat_mode or (player.controller_type == defines.controllers.editor)
   local spawn_item = player_table.settings.spawn_items_when_cheating

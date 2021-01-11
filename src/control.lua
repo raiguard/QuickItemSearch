@@ -70,7 +70,9 @@ end)
 gui.hook_events(function(e)
   local msg = gui.read_action(e)
   if msg then
-    search_gui.handle_action(e, msg)
+    if msg.gui == "search" then
+      search_gui.handle_action(e, msg)
+    end
   end
 end)
 
