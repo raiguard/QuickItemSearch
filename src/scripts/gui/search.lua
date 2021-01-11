@@ -18,7 +18,7 @@ local function perform_search(player, player_table, state, refs)
   -- reset selected index
   state.selected_index = 1
 
-  if #query > 1 then
+  if #state.raw_query > 1 then
     local i = 0
     local results, connected_to_network = search.run(player, player_table, query)
     for _, row in ipairs(results) do
@@ -174,6 +174,7 @@ function search_gui.build(player, player_table)
     refs = refs,
     state = {
       query = "",
+      raw_query = "",
       selected_index = 1,
       visible = false
     }
@@ -192,7 +193,6 @@ function search_gui.open(player, player_table)
   player.set_shortcut_toggled("qis-search", true)
   player.opened = gui_data.refs.window
 
-  -- TODO: set state to search
   gui_data.refs.search_textfield.focus()
   gui_data.refs.search_textfield.select_all()
 
@@ -232,10 +232,16 @@ function search_gui.handle_action(e, msg)
     refs.window.force_auto_center()
   elseif msg.action == "update_search_query" then
     local query = e.text
+    -- fuzzy search
+    if player_table.settings.fuzzy_search then
+      query = string.gsub(query, ".", "%1.*")
+    end
+    -- input sanitization
     for pattern, replacement in pairs(constants.input_sanitizers) do
       query = string.gsub(query, pattern, replacement)
     end
     state.query = query
+    state.raw_query = e.text
     perform_search(player, player_table, state, refs)
   elseif msg.action == "perform_search" then
     -- perform search without updating query

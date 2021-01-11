@@ -41,14 +41,16 @@ function search.run(player, player_table, query)
   local main_inventory = player.get_main_inventory()
   -- don't bother doing anything if they don't have an inventory
   if main_inventory and main_inventory.valid then
+    -- declare this here so goto doesn't break
+    local point
     -- iterate inventory contents
     local inventory_contents = main_inventory.get_contents()
     for name, count in pairs(inventory_contents) do
       match(name, "inventory", count)
+      if i > constants.results_limit then goto limit end
     end
 
     -- iterate logistic network contents
-    local point
     if character then
       point = character.get_logistic_point(defines.logistic_member_index.character_requester)
       if point and point.valid then
@@ -58,6 +60,7 @@ function search.run(player, player_table, query)
           connected_to_network = true
           for name, count in pairs(network.get_contents()) do
             match(name, "logistic", count)
+            if i > constants.results_limit then goto limit end
           end
         end
       end
@@ -68,8 +71,11 @@ function search.run(player, player_table, query)
       if not lookup[name] then
         -- "unavailable" is a dummy type - it won't be set because `count` is `nil`
         match(name, "unavailable")
+        if i > constants.results_limit then goto limit end
       end
     end
+
+    ::limit::
 
     if character and point and point.valid then
       -- iterate item requests

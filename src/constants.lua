@@ -45,6 +45,8 @@ constants.input_sanitizers = {
   ["%$"] = "%%$"
 }
 
+constants.results_limit = 50
+
 constants.settings = {
   search_inventory = "qis-search-inventory",
   search_logistic_network = "qis-search-logistic-network",
