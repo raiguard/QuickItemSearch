@@ -53,6 +53,18 @@ event.register("qis-search", function(e)
   end
 end)
 
+event.register({"qis-nav-up", "qis-nav-down"}, function(e)
+  local player = game.get_player(e.player_index)
+  local player_table = global.players[e.player_index]
+  if player_table.flags.can_open_gui then
+    local gui_data = player_table.guis.search
+    if gui_data.state.visible then
+      local offset = string.find(e.input_name, "down") and 1 or -1
+      search_gui.handle_action({player_index = e.player_index}, {action = "update_selected_index", offset = offset})
+    end
+  end
+end)
+
 -- GUI
 
 gui.hook_events(function(e)

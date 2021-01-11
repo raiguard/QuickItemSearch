@@ -10,6 +10,12 @@ local function perform_search(player, player_table, state, refs)
   local results_table = refs.results_table
   local children = results_table.children
 
+  -- reset selected index
+  state.selected_index = 1
+  if #refs.results_table.children > 3 then
+    refs.results_table.children[state.selected_index * 3 + 1].style.font_color = constants.colors.normal
+  end
+
   if #query > 1 then
     local i = 0
     local results, connected_to_network = search.run(player, player_table, query)
@@ -17,20 +23,17 @@ local function perform_search(player, player_table, state, refs)
       i = i + 1
       local i3 = i * 3
       if not results_table.children[i3 + 1] then
-        results_table.add{
-          type = "label",
-          style = "qis_clickable_label",
-          tags = {
-            [script.mod_name] = {
-              flib = {
-                on_click = "handle_item_click"
-              }
+        gui.build(results_table, {
+          {
+            type = "label",
+            style = "qis_clickable_item_label",
+            actions = {
+              on_click = {action = "handle_item_click", index = i}
             }
-          }
-        }
-        for _ = 1, 2 do
-          results_table.add{type = "label"}
-        end
+          },
+          {type = "label"},
+          {type = "label"}
+        })
         -- update our copy of the table
         children = results_table.children
       end
@@ -81,13 +84,13 @@ function search_gui.build(player, player_table)
       direction = "vertical",
       visible = false,
       ref = {"window"},
-      actions = {on_closed = "close"},
+      actions = {on_closed = {action = "close"}},
       children = {
         {
           type = "flow",
           ref = {"titlebar_flow"},
           actions = {
-            on_click = "recenter"
+            on_click = {action = "recenter"}
           },
           children = {
             {
@@ -104,7 +107,7 @@ function search_gui.build(player, player_table)
               hovered_sprite = "utility/close_black",
               clicked_sprite = "utility/close_black",
               actions = {
-                on_click = "close"
+                on_click = {action = "close"}
               }
             }
           }
@@ -112,28 +115,46 @@ function search_gui.build(player, player_table)
         {
           type = "frame",
           style = "inside_shallow_frame_with_padding",
-          style_mods = {top_padding = 9},
+          style_mods = {top_padding = -2},
           direction = "vertical",
           children = {
+            -- dummy input action textfield
             {
               type = "textfield",
-              style_mods = {width = 400},
+              style_mods = {width = 1, height = 1},
+              numeric = true,
+              ref = {"input_action_textfield"},
+              actions = {
+                on_confirmed = {action = "handle_item_click"}
+              }
+            },
+            {
+              type = "textfield",
+              style_mods = {width = 400, top_margin = 9},
+              clear_and_focus_on_right_click = true,
+              lose_focus_on_confirm = true,
               ref = {"search_textfield"},
               actions = {
-                on_confirmed = "enter_result_selection",
-                on_text_changed = "update_search_query"
+                on_confirmed = {action = "enter_result_selection"},
+                on_text_changed = {action = "update_search_query"}
               }
             },
             {type = "frame", style = "deep_frame_in_shallow_frame", style_mods = {top_margin = 10}, children = {
-              {type = "scroll-pane", style = "qis_list_box_scroll_pane", style_mods = {height = 28 * 10}, children = {
-                {type = "table", style = "qis_list_box_table", column_count = 3, ref = {"results_table"}, children = {
-                  -- dummy elements for the borked first row
-                  -- the first column needs to be stretchy
-                  {type = "empty-widget", style_mods = {horizontally_stretchable = true}},
-                  {type = "empty-widget"},
-                  {type = "empty-widget"}
-                }},
-              }}
+              {
+                type = "scroll-pane",
+                style = "qis_list_box_scroll_pane",
+                style_mods = {height = 28 * 10},
+                ref = {"results_scroll_pane"},
+                children = {
+                  {type = "table", style = "qis_list_box_table", column_count = 3, ref = {"results_table"}, children = {
+                    -- dummy elements for the borked first row
+                    -- the first column needs to be stretchy
+                    {type = "empty-widget", style_mods = {horizontally_stretchable = true}},
+                    {type = "empty-widget"},
+                    {type = "empty-widget"}
+                  }},
+                }
+              }
             }}
           }
         }
@@ -149,6 +170,7 @@ function search_gui.build(player, player_table)
     state = {
       mode = "search",
       query = "",
+      selected_index = 1,
       visible = false
     }
   }
@@ -200,25 +222,47 @@ function search_gui.handle_action(e, msg)
   local refs = gui_data.refs
   local state = gui_data.state
 
-  if msg == "close" then
+  if msg.action == "close" then
     search_gui.close(player, player_table)
-  elseif msg == "recenter" and e.button == defines.mouse_button_type.middle then
+  elseif msg.action == "recenter" and e.button == defines.mouse_button_type.middle then
     refs.window.force_auto_center()
-  elseif msg == "update_search_query" then
+  elseif msg.action == "update_search_query" then
     local query = e.text
     for pattern, replacement in pairs(constants.input_sanitizers) do
       query = string.gsub(query, pattern, replacement)
     end
     state.query = query
     perform_search(player, player_table, state, refs)
-  elseif msg == "perform_search" then
+  elseif msg.action == "perform_search" then
     -- perform search without updating query
     perform_search(player, player_table, state, refs)
-  elseif msg == "enter_result_selection" then
-  elseif msg == "handle_item_click" then
-    local _, _, item = string.find(e.element.caption, "^.-%[item=(.-)%]  .*$")
-    if not e.shift and not e.control then
-      cursor.set_stack(player, player.cursor_stack, player_table, item)
+  elseif msg.action == "enter_result_selection" then
+    if #refs.results_table.children == 3 then
+      refs.search_textfield.focus()
+      return
+    end
+    if state.selected_index > ((#refs.results_table.children - 3) / 3) then
+      state.selected_index = 1
+    end
+    local results_table = refs.results_table
+    results_table.children[state.selected_index * 3 + 1].style.font_color = constants.colors.hovered
+    refs.input_action_textfield.focus()
+  elseif msg.action == "update_selected_index" then
+    local results_table = refs.results_table
+    local selected_index = state.selected_index
+    results_table.children[selected_index * 3 + 1].style.font_color = constants.colors.normal
+    local new_selected_index = math.clamp(selected_index + msg.offset, 1, #results_table.children / 3 - 1)
+    state.selected_index = new_selected_index
+    results_table.children[new_selected_index * 3 + 1].style.font_color = constants.colors.hovered
+    refs.results_scroll_pane.scroll_to_element(results_table.children[new_selected_index * 3 + 1], "top-third")
+  elseif msg.action == "handle_item_click" then
+    local i = msg.index or state.selected_index
+    local element = refs.results_table.children[i * 3 + 1]
+    if element then
+      local _, _, item = string.find(element.caption, "^.-%[item=(.-)%]  .*$")
+      if not e.shift and not e.control then
+        cursor.set_stack(player, player.cursor_stack, player_table, item)
+      end
     end
   end
 end

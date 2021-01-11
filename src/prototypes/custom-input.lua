@@ -9,43 +9,15 @@ data:extend{
     type = "custom-input",
     name = "qis-nav-up",
     key_sequence = "UP",
+    alternative_key_sequence = "CONTROL + P",
     order = "ba"
   },
   {
     type = "custom-input",
     name = "qis-nav-down",
     key_sequence = "DOWN",
+    alternative_key_sequence = "CONTROL + N",
     order = "bb"
-  },
-  {
-    type = "custom-input",
-    name = "qis-nav-left",
-    key_sequence = "LEFT",
-    order = "bc"
-  },
-  {
-    type = "custom-input",
-    name = "qis-nav-right",
-    key_sequence = "RIGHT",
-    order = "bd"
-  },
-  {
-    type = "custom-input",
-    name = "qis-nav-confirm",
-    key_sequence = "ENTER",
-    order = "be"
-  },
-  {
-    type = "custom-input",
-    name = "qis-nav-shift-confirm",
-    key_sequence = "SHIFT + ENTER",
-    order = "bf"
-  },
-  {
-    type = "custom-input",
-    name = "qis-nav-control-confirm",
-    key_sequence = "CONTROL + ENTER",
-    order = "bg"
   },
   {
     type = "custom-input",

@@ -1,17 +1,14 @@
+local constants = require("constants")
+
 local styles = data.raw["gui-style"].default
 
 -- LABEL STYLES
 
-local hovered_label_color = {
-  r = 0.5 * (1 + default_orange_color.r),
-  g = 0.5 * (1 + default_orange_color.g),
-  b = 0.5 * (1 + default_orange_color.b)
-}
-
-styles.qis_clickable_label = {
+styles.qis_clickable_item_label = {
   type = "label_style",
-  hovered_font_color = hovered_label_color,
-  disabled_font_color = hovered_label_color
+  horizontally_stretchable = "on",
+  hovered_font_color = constants.colors.hovered,
+  disabled_font_color = constants.colors.hovered
 }
 
 -- SCROLLPANE STYLES

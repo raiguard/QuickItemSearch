@@ -1,7 +1,14 @@
 local constants = {}
 
+local default_orange_color = {r=0.98, g=0.66, b=0.22}
+
 constants.colors = {
   emptying = {69, 255, 69},
+  hovered = {
+    r = 0.5 * (1 + default_orange_color.r),
+    g = 0.5 * (1 + default_orange_color.g),
+    b = 0.5 * (1 + default_orange_color.b)
+  },
   normal = {255, 255, 255},
   on_the_way ={255, 240, 69},
   unsatisfied = {255, 69, 69},
