@@ -52,9 +52,6 @@ event.register("qis-search", function(e)
   if player_table.flags.can_open_gui then
     search_gui.toggle(player, player_table)
   end
-
-  -- DEBUG
-  request.set(player, player_table, "transport-belt", {min = 10, max = 20})
 end)
 
 event.register({"qis-nav-up", "qis-nav-down"}, function(e)
