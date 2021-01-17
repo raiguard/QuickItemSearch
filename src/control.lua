@@ -10,6 +10,7 @@ local translation = require("__flib__.translation")
 local global_data = require("scripts.global-data")
 local migrations = require("scripts.migrations")
 local player_data = require("scripts.player-data")
+local request = require("scripts.request")
 
 local search_gui = require("scripts.gui.search")
 
@@ -51,10 +52,12 @@ event.register("qis-search", function(e)
   if player_table.flags.can_open_gui then
     search_gui.toggle(player, player_table)
   end
+
+  -- DEBUG
+  request.set(player, player_table, "transport-belt", {min = 10, max = 20})
 end)
 
 event.register({"qis-nav-up", "qis-nav-down"}, function(e)
-  local player = game.get_player(e.player_index)
   local player_table = global.players[e.player_index]
   if player_table.flags.can_open_gui then
     local gui_data = player_table.guis.search
@@ -62,6 +65,17 @@ event.register({"qis-nav-up", "qis-nav-down"}, function(e)
       local offset = string.find(e.input_name, "down") and 1 or -1
       search_gui.handle_action({player_index = e.player_index}, {action = "update_selected_index", offset = offset})
     end
+  end
+end)
+
+-- ENTITY
+
+event.on_entity_logistic_slot_changed(function(e)
+  local entity = e.entity
+  if entity and entity.valid and entity.type == "character" then
+    local player = entity.player -- event does not provide player_index every time
+    local player_table = global.players[player.index]
+    request.update(player, player_table, e.slot_index)
   end
 end)
 

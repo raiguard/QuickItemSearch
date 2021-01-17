@@ -270,7 +270,11 @@ function search_gui.handle_action(e, msg)
     local element = refs.results_table.children[i * 3 + 1]
     if element then
       local _, _, item = string.find(element.caption, "^.-%[item=(.-)%]  .*$")
-      if not e.shift and not e.control then
+      if e.shift then
+
+      elseif e.control then
+
+      else
         cursor.set_stack(player, player.cursor_stack, player_table, item)
       end
     end

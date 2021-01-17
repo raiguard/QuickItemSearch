@@ -1,7 +1,7 @@
 local translation = require("__flib__.translation")
 
 local constants = require("constants")
-
+local request = require("scripts.request")
 local search_gui = require("scripts.gui.search")
 
 local player_data = {}
@@ -14,6 +14,7 @@ function player_data.init(player_index)
       translate_on_join = false,
     },
     guis = {},
+    requests = {},
     settings = {}
   }
 end
@@ -30,6 +31,9 @@ function player_data.refresh(player, player_table)
 
   -- update settings
   player_data.update_settings(player, player_table)
+
+  -- refresh requests
+  request.refresh(player, player_table)
 
   -- run translations
   player_table.translations = {}
