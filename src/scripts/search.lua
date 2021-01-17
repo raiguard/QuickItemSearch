@@ -24,6 +24,7 @@ function search.run(player, player_table, query)
     local inventory_contents = main_inventory.get_contents()
 
     -- get outbound and inbound items
+    local logistic_network
     local deliveries = {
       inbound = {},
       outbound = {}
@@ -33,6 +34,9 @@ function search.run(player, player_table, query)
         local point = character.get_logistic_point(data.logistic_point)
         if point and point.valid then
           deliveries[data.deliveries_table] = point[data.source_table]
+          if data.point_name == "requester" then
+            logistic_network = point.logistic_network
+          end
         end
       end
     end
@@ -84,18 +88,14 @@ function search.run(player, player_table, query)
     end
 
     -- iterate logistic network contents
-    if character and character.valid then
-      point = character.get_logistic_point(defines.logistic_member_index.character_requester)
-      if point and point.valid then
-        -- iterate logistic network contents
-        local network = point.logistic_network
-        if network and network.valid then
-          connected_to_network = true
-          for name, count in pairs(network.get_contents()) do
-            -- add to results
-            match(name, "logistic", count)
-            if i > constants.results_limit then goto limit end
-          end
+    if logistic_network then
+      -- iterate logistic network contents
+      if logistic_network and logistic_network.valid then
+        connected_to_network = true
+        for name, count in pairs(logistic_network.get_contents()) do
+          -- add to results
+          match(name, "logistic", count)
+          if i > constants.results_limit then goto limit end
         end
       end
     end

@@ -46,6 +46,10 @@ end)
 
 -- CUSTOM INPUT
 
+event.register("qis-confirm", function(e)
+  log("CONFIRMED")
+end)
+
 event.register("qis-search", function(e)
   local player = game.get_player(e.player_index)
   local player_table = global.players[e.player_index]

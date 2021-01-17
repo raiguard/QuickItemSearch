@@ -36,7 +36,7 @@ local function perform_search(player, player_table, state, refs)
             }
           },
           {type = "label"},
-          {type = "label"}
+          {type = "label", style = "qis_clickable_label"}
         })
         -- update our copy of the table
         children = results_table.children
@@ -65,7 +65,7 @@ local function perform_search(player, player_table, state, refs)
         request_label.caption = row.infinity_filter or "--"
       else
         local request = row.request or {min = 0}
-        local max = request.max or "inf"
+        local max = request.max or constants.infinity_rep
         if max == math.max_uint then
           max = "inf"
         end
@@ -133,7 +133,7 @@ function search_gui.build(player, player_table)
         },
         {
           type = "frame",
-          style = "inside_shallow_frame",
+          style = "inside_shallow_frame_with_padding",
           style_mods = {top_padding = -2},
           direction = "vertical",
           children = {
@@ -149,7 +149,7 @@ function search_gui.build(player, player_table)
             },
             {
               type = "textfield",
-              style_mods = {left_margin = 12, right_margin = 12, width = 400, top_margin = 9},
+              style_mods = {width = 420, top_margin = 9},
               clear_and_focus_on_right_click = true,
               lose_focus_on_confirm = true,
               ref = {"search_textfield"},
@@ -161,7 +161,7 @@ function search_gui.build(player, player_table)
             {
               type = "frame",
               style = "deep_frame_in_shallow_frame",
-              style_mods = {top_margin = 10, bottom_margin = 12, left_margin = 12, right_margin = 12, height = 28 * 10},
+              style_mods = {top_margin = 10, bottom_margin = 4, height = 28 * 10},
               direction = "vertical",
               children = {
                 {
@@ -199,7 +199,67 @@ function search_gui.build(player, player_table)
                   }
                 }
               }
-            }
+            },
+            {type = "flow", style_mods = {vertical_align = "center", horizontal_spacing = 8, top_margin = 8}, children = {
+              {
+                type = "textfield",
+                style = "slider_value_textfield",
+                numeric = true,
+                clear_and_focus_on_right_click = true,
+                text = "0",
+                enabled = false
+              },
+              {type = "flow", direction = "vertical", children = {
+                {
+                  type = "slider",
+                  style = "notched_slider",
+                  style_mods = {horizontally_stretchable = true},
+                  minimum_value = 0,
+                  maximum_value = 500,
+                  value_step = 50,
+                  value = 0,
+                  discrete_slider = true,
+                  discrete_values = true,
+                  -- sliders don't support setting enabled = false directly for some reason
+                  elem_mods = {enabled = false}
+                },
+                {
+                  type = "slider",
+                  style = "notched_slider",
+                  style_mods = {horizontally_stretchable = true},
+                  minimum_value = 0,
+                  maximum_value = 500,
+                  value_step = 50,
+                  value = 500,
+                  discrete_slider = true,
+                  discrete_values = true,
+                  -- sliders don't support setting enabled = false directly for some reason
+                  elem_mods = {enabled = false}
+                }
+              }},
+              {
+                type = "textfield",
+                style = "slider_value_textfield",
+                numeric = true,
+                clear_and_focus_on_right_click = true,
+                text = constants.infinity_rep,
+                enabled = false
+              },
+              {
+                type = "sprite-button",
+                style = "item_and_count_select_confirm",
+                sprite = "utility/check_mark",
+                tooltip = {"qis-gui.set-request"},
+                enabled = false
+              },
+              {
+                type = "sprite-button",
+                style = "item_and_count_select_confirm",
+                sprite = "qis_temporary_request",
+                tooltip = {"qis-gui.set-temporary-request"},
+                enabled = false
+              }
+            }}
           }
         }
       }

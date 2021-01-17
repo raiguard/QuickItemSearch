@@ -32,6 +32,8 @@ constants.infinity_filter_mode_to_symbol = {
   ["exactly"] = "="
 }
 
+constants.infinity_rep = "inf."
+
 constants.input_sanitizers = {
   ["%("] = "%%(",
   ["%)"] = "%%)",
@@ -50,11 +52,13 @@ constants.logistic_point_data = {
   {
     deliveries_table = "outbound",
     logistic_point = defines.logistic_member_index.character_provider,
+    point_name = "provider",
     source_table = "targeted_items_pickup",
   },
   {
     deliveries_table = "inbound",
     logistic_point = defines.logistic_member_index.character_requester,
+    point_name = "requester",
     source_table = "targeted_items_deliver",
   }
 }

@@ -24,5 +24,17 @@ data:extend{
     name = "qis-quick-trash-all",
     key_sequence = "CONTROL + SHIFT + T",
     order = "c"
+  },
+  {
+    type = "custom-input",
+    name = "qis-confirm",
+    key_sequence = "E",
+    order = "d"
+  },
+{
+    type = "custom-input",
+    name = "qis-shift-confirm",
+    key_sequence = "SHIFT + E",
+    order = "e"
   }
 }

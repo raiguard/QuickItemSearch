@@ -4,11 +4,16 @@ local styles = data.raw["gui-style"].default
 
 -- LABEL STYLES
 
-styles.qis_clickable_item_label = {
+styles.qis_clickable_label = {
   type = "label_style",
-  horizontally_stretchable = "on",
   hovered_font_color = constants.colors.hovered,
   disabled_font_color = constants.colors.hovered
+}
+
+styles.qis_clickable_item_label = {
+  type = "label_style",
+  parent = "qis_clickable_label",
+  horizontally_stretchable = "on"
 }
 
 -- SCROLLPANE STYLES
