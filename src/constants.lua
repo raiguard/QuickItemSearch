@@ -8,7 +8,8 @@ constants.colors = {
     g = 0.5 * (1 + default_orange_color.g),
     b = 0.5 * (1 + default_orange_color.b)
   },
-  inbound ={255, 240, 69},
+  inbound = {255, 240, 69},
+  logistic_str = "128, 206, 240",
   normal = {255, 255, 255},
   outbound = {69, 255, 69},
   unsatisfied = {255, 69, 69}

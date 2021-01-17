@@ -48,7 +48,14 @@ local function perform_search(player, player_table, state, refs)
       item_label.caption = hidden_abbrev.."[item="..row.name.."]  "..row.translation
       -- item counts
       if player.controller_type == defines.controllers.character and connected_to_network then
-        children[i3 + 2].caption = (row.inventory or 0).." / [color=128, 206, 240]"..(row.logistic or 0).."[/color]"
+        children[i3 + 2].caption = (
+          (row.inventory or 0)
+          .." / [color="
+          ..constants.colors.logistic_str
+          .."]"
+          ..(row.logistic or 0)
+          .."[/color]"
+        )
       else
         children[i3 + 2].caption = (row.inventory or 0)
       end
@@ -69,6 +76,12 @@ local function perform_search(player, player_table, state, refs)
     -- destroy extraneous rows
     for j = #results_table.children, ((i + 1) * 3) + 1, -1 do
       results_table.children[j].destroy()
+    end
+    -- show or hide warning
+    if player.controller_type == defines.controllers.character and not connected_to_network then
+      refs.warning_subheader.visible = true
+    else
+      refs.warning_subheader.visible = false
     end
   -- clear table if it has contents
   elseif #results_table.children > 3 then
@@ -120,7 +133,7 @@ function search_gui.build(player, player_table)
         },
         {
           type = "frame",
-          style = "inside_shallow_frame_with_padding",
+          style = "inside_shallow_frame",
           style_mods = {top_padding = -2},
           direction = "vertical",
           children = {
@@ -136,7 +149,7 @@ function search_gui.build(player, player_table)
             },
             {
               type = "textfield",
-              style_mods = {width = 400, top_margin = 9},
+              style_mods = {left_margin = 12, right_margin = 12, width = 400, top_margin = 9},
               clear_and_focus_on_right_click = true,
               lose_focus_on_confirm = true,
               ref = {"search_textfield"},
@@ -145,22 +158,48 @@ function search_gui.build(player, player_table)
                 on_text_changed = {gui = "search", action = "update_search_query"}
               }
             },
-            {type = "frame", style = "deep_frame_in_shallow_frame", style_mods = {top_margin = 10}, children = {
-              {
-                type = "scroll-pane",
-                style = "qis_list_box_scroll_pane",
-                style_mods = {height = 28 * 10},
-                ref = {"results_scroll_pane"},
-                children = {
-                  {type = "table", style = "qis_list_box_table", column_count = 3, ref = {"results_table"}, children = {
-                    -- dummy elements for the borked first row
-                    {type = "empty-widget"},
-                    {type = "empty-widget"},
-                    {type = "empty-widget"}
-                  }},
+            {
+              type = "frame",
+              style = "deep_frame_in_shallow_frame",
+              style_mods = {top_margin = 10, bottom_margin = 12, left_margin = 12, right_margin = 12, height = 28 * 10},
+              direction = "vertical",
+              children = {
+                {
+                  type = "frame",
+                  style = "negative_subheader_frame",
+                  style_mods = {left_padding = 12, horizontally_stretchable = true},
+                  visible = false,
+                  ref = {"warning_subheader"},
+                  children = {
+                    {
+                      type = "label",
+                      style = "bold_label",
+                      caption = {"qis-gui.not-connected-to-logistic-network"}
+                    }
+                  }
+                },
+                {
+                  type = "scroll-pane",
+                  style = "qis_list_box_scroll_pane",
+                  style_mods = {vertically_stretchable = true},
+                  ref = {"results_scroll_pane"},
+                  children = {
+                    {
+                      type = "table",
+                      style = "qis_list_box_table",
+                      column_count = 3,
+                      ref = {"results_table"},
+                      children = {
+                        -- dummy elements for the borked first row
+                        {type = "empty-widget"},
+                        {type = "empty-widget"},
+                        {type = "empty-widget"}
+                      }
+                    }
+                  }
                 }
               }
-            }}
+            }
           }
         }
       }
