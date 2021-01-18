@@ -64,13 +64,17 @@ local function perform_search(player, player_table, state, refs)
       if player.controller_type == defines.controllers.editor then
         request_label.caption = row.infinity_filter or "--"
       else
-        local request = row.request or {min = 0}
-        local max = request.max or constants.infinity_rep
-        if max == math.max_uint then
-          max = "inf"
+        local request = row.request
+        if request then
+          local max = request.max
+          if max == math.max_uint then
+            max = constants.infinity_rep
+          end
+          request_label.caption = request.min.." / "..max
+          request_label.style.font_color = constants.colors[row.request_color or "normal"]
+        else
+          request_label.caption = "--"
         end
-        request_label.caption = request.min.." / "..max
-        request_label.style.font_color = constants.colors[row.request_color or "normal"]
       end
     end
     -- destroy extraneous rows
@@ -83,14 +87,39 @@ local function perform_search(player, player_table, state, refs)
     else
       refs.warning_subheader.visible = false
     end
+    -- add to state
+    state.results = results
+    state.connected_to_network = connected_to_network -- TODO: will go unused?
   -- clear table if it has contents
   elseif #results_table.children > 3 then
     -- clear results
     results_table.clear()
+    state.results = {}
     -- add new dummy elements
     for _ = 1, 3 do
       results_table.add{type = "empty-widget"}
     end
+  end
+end
+
+local function update_logistic_setter(player_table, refs, state)
+  local result = state.results[state.selected_index]
+  local request = result.request or {min = 0, max = math.max_uint}
+  local stack_size = game.item_prototypes[result.name].stack_size
+  local logistic_setter = refs.logistic_setter
+  for _, type in ipairs{"min", "max"} do
+    local elems = logistic_setter[type]
+    local count = request[type]
+    elems.textfield.enabled = true
+    if count == math.max_uint then
+      elems.textfield.text = constants.infinity_rep
+    else
+      elems.textfield.text = tostring(count)
+    end
+    elems.slider.enabled = true
+    elems.slider.set_slider_minimum_maximum(0, stack_size * 10)
+    elems.slider.set_slider_value_step(stack_size)
+    elems.slider.slider_value = math.round(count / stack_size) * stack_size
   end
 end
 
@@ -134,7 +163,7 @@ function search_gui.build(player, player_table)
         {
           type = "frame",
           style = "inside_shallow_frame_with_padding",
-          style_mods = {top_padding = -2},
+          style_mods = {top_padding = -2, bottom_padding = 8},
           direction = "vertical",
           children = {
             -- dummy input action textfield
@@ -161,13 +190,13 @@ function search_gui.build(player, player_table)
             {
               type = "frame",
               style = "deep_frame_in_shallow_frame",
-              style_mods = {top_margin = 10, bottom_margin = 4, height = 28 * 10},
+              style_mods = {top_margin = 10, bottom_margin = 8, height = 28 * 10},
               direction = "vertical",
               children = {
                 {
                   type = "frame",
                   style = "negative_subheader_frame",
-                  style_mods = {left_padding = 12, horizontally_stretchable = true},
+                  style_mods = {left_padding = 12, height = 28, horizontally_stretchable = true},
                   visible = false,
                   ref = {"warning_subheader"},
                   children = {
@@ -181,7 +210,7 @@ function search_gui.build(player, player_table)
                 {
                   type = "scroll-pane",
                   style = "qis_list_box_scroll_pane",
-                  style_mods = {vertically_stretchable = true},
+                  style_mods = {vertically_stretchable = true, bottom_padding = 2},
                   ref = {"results_scroll_pane"},
                   children = {
                     {
@@ -200,66 +229,100 @@ function search_gui.build(player, player_table)
                 }
               }
             },
-            {type = "flow", style_mods = {vertical_align = "center", horizontal_spacing = 8, top_margin = 8}, children = {
-              {
-                type = "textfield",
-                style = "slider_value_textfield",
-                numeric = true,
-                clear_and_focus_on_right_click = true,
-                text = "0",
-                enabled = false
-              },
-              {type = "flow", direction = "vertical", children = {
+            {
+              type = "flow",
+              style_mods = {vertical_align = "center", horizontal_spacing = 8},
+              children = {
                 {
-                  type = "slider",
-                  style = "notched_slider",
-                  style_mods = {horizontally_stretchable = true},
-                  minimum_value = 0,
-                  maximum_value = 500,
-                  value_step = 50,
-                  value = 0,
-                  discrete_slider = true,
-                  discrete_values = true,
-                  -- sliders don't support setting enabled = false directly for some reason
-                  elem_mods = {enabled = false}
+                  type = "textfield",
+                  style = "slider_value_textfield",
+                  numeric = true,
+                  clear_and_focus_on_right_click = true,
+                  text = "0",
+                  enabled = false,
+                  ref = {"logistic_setter", "min", "textfield"},
+                  actions = {
+                    on_text_changed = {
+                      gui = "search",
+                      action = "update_logistic_request",
+                      elem = "textfield",
+                      bound = "min"
+                    }
+                  }
+                },
+                {type = "flow", direction = "vertical", children = {
+                  {
+                    type = "slider",
+                    style = "notched_slider",
+                    style_mods = {horizontally_stretchable = true},
+                    minimum_value = 0,
+                    maximum_value = 500,
+                    value_step = 50,
+                    value = 0,
+                    discrete_slider = true,
+                    discrete_values = true,
+                    -- sliders don't support setting enabled = false directly for some reason
+                    elem_mods = {enabled = false},
+                    ref = {"logistic_setter", "max", "slider"},
+                    actions = {
+                      on_value_changed = {
+                        gui = "search",
+                        action = "update_logistic_request",
+                        elem = "slider",
+                        bound = "max"
+                      }
+                    }
+                  },
+                  {
+                    type = "slider",
+                    style = "notched_slider",
+                    style_mods = {horizontally_stretchable = true},
+                    minimum_value = 0,
+                    maximum_value = 500,
+                    value_step = 50,
+                    value = 500,
+                    discrete_slider = true,
+                    discrete_values = true,
+                    -- sliders don't support setting enabled = false directly for some reason
+                    elem_mods = {enabled = false},
+                    ref = {"logistic_setter", "min", "slider"},
+                    actions = {
+                      on_value_changed = {
+                        gui = "search",
+                        action = "update_logistic_request",
+                        elem = "slider",
+                        bound = "min"
+                      }
+                    }
+                  }
+                }},
+                {
+                  type = "textfield",
+                  style = "slider_value_textfield",
+                  numeric = true,
+                  clear_and_focus_on_right_click = true,
+                  text = constants.infinity_rep,
+                  enabled = false,
+                  ref = {"logistic_setter", "max", "textfield"}
                 },
                 {
-                  type = "slider",
-                  style = "notched_slider",
-                  style_mods = {horizontally_stretchable = true},
-                  minimum_value = 0,
-                  maximum_value = 500,
-                  value_step = 50,
-                  value = 500,
-                  discrete_slider = true,
-                  discrete_values = true,
-                  -- sliders don't support setting enabled = false directly for some reason
-                  elem_mods = {enabled = false}
+                  type = "sprite-button",
+                  style = "item_and_count_select_confirm",
+                  sprite = "utility/check_mark",
+                  tooltip = {"qis-gui.set-request"},
+                  enabled = false,
+                  ref = {"logistic_setter", "set_request_button"}
+                },
+                {
+                  type = "sprite-button",
+                  style = "flib_tool_button_light_green",
+                  sprite = "qis_temporary_request_disabled",
+                  tooltip = {"qis-gui.set-temporary-request"},
+                  enabled = false,
+                  ref = {"logistic_setter", "set_temporary_request_button"}
                 }
-              }},
-              {
-                type = "textfield",
-                style = "slider_value_textfield",
-                numeric = true,
-                clear_and_focus_on_right_click = true,
-                text = constants.infinity_rep,
-                enabled = false
-              },
-              {
-                type = "sprite-button",
-                style = "item_and_count_select_confirm",
-                sprite = "utility/check_mark",
-                tooltip = {"qis-gui.set-request"},
-                enabled = false
-              },
-              {
-                type = "sprite-button",
-                style = "item_and_count_select_confirm",
-                sprite = "qis_temporary_request",
-                tooltip = {"qis-gui.set-temporary-request"},
-                enabled = false
               }
-            }}
+            }
           }
         }
       }
@@ -356,6 +419,7 @@ function search_gui.handle_action(e, msg)
     local results_table = refs.results_table
     results_table.children[state.selected_index * 3 + 1].style.font_color = constants.colors.hovered
     refs.input_action_textfield.focus()
+    update_logistic_setter(player_table, refs, state)
   elseif msg.action == "update_selected_index" then
     local results_table = refs.results_table
     local selected_index = state.selected_index
@@ -364,17 +428,17 @@ function search_gui.handle_action(e, msg)
     state.selected_index = new_selected_index
     results_table.children[new_selected_index * 3 + 1].style.font_color = constants.colors.hovered
     refs.results_scroll_pane.scroll_to_element(results_table.children[new_selected_index * 3 + 1], "top-third")
+    update_logistic_setter(player_table, refs, state)
   elseif msg.action == "handle_item_click" then
     local i = msg.index or state.selected_index
-    local element = refs.results_table.children[i * 3 + 1]
-    if element then
-      local _, _, item = string.find(element.caption, "^.-%[item=(.-)%]  .*$")
+    local result = state.results[i]
+    if result then -- TODO: always true?
       if e.shift then
 
       elseif e.control then
 
       else
-        cursor.set_stack(player, player.cursor_stack, player_table, item)
+        cursor.set_stack(player, player.cursor_stack, player_table, result.name)
       end
     end
   end
