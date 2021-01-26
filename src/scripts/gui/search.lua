@@ -345,6 +345,8 @@ function search_gui.handle_action(e, msg)
     state.selected_index = new_selected_index
     results_table.children[new_selected_index * 3 + 1].style.font_color = constants.colors.hovered
     refs.results_scroll_pane.scroll_to_element(results_table.children[new_selected_index * 3 + 1], "top-third")
+    -- in case it was defocused at some point
+    refs.input_action_textfield.focus()
   elseif msg.action == "select_item" then
     local i = msg.index or state.selected_index
     local result = state.results[i]

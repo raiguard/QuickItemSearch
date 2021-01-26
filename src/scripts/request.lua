@@ -8,7 +8,9 @@ function request.set(player, player_table, name, counts, is_temporary)
     local i = 1
     while not request_data do
       local filter = player.get_personal_logistic_slot(i)
-      if not filter.name then
+      if filter.name then
+        i = i + 1
+      else
         -- create request data
         request_data = {index = i}
         requests.by_index[i] = request_data

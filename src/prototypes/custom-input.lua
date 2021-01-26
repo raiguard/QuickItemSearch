@@ -31,10 +31,16 @@ data:extend{
     key_sequence = "E",
     order = "d"
   },
-{
+  {
     type = "custom-input",
     name = "qis-shift-confirm",
     key_sequence = "SHIFT + E",
     order = "e"
+  },
+  {
+    type = "custom-input",
+    name = "qis-tab",
+    key_sequence = "TAB",
+    consuming = "game-only"
   }
 }
