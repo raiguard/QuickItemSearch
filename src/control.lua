@@ -137,6 +137,19 @@ event.register(
   end
 )
 
+event.on_player_main_inventory_changed(function(e)
+  local player = game.get_player(e.player_index)
+  local player_table = global.players[e.player_index]
+
+  local gui_data = player_table.guis.search
+  if gui_data then
+    local state = gui_data.state
+    if state.visible and not state.subwindow_open then
+      search_gui.perform_search(player, player_table, state, gui_data.refs)
+    end
+  end
+end)
+
 -- SETTINGS
 
 event.on_runtime_mod_setting_changed(function(e)
@@ -160,18 +173,30 @@ event.on_lua_shortcut(function(e)
 end)
 
 -- TICK
--- TODO: update the search results on inventory changed, player moved, or every two seconds
 
 local function on_tick(e)
+  local deregister = true
+
   if translation.translating_players_count() > 0 then
+    deregister = false
     translation.iterate_batch(e)
-  else
+  end
+
+  if next(global.update_search_results) then
+    deregister = false
+    search_gui.update_for_active_players()
+  end
+
+  if deregister then
     event.on_tick(nil)
   end
 end
 
 shared.register_on_tick = function()
-  if translation.translating_players_count() > 0 then
+  if
+    translation.translating_players_count() > 0
+    or next(global.update_search_results)
+  then
     event.on_tick(on_tick)
   end
 end

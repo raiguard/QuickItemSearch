@@ -2,6 +2,7 @@ local global_data = {}
 
 function global_data.init()
   global.players = {}
+  global.update_search_results = {}
 end
 
 function global_data.build_strings()

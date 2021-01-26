@@ -1,8 +1,6 @@
 local constants = require("constants")
 
-local search = {}
-
-function search.run(player, player_table, query)
+return function(player, player_table, query)
   local requests_by_name = player_table.requests.by_name
   local settings = player_table.settings
   local translations = player_table.translations
@@ -20,24 +18,32 @@ function search.run(player, player_table, query)
   local main_inventory = player.get_main_inventory()
   -- don't bother doing anything if they don't have an inventory
   if main_inventory and main_inventory.valid then
+    -- combine main inventory contents with cursor stack
+    local inventory_contents = main_inventory.get_contents()
+    local cursor_stack = player.cursor_stack
+    if cursor_stack and cursor_stack.valid_for_read then
+      inventory_contents[cursor_stack.name] = (inventory_contents[cursor_stack.name] or 0) + cursor_stack.count
+    end
+
     local contents = {
       inbound = {},
-      inventory = main_inventory.get_contents(),
+      inventory = inventory_contents,
       logistic = {},
       outbound = {}
     }
 
     -- get logistic network and related contents
-    local logistic_network
     if character and character.valid then
       for _, data in ipairs(constants.logistic_point_data) do
         local point = character.get_logistic_point(data.logistic_point)
         if point and point.valid then
           contents[data.deliveries_table] = point[data.source_table]
           if data.point_name == "requester" then
-            logistic_network = point.logistic_network
-            connected_to_network = true
-            contents.logistic = logistic_network.get_contents()
+            local logistic_network = point.logistic_network
+            if logistic_network.valid then
+              connected_to_network = true
+              contents.logistic = logistic_network.get_contents()
+            end
           end
         end
       end
@@ -50,10 +56,11 @@ function search.run(player, player_table, query)
         local hidden = item_prototypes[name].has_flag("hidden")
         if show_hidden or not hidden then
           local inventory_count = contents.inventory[name]
+          local logistic_count = contents.logistic[name]
           local result = {
             hidden = hidden,
             inventory = inventory_count,
-            logistic = contents.logistic[name],
+            logistic = logistic_count and math.max(logistic_count, 0) or nil,
             name = name,
             translation = translation,
           }
@@ -96,5 +103,3 @@ function search.run(player, player_table, query)
 
   return results, connected_to_network
 end
-
-return search

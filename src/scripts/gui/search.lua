@@ -4,105 +4,9 @@ local math = require("__flib__.math")
 local constants = require("constants")
 local cursor = require("scripts.cursor")
 local search = require("scripts.search")
+local shared = require("scripts.shared")
 
 local request_gui = require("scripts.gui.request")
-
-local function perform_search(player, player_table, state, refs)
-  local query = state.query
-  local results_table = refs.results_table
-  local children = results_table.children
-
-  -- deselect highlighted entry
-  if #results_table.children > 3 then
-    results_table.children[state.selected_index * 3 + 1].style.font_color = constants.colors.normal
-    refs.results_scroll_pane.scroll_to_top()
-  end
-  -- reset selected index
-  state.selected_index = 1
-
-  if #state.raw_query > 1 then
-    local i = 0
-    local results, connected_to_network = search.run(player, player_table, query)
-    for _, row in ipairs(results) do
-      i = i + 1
-      local i3 = i * 3
-
-      -- build row if nonexistent
-      if not results_table.children[i3 + 1] then
-        gui.build(results_table, {
-          {
-            type = "label",
-            style = "qis_clickable_item_label",
-            actions = {
-              on_click = {gui = "search", action = "select_item", index = i}
-            }
-          },
-          {type = "label"},
-          {type = "label", style = "qis_clickable_label"}
-        })
-        -- update our copy of the table
-        children = results_table.children
-      end
-
-      -- item label
-      local item_label = children[i3 + 1]
-      local hidden_abbrev = row.hidden and "[font=default-semibold](H)[/font]  " or ""
-      item_label.caption = hidden_abbrev.."[item="..row.name.."]  "..row.translation
-      -- item counts
-      if player.controller_type == defines.controllers.character and connected_to_network then
-        children[i3 + 2].caption = (
-          (row.inventory or 0)
-          .." / [color="
-          ..constants.colors.logistic_str
-          .."]"
-          ..(row.logistic or 0)
-          .."[/color]"
-        )
-      else
-        children[i3 + 2].caption = (row.inventory or 0)
-      end
-      -- request / infinity filter
-      local request_label = children[i3 + 3]
-      if player.controller_type == defines.controllers.editor then
-        request_label.caption = row.infinity_filter or "--"
-      else
-        local request = row.request
-        if request then
-          local max = request.max
-          if max == math.max_uint then
-            max = constants.infinity_rep
-          end
-          request_label.caption = request.min.." / "..max
-          request_label.style.font_color = constants.colors[row.request_color or "normal"]
-        else
-          request_label.caption = "--"
-        end
-      end
-    end
-    -- destroy extraneous rows
-    for j = #results_table.children, ((i + 1) * 3) + 1, -1 do
-      results_table.children[j].destroy()
-    end
-    -- show or hide warning
-    if player.controller_type == defines.controllers.character and not connected_to_network then
-      refs.warning_subheader.visible = true
-    else
-      refs.warning_subheader.visible = false
-    end
-    -- add to state
-    state.results = results
-    state.connected_to_network = connected_to_network -- TODO: will go unused?
-  -- clear table if it has contents
-  elseif #results_table.children > 3 then
-    -- clear results
-    results_table.clear()
-    state.results = {}
-    -- add new dummy elements
-    for _ = 1, 3 do
-      results_table.add{type = "empty-widget"}
-    end
-  end
-end
 
 local search_gui = {}
 
@@ -196,7 +100,7 @@ function search_gui.build(player, player_table)
                     {
                       type = "label",
                       style = "bold_label",
-                      caption = {"qis-gui.not-connected-to-logistic-network"}
+                      caption = {"", "[img=utility/warning_white]  ", {"qis-gui.not-connected-to-logistic-network"}}
                     }
                   }
                 },
@@ -234,10 +138,11 @@ function search_gui.build(player, player_table)
   player_table.guis.search = {
     refs = refs,
     state = {
+      last_search_update = game.ticks_played,
       query = "",
       raw_query = "",
       selected_index = 1,
-      subwindow_open = true,
+      subwindow_open = false,
       visible = false
     }
   }
@@ -259,7 +164,10 @@ function search_gui.open(player, player_table)
   gui_data.refs.search_textfield.select_all()
 
   -- update the table right away
-  perform_search(player, player_table, gui_data.state, gui_data.refs)
+  search_gui.perform_search(player, player_table, gui_data.state, gui_data.refs)
+
+  global.update_search_results[player.index] = true
+  shared.register_on_tick()
 end
 
 function search_gui.close(player, player_table)
@@ -272,6 +180,7 @@ function search_gui.close(player, player_table)
       player.opened = nil
     end
   end
+  global.update_search_results[player.index] = nil
 end
 
 function search_gui.toggle(player, player_table)
@@ -298,9 +207,126 @@ function search_gui.reopen_after_subwindow(e)
     refs.input_action_textfield.focus()
     state.subwindow_open = false
 
-    perform_search(player, player_table, state, refs)
+    search_gui.perform_search(player, player_table, state, refs)
 
     player.opened = gui_data.refs.window
+
+    global.update_search_results[player.index] = true
+    shared.register_on_tick()
+  end
+end
+
+function search_gui.perform_search(player, player_table, state, refs, updated_query)
+  state.last_search_update = game.ticks_played
+
+  local query = state.query
+  local results_table = refs.results_table
+  local children = results_table.children
+
+  -- deselect highlighted entry
+  if updated_query and #results_table.children > 3 then
+    results_table.children[state.selected_index * 3 + 1].style.font_color = constants.colors.normal
+    refs.results_scroll_pane.scroll_to_top()
+    -- reset selected index
+    state.selected_index = 1
+  end
+
+  if #state.raw_query > 1 then
+    local i = 0
+    local results, connected_to_network = search(player, player_table, query)
+    for _, row in ipairs(results) do
+      i = i + 1
+      local i3 = i * 3
+
+      -- build row if nonexistent
+      if not results_table.children[i3 + 1] then
+        gui.build(results_table, {
+          {
+            type = "label",
+            style = "qis_clickable_item_label",
+            actions = {
+              on_click = {gui = "search", action = "select_item", index = i}
+            }
+          },
+          {type = "label"},
+          {type = "label", style = "qis_clickable_label"}
+        })
+        -- update our copy of the table
+        children = results_table.children
+      end
+
+      -- item label
+      local item_label = children[i3 + 1]
+      local hidden_abbrev = row.hidden and "[font=default-semibold](H)[/font]  " or ""
+      item_label.caption = hidden_abbrev.."[item="..row.name.."]  "..row.translation
+      -- item counts
+      if player.controller_type == defines.controllers.character and connected_to_network then
+        children[i3 + 2].caption = (
+          (row.inventory or 0)
+          .." / [color="
+          ..constants.colors.logistic_str
+          .."]"
+          ..(row.logistic or 0)
+          .."[/color]"
+        )
+      else
+        children[i3 + 2].caption = (row.inventory or 0)
+      end
+      -- request / infinity filter
+      local request_label = children[i3 + 3]
+      if player.controller_type == defines.controllers.editor then
+        request_label.caption = row.infinity_filter or "--"
+      else
+        local request = row.request
+        if request then
+          local max = request.max
+          if max == math.max_uint then
+            max = constants.infinity_rep
+          end
+          request_label.caption = request.min.." / "..max
+          request_label.style.font_color = constants.colors[row.request_color or "normal"]
+        else
+          request_label.caption = "--"
+        end
+      end
+    end
+    -- destroy extraneous rows
+    for j = #results_table.children, ((i + 1) * 3) + 1, -1 do
+      results_table.children[j].destroy()
+    end
+    -- show or hide warning
+    if player.controller_type == defines.controllers.character and not connected_to_network then
+      refs.warning_subheader.visible = true
+    else
+      refs.warning_subheader.visible = false
+    end
+    -- add to state
+    state.results = results
+    state.connected_to_network = connected_to_network -- TODO: will go unused?
+  -- clear table if it has contents
+  elseif #results_table.children > 3 then
+    -- clear results
+    results_table.clear()
+    state.results = {}
+    -- add new dummy elements
+    for _ = 1, 3 do
+      results_table.add{type = "empty-widget"}
+    end
+  end
+end
+
+function search_gui.update_for_active_players()
+  local tick = game.ticks_played
+  for player_index in pairs(global.update_search_results) do
+    local player = game.get_player(player_index)
+    local player_table = global.players[player_index]
+    local gui_data = player_table.guis.search
+    local refs = gui_data.refs
+    local state = gui_data.state
+
+    if tick - state.last_search_update > 120 then
+      search_gui.perform_search(player, player_table, state, refs)
+    end
   end
 end
 
@@ -327,10 +353,10 @@ function search_gui.handle_action(e, msg)
     end
     state.query = query
     state.raw_query = e.text
-    perform_search(player, player_table, state, refs)
+    search_gui.perform_search(player, player_table, state, refs, true)
   elseif msg.action == "perform_search" then
     -- perform search without updating query
-    perform_search(player, player_table, state, refs)
+    search_gui.perform_search(player, player_table, state, refs)
   elseif msg.action == "enter_result_selection" then
     if #refs.results_table.children == 3 then
       refs.search_textfield.focus()
