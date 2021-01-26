@@ -290,11 +290,16 @@ function search_gui.reopen_after_subwindow(e)
 
   if gui_data then
     local refs = gui_data.refs
+    local state = gui_data.state
+
     refs.input_action_textfield.enabled = true
     refs.search_textfield.enabled = true
     refs.window_dimmer.visible = false
     refs.input_action_textfield.focus()
-    gui_data.state.subwindow_open = false
+    state.subwindow_open = false
+
+    perform_search(player, player_table, state, refs)
+
     player.opened = gui_data.refs.window
   end
 end

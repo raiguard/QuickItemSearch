@@ -51,8 +51,6 @@ event.register({"qis-confirm", "qis-shift-confirm"}, function(e)
   request_gui.set_request(player, player_table, e.input_name == "qis-shift-confirm")
 end)
 
-event.register("qis-tab", function(e) game.print(game.tick.." TAB") end)
-
 event.register("qis-search", function(e)
   local player = game.get_player(e.player_index)
   local player_table = global.players[e.player_index]
