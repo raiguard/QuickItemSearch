@@ -2,6 +2,19 @@ local constants = require("constants")
 
 local styles = data.raw["gui-style"].default
 
+-- FRAME STYLES
+
+styles.qis_window_dimmer = {
+  type = "frame_style",
+  graphical_set = {
+    base = {
+      filename = "__flib__/graphics/black.png",
+      size = 1,
+      opacity = 0.3
+    }
+  }
+}
+
 -- LABEL STYLES
 
 styles.qis_clickable_label = {
@@ -42,4 +55,12 @@ styles.qis_list_box_table = {
     {column = 2, alignment = "center"},
     {column = 3, alignment = "center"},
   }
+}
+
+-- TEXTFIELD STYLES
+
+styles.qis_disablable_textfield = {
+  type = "textbox_style",
+  disabled_background = styles.textbox.default_background,
+  disabled_font_color = button_default_font_color
 }

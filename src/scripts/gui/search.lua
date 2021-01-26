@@ -5,6 +5,8 @@ local constants = require("constants")
 local cursor = require("scripts.cursor")
 local search = require("scripts.search")
 
+local request_gui = require("scripts.gui.request")
+
 local function perform_search(player, player_table, state, refs)
   local query = state.query
   local results_table = refs.results_table
@@ -32,7 +34,7 @@ local function perform_search(player, player_table, state, refs)
             type = "label",
             style = "qis_clickable_item_label",
             actions = {
-              on_click = {gui = "search", action = "handle_item_click", index = i}
+              on_click = {gui = "search", action = "select_item", index = i}
             }
           },
           {type = "label"},
@@ -102,37 +104,26 @@ local function perform_search(player, player_table, state, refs)
   end
 end
 
-local function update_logistic_setter(player_table, refs, state)
-  local result = state.results[state.selected_index]
-  local request = result.request or {min = 0, max = math.max_uint}
-  local stack_size = game.item_prototypes[result.name].stack_size
-  local logistic_setter = refs.logistic_setter
-  for _, type in ipairs{"min", "max"} do
-    local elems = logistic_setter[type]
-    local count = request[type]
-    elems.textfield.enabled = true
-    if count == math.max_uint then
-      elems.textfield.text = constants.infinity_rep
-    else
-      elems.textfield.text = tostring(count)
-    end
-    elems.slider.enabled = true
-    elems.slider.set_slider_minimum_maximum(0, stack_size * 10)
-    elems.slider.set_slider_value_step(stack_size)
-    elems.slider.slider_value = math.round(count / stack_size) * stack_size
-  end
-end
-
 local search_gui = {}
 
 function search_gui.build(player, player_table)
   local refs = gui.build(player.gui.screen, {
     {
       type = "frame",
+      style = "qis_window_dimmer",
+      style_mods = {size = {448, 390}},
+      visible = false,
+      ref = {"window_dimmer"}
+    },
+    {
+      type = "frame",
       direction = "vertical",
       visible = false,
       ref = {"window"},
-      actions = {on_closed = {gui = "search", action = "close"}},
+      actions = {
+        on_closed = {gui = "search", action = "close"},
+        on_location_changed = {gui = "search", action = "update_dimmer_location"}
+      },
       children = {
         {
           type = "flow",
@@ -163,22 +154,24 @@ function search_gui.build(player, player_table)
         {
           type = "frame",
           style = "inside_shallow_frame_with_padding",
-          style_mods = {top_padding = -2, bottom_padding = 8},
+          style_mods = {top_padding = -2},
           direction = "vertical",
           children = {
             -- dummy input action textfield
             {
               type = "textfield",
+              style = "qis_disablable_textfield",
               style_mods = {width = 1, height = 1},
               numeric = true,
               ref = {"input_action_textfield"},
               actions = {
-                on_confirmed = {gui = "search", action = "handle_item_click"}
+                on_confirmed = {gui = "search", action = "select_item"}
               }
             },
             {
               type = "textfield",
-              style_mods = {width = 420, top_margin = 9},
+              style = "qis_disablable_textfield",
+              style_mods = {width = 400, top_margin = 9},
               clear_and_focus_on_right_click = true,
               lose_focus_on_confirm = true,
               ref = {"search_textfield"},
@@ -190,7 +183,7 @@ function search_gui.build(player, player_table)
             {
               type = "frame",
               style = "deep_frame_in_shallow_frame",
-              style_mods = {top_margin = 10, bottom_margin = 8, height = 28 * 10},
+              style_mods = {top_margin = 10, height = 28 * 10},
               direction = "vertical",
               children = {
                 {
@@ -228,100 +221,6 @@ function search_gui.build(player, player_table)
                   }
                 }
               }
-            },
-            {
-              type = "flow",
-              style_mods = {vertical_align = "center", horizontal_spacing = 8},
-              children = {
-                {
-                  type = "textfield",
-                  style = "slider_value_textfield",
-                  numeric = true,
-                  clear_and_focus_on_right_click = true,
-                  text = "0",
-                  enabled = false,
-                  ref = {"logistic_setter", "min", "textfield"},
-                  actions = {
-                    on_text_changed = {
-                      gui = "search",
-                      action = "update_logistic_request",
-                      elem = "textfield",
-                      bound = "min"
-                    }
-                  }
-                },
-                {type = "flow", direction = "vertical", children = {
-                  {
-                    type = "slider",
-                    style = "notched_slider",
-                    style_mods = {horizontally_stretchable = true},
-                    minimum_value = 0,
-                    maximum_value = 500,
-                    value_step = 50,
-                    value = 0,
-                    discrete_slider = true,
-                    discrete_values = true,
-                    -- sliders don't support setting enabled = false directly for some reason
-                    elem_mods = {enabled = false},
-                    ref = {"logistic_setter", "max", "slider"},
-                    actions = {
-                      on_value_changed = {
-                        gui = "search",
-                        action = "update_logistic_request",
-                        elem = "slider",
-                        bound = "max"
-                      }
-                    }
-                  },
-                  {
-                    type = "slider",
-                    style = "notched_slider",
-                    style_mods = {horizontally_stretchable = true},
-                    minimum_value = 0,
-                    maximum_value = 500,
-                    value_step = 50,
-                    value = 500,
-                    discrete_slider = true,
-                    discrete_values = true,
-                    -- sliders don't support setting enabled = false directly for some reason
-                    elem_mods = {enabled = false},
-                    ref = {"logistic_setter", "min", "slider"},
-                    actions = {
-                      on_value_changed = {
-                        gui = "search",
-                        action = "update_logistic_request",
-                        elem = "slider",
-                        bound = "min"
-                      }
-                    }
-                  }
-                }},
-                {
-                  type = "textfield",
-                  style = "slider_value_textfield",
-                  numeric = true,
-                  clear_and_focus_on_right_click = true,
-                  text = constants.infinity_rep,
-                  enabled = false,
-                  ref = {"logistic_setter", "max", "textfield"}
-                },
-                {
-                  type = "sprite-button",
-                  style = "item_and_count_select_confirm",
-                  sprite = "utility/check_mark",
-                  tooltip = {"qis-gui.set-request"},
-                  enabled = false,
-                  ref = {"logistic_setter", "set_request_button"}
-                },
-                {
-                  type = "sprite-button",
-                  style = "flib_tool_button_light_green",
-                  sprite = "qis_temporary_request_disabled",
-                  tooltip = {"qis-gui.set-temporary-request"},
-                  enabled = false,
-                  ref = {"logistic_setter", "set_temporary_request_button"}
-                }
-              }
             }
           }
         }
@@ -338,6 +237,7 @@ function search_gui.build(player, player_table)
       query = "",
       raw_query = "",
       selected_index = 1,
+      subwindow_open = true,
       visible = false
     }
   }
@@ -364,11 +264,13 @@ end
 
 function search_gui.close(player, player_table)
   local gui_data = player_table.guis.search
-  gui_data.refs.window.visible = false
-  gui_data.state.visible = false
-  player.set_shortcut_toggled("qis-search", false)
-  if player.opened == gui_data.refs.window then
-    player.opened = nil
+  if not gui_data.state.subwindow_open then
+    gui_data.refs.window.visible = false
+    gui_data.state.visible = false
+    player.set_shortcut_toggled("qis-search", false)
+    if player.opened == gui_data.refs.window then
+      player.opened = nil
+    end
   end
 end
 
@@ -378,6 +280,22 @@ function search_gui.toggle(player, player_table)
     search_gui.close(player, player_table)
   else
     search_gui.open(player, player_table)
+  end
+end
+
+function search_gui.reopen_after_subwindow(e)
+  local player = game.get_player(e.player_index)
+  local player_table = global.players[e.player_index]
+  local gui_data = player_table.guis.search
+
+  if gui_data then
+    local refs = gui_data.refs
+    refs.input_action_textfield.enabled = true
+    refs.search_textfield.enabled = true
+    refs.window_dimmer.visible = false
+    refs.input_action_textfield.focus()
+    gui_data.state.subwindow_open = false
+    player.opened = gui_data.refs.window
   end
 end
 
@@ -419,7 +337,6 @@ function search_gui.handle_action(e, msg)
     local results_table = refs.results_table
     results_table.children[state.selected_index * 3 + 1].style.font_color = constants.colors.hovered
     refs.input_action_textfield.focus()
-    update_logistic_setter(player_table, refs, state)
   elseif msg.action == "update_selected_index" then
     local results_table = refs.results_table
     local selected_index = state.selected_index
@@ -428,19 +345,25 @@ function search_gui.handle_action(e, msg)
     state.selected_index = new_selected_index
     results_table.children[new_selected_index * 3 + 1].style.font_color = constants.colors.hovered
     refs.results_scroll_pane.scroll_to_element(results_table.children[new_selected_index * 3 + 1], "top-third")
-    update_logistic_setter(player_table, refs, state)
-  elseif msg.action == "handle_item_click" then
+  elseif msg.action == "select_item" then
     local i = msg.index or state.selected_index
     local result = state.results[i]
     if result then -- TODO: always true?
       if e.shift then
-
+        state.subwindow_open = true
+        refs.input_action_textfield.enabled = false
+        refs.search_textfield.enabled = false
+        refs.window_dimmer.visible = true
+        refs.window_dimmer.bring_to_front()
+        request_gui.open(player, player_table, result)
       elseif e.control then
 
       else
         cursor.set_stack(player, player.cursor_stack, player_table, result.name)
       end
     end
+  elseif msg.action == "update_dimmer_location" then
+    refs.window_dimmer.location = refs.window.location
   end
 end
 

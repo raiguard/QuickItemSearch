@@ -2,6 +2,9 @@ local translation = require("__flib__.translation")
 
 local constants = require("constants")
 local request = require("scripts.request")
+local shared = require("scripts.shared")
+
+local request_gui = require("scripts.gui.request")
 local search_gui = require("scripts.gui.search")
 
 local player_data = {}
@@ -20,7 +23,10 @@ function player_data.init(player_index)
 end
 
 function player_data.refresh(player, player_table)
-  -- destroy GUI
+  -- destroy GUIs
+  if player_table.guis.request then
+    request_gui.destroy(player_table)
+  end
   if player_table.guis.search then
     search_gui.destroy(player_table)
   end
@@ -46,7 +52,7 @@ end
 
 function player_data.start_translations(player_index)
   translation.add_requests(player_index, global.strings)
-  REGISTER_ON_TICK()
+  shared.register_on_tick()
 end
 
 function player_data.update_settings(player, player_table)

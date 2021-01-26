@@ -1,7 +1,3 @@
-if __DebugAdapter then
-  __DebugAdapter.defineGlobal("REGISTER_ON_TICK")
-end
-
 local event = require("__flib__.event")
 local gui = require("__flib__.gui-beta")
 local migration = require("__flib__.migration")
@@ -11,7 +7,9 @@ local global_data = require("scripts.global-data")
 local migrations = require("scripts.migrations")
 local player_data = require("scripts.player-data")
 local request = require("scripts.request")
+local shared = require("scripts.shared")
 
+local request_gui = require("scripts.gui.request")
 local search_gui = require("scripts.gui.search")
 
 -- -----------------------------------------------------------------------------
@@ -85,8 +83,14 @@ end)
 gui.hook_events(function(e)
   local msg = gui.read_action(e)
   if msg then
-    if msg.gui == "search" then
+    if msg.gui == "request" then
+      request_gui.handle_action(e, msg)
+    elseif msg.gui == "search" then
       search_gui.handle_action(e, msg)
+    end
+
+    if msg.gui == "request" and msg.action == "close" then
+      search_gui.reopen_after_subwindow(e)
     end
   end
 end)
@@ -117,6 +121,18 @@ end)
 event.on_player_removed(function(e)
   global.players[e.player_index] = nil
 end)
+
+event.register(
+  {
+    defines.events.on_player_display_resolution_changed,
+    defines.events.on_player_display_scale_changed
+  },
+  function(e)
+    local player = game.get_player(e.player_index)
+    local player_table = global.players[e.player_index]
+    request_gui.update_focus_frame_size(player, player_table)
+  end
+)
 
 -- SETTINGS
 
@@ -151,7 +167,7 @@ local function on_tick(e)
   end
 end
 
-REGISTER_ON_TICK = function()
+shared.register_on_tick = function()
   if translation.translating_players_count() > 0 then
     event.on_tick(on_tick)
   end
@@ -181,7 +197,8 @@ event.on_string_translated(function(e)
     player_table.flags.can_open_gui = true
     player_table.flags.translate_on_join = false
     player_table.flags.show_message_after_translation = false
-    -- create GUI
+    -- create GUIs
+    request_gui.build(player, player_table)
     search_gui.build(player, player_table)
     -- enable shortcut
     player.set_shortcut_available("qis-search", true)
