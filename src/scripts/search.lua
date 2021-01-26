@@ -1,7 +1,10 @@
 local constants = require("constants")
 
-return function(player, player_table, query)
-  local requests_by_name = player_table.requests.by_name
+local search = {}
+
+function search.run(player, player_table, query)
+  local requests = player_table.requests
+  local requests_by_name = requests.by_name
   local settings = player_table.settings
   local translations = player_table.translations
 
@@ -15,30 +18,13 @@ return function(player, player_table, query)
   local lookup = {}
   local results = {}
 
-  local main_inventory = player.get_main_inventory()
+  -- get contents of all player inventories and cursor stack
+  local combined_contents, has_main_inventory = search.get_combined_inventory_contents(player)
   -- don't bother doing anything if they don't have an inventory
-  if main_inventory and main_inventory.valid then
-    -- get contents of all player inventories and cursor stack
-    local inventory_contents = main_inventory.get_contents()
-    local cursor_stack = player.cursor_stack
-    if cursor_stack and cursor_stack.valid_for_read then
-      inventory_contents[cursor_stack.name] = (inventory_contents[cursor_stack.name] or 0) + cursor_stack.count
-    end
-    for _, inventory_def in ipairs{
-      defines.inventory.character_ammo,
-      defines.inventory.character_guns
-    } do
-      local inventory = player.get_inventory(inventory_def)
-      if inventory and inventory.valid then
-        for name, count in pairs(inventory.get_contents() or {}) do
-          inventory_contents[name] = (inventory_contents[name] or 0) + count
-        end
-      end
-    end
-
+  if has_main_inventory then
     local contents = {
       inbound = {},
-      inventory = inventory_contents,
+      inventory = combined_contents,
       logistic = {},
       outbound = {}
     }
@@ -79,6 +65,9 @@ return function(player, player_table, query)
           local request = requests_by_name[name]
           if request then
             result.request = {min = request.min, max = request.max}
+            if requests.temporary[name] then
+              result.request.is_temporary = true
+            end
           end
           -- determine logistic request color
           local color
@@ -106,7 +95,7 @@ return function(player, player_table, query)
       for _, filter in ipairs(player.infinity_inventory_filters) do
         local result = lookup[filter.name]
         if result then
-          result.infinity_filter = constants.infinity_filter_mode_to_symbol[filter.mode].." "..filter.count
+          result.infinity_filter = filter
         end
       end
     end
@@ -114,3 +103,33 @@ return function(player, player_table, query)
 
   return results, connected_to_network
 end
+
+function search.get_combined_inventory_contents(player)
+  local main_inventory = player.get_main_inventory()
+  if not main_inventory then return {}, false end
+  -- main inventory contents
+  local combined_contents = main_inventory.get_contents()
+  -- cursor stack
+  local cursor_stack = player.cursor_stack
+  if cursor_stack and cursor_stack.valid_for_read then
+    combined_contents[cursor_stack.name] = (combined_contents[cursor_stack.name] or 0) + cursor_stack.count
+  end
+  -- other
+  for _, inventory_def in ipairs{
+    -- for some reason, the character_ammo and character_guns inventories work in the editor as well
+    defines.inventory.character_ammo,
+    defines.inventory.character_guns,
+    -- defines.inventory.character_trash
+  } do
+    local inventory = player.get_inventory(inventory_def)
+    if inventory and inventory.valid then
+      for name, count in pairs(inventory.get_contents() or {}) do
+        combined_contents[name] = (combined_contents[name] or 0) + count
+      end
+    end
+  end
+
+  return combined_contents, true
+end
+
+return search

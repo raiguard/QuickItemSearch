@@ -9,6 +9,7 @@ local player_data = require("scripts.player-data")
 local request = require("scripts.request")
 local shared = require("scripts.shared")
 
+local infinity_filter_gui = require("scripts.gui.infinity-filter")
 local request_gui = require("scripts.gui.request")
 local search_gui = require("scripts.gui.search")
 
@@ -86,13 +87,19 @@ end)
 gui.hook_events(function(e)
   local msg = gui.read_action(e)
   if msg then
-    if msg.gui == "request" then
+    if msg.gui == "infinity_filter" then
+      infinity_filter_gui.handle_action(e, msg)
+    elseif msg.gui == "request" then
       request_gui.handle_action(e, msg)
     elseif msg.gui == "search" then
       search_gui.handle_action(e, msg)
     end
 
-    if msg.gui == "request" and msg.action == "close" then
+    -- TODO: find a better way to do this
+    if
+      msg.gui == "infinity_filter" and msg.action == "close"
+      or msg.gui == "request" and msg.action == "close"
+    then
       search_gui.reopen_after_subwindow(e)
     end
   end
@@ -137,18 +144,31 @@ event.register(
   end
 )
 
-event.on_player_main_inventory_changed(function(e)
-  local player = game.get_player(e.player_index)
-  local player_table = global.players[e.player_index]
+event.register(
+  {
+    defines.events.on_player_ammo_inventory_changed,
+    defines.events.on_player_armor_inventory_changed,
+    defines.events.on_player_gun_inventory_changed,
+    defines.events.on_player_main_inventory_changed
+  },
+  function(e)
+    local player = game.get_player(e.player_index)
+    local player_table = global.players[e.player_index]
+    local temporary_requests = player_table.requests.temporary
 
-  local gui_data = player_table.guis.search
-  if gui_data then
-    local state = gui_data.state
-    if state.visible and not state.subwindow_open then
-      search_gui.perform_search(player, player_table, state, gui_data.refs)
+    if next(temporary_requests) then
+      request.update_temporaries(player, player_table)
+    end
+
+    local gui_data = player_table.guis.search
+    if gui_data then
+      local state = gui_data.state
+      if state.visible and not state.subwindow_open then
+        search_gui.perform_search(player, player_table, state, gui_data.refs, false)
+      end
     end
   end
-end)
+)
 
 -- SETTINGS
 
@@ -226,6 +246,7 @@ event.on_string_translated(function(e)
     player_table.flags.translate_on_join = false
     player_table.flags.show_message_after_translation = false
     -- create GUIs
+    infinity_filter_gui.build(player, player_table)
     request_gui.build(player, player_table)
     search_gui.build(player, player_table)
     -- enable shortcut

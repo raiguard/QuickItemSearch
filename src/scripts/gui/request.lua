@@ -208,6 +208,7 @@ function request_gui.open(player, player_table, item_data)
       elems.textfield.text = tostring(count)
     end
     elems.slider.enabled = true
+    elems.slider.set_slider_value_step(1)
     elems.slider.set_slider_minimum_maximum(0, stack_size * 10)
     elems.slider.set_slider_value_step(stack_size)
     elems.slider.slider_value = math.round(count / stack_size) * stack_size
@@ -252,6 +253,9 @@ function request_gui.set_request(player, player_table, is_temporary)
     if state.visible then
       player.play_sound{path = "utility/confirm"}
       request.set(player, player_table, state.item_data.name, state.request, is_temporary)
+      if is_temporary then
+        player.opened = nil
+      end
     end
   end
 end
@@ -270,6 +274,8 @@ function request_gui.handle_action(e, msg)
     request_gui.close(player, player_table)
   elseif msg.action == "bring_to_front" then
     refs.window.bring_to_front()
+  elseif msg.action == "recenter" and e.button == defines.mouse_button_type.middle then
+    refs.window.force_auto_center()
   elseif msg.action == "update_request" then
     local elems = refs.logistic_setter[msg.bound]
     local count

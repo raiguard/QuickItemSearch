@@ -6,6 +6,7 @@ local cursor = require("scripts.cursor")
 local search = require("scripts.search")
 local shared = require("scripts.shared")
 
+local infinity_filter_gui = require("scripts.gui.infinity-filter")
 local request_gui = require("scripts.gui.request")
 
 local search_gui = {}
@@ -233,7 +234,7 @@ function search_gui.perform_search(player, player_table, state, refs, updated_qu
 
   if #state.raw_query > 1 then
     local i = 0
-    local results, connected_to_network = search(player, player_table, query)
+    local results, connected_to_network = search.run(player, player_table, query)
     for _, row in ipairs(results) do
       i = i + 1
       local i3 = i * 3
@@ -275,7 +276,12 @@ function search_gui.perform_search(player, player_table, state, refs, updated_qu
       -- request / infinity filter
       local request_label = children[i3 + 3]
       if player.controller_type == defines.controllers.editor then
-        request_label.caption = row.infinity_filter or "--"
+        local filter = row.infinity_filter
+        if filter then
+          request_label.caption = constants.infinity_filter_mode_to_symbol[filter.mode].." "..filter.count
+        else
+          request_label.caption = "--"
+        end
       else
         local request = row.request
         if request then
@@ -284,6 +290,9 @@ function search_gui.perform_search(player, player_table, state, refs, updated_qu
             max = constants.infinity_rep
           end
           request_label.caption = request.min.." / "..max
+          if request.is_temporary then
+            request_label.caption = "(T) "..request_label.caption
+          end
           request_label.style.font_color = constants.colors[row.request_color or "normal"]
         else
           request_label.caption = "--"
@@ -386,7 +395,13 @@ function search_gui.handle_action(e, msg)
       refs.search_textfield.enabled = false
       refs.window_dimmer.visible = true
       refs.window_dimmer.bring_to_front()
-      request_gui.open(player, player_table, result)
+
+      local player_controller = player.controller_type
+      if player_controller == defines.controllers.editor then
+        infinity_filter_gui.open(player, player_table, result)
+      elseif player_controller == defines.controllers.character then
+        request_gui.open(player, player_table, result)
+      end
     elseif e.control then
 
     else
