@@ -13,6 +13,7 @@ function cursor.set_stack(player, cursor_stack, player_table, item_name)
   local main_inventory = player.get_main_inventory()
   if main_inventory then
     -- set cursor stack
+    -- TODO: search gun and ammo inventories as well
     local item_stack, item_stack_index = main_inventory.find_item_stack(item_name)
     if item_stack and item_stack.valid then
       if player.clear_cursor() then

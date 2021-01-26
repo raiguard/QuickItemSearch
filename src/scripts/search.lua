@@ -18,7 +18,8 @@ return function(player, player_table, query)
   local main_inventory = player.get_main_inventory()
   -- don't bother doing anything if they don't have an inventory
   if main_inventory and main_inventory.valid then
-    -- combine main inventory contents with cursor stack
+    -- get contents of all player inventories and cursor stack
+    -- TODO: get gun and ammo inventories
     local inventory_contents = main_inventory.get_contents()
     local cursor_stack = player.cursor_stack
     if cursor_stack and cursor_stack.valid_for_read then
