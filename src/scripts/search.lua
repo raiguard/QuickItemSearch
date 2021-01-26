@@ -19,11 +19,21 @@ return function(player, player_table, query)
   -- don't bother doing anything if they don't have an inventory
   if main_inventory and main_inventory.valid then
     -- get contents of all player inventories and cursor stack
-    -- TODO: get gun and ammo inventories
     local inventory_contents = main_inventory.get_contents()
     local cursor_stack = player.cursor_stack
     if cursor_stack and cursor_stack.valid_for_read then
       inventory_contents[cursor_stack.name] = (inventory_contents[cursor_stack.name] or 0) + cursor_stack.count
+    end
+    for _, inventory_def in ipairs{
+      defines.inventory.character_ammo,
+      defines.inventory.character_guns
+    } do
+      local inventory = player.get_inventory(inventory_def)
+      if inventory and inventory.valid then
+        for name, count in pairs(inventory.get_contents() or {}) do
+          inventory_contents[name] = (inventory_contents[name] or 0) + count
+        end
+      end
     end
 
     local contents = {

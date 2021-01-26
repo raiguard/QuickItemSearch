@@ -302,7 +302,6 @@ function search_gui.perform_search(player, player_table, state, refs, updated_qu
     end
     -- add to state
     state.results = results
-    state.connected_to_network = connected_to_network -- TODO: will go unused?
   -- clear table if it has contents
   elseif #results_table.children > 3 then
     -- clear results
@@ -381,19 +380,17 @@ function search_gui.handle_action(e, msg)
   elseif msg.action == "select_item" then
     local i = msg.index or state.selected_index
     local result = state.results[i]
-    if result then -- TODO: always true?
-      if e.shift then
-        state.subwindow_open = true
-        refs.input_action_textfield.enabled = false
-        refs.search_textfield.enabled = false
-        refs.window_dimmer.visible = true
-        refs.window_dimmer.bring_to_front()
-        request_gui.open(player, player_table, result)
-      elseif e.control then
+    if e.shift then
+      state.subwindow_open = true
+      refs.input_action_textfield.enabled = false
+      refs.search_textfield.enabled = false
+      refs.window_dimmer.visible = true
+      refs.window_dimmer.bring_to_front()
+      request_gui.open(player, player_table, result)
+    elseif e.control then
 
-      else
-        cursor.set_stack(player, player.cursor_stack, player_table, result.name)
-      end
+    else
+      cursor.set_stack(player, player.cursor_stack, player_table, result.name)
     end
   elseif msg.action == "update_dimmer_location" then
     refs.window_dimmer.location = refs.window.location
