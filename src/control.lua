@@ -106,9 +106,11 @@ end)
 
 event.register("qis-quick-trash-all", function(e)
   local player = game.get_player(e.player_index)
+  local player_table = global.players[e.player_index]
   if player.controller_type == defines.controllers.character and player.force.character_logistic_requests then
-    local player_table = global.players[e.player_index]
     request.quick_trash_all(player, player_table)
+  elseif player.controller_type == defines.controllers.editor then
+    infinity_filter.quick_trash_all(player, player_table)
   end
 end)
 

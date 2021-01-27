@@ -1,5 +1,7 @@
 local table = require("__flib__.table")
 
+local search = require("scripts.search")
+
 local infinity_filter = {}
 
 function infinity_filter.set(player, player_table, filter, is_temporary)
@@ -63,6 +65,19 @@ function infinity_filter.update_temporaries(player, player_table)
       local existing_filter_data = infinity_filters.by_name[name]
       -- infinity filters are guaranteed to be fulfilled, so we can safely remove temporaries immediately
       player.set_infinity_inventory_filter(existing_filter_data.index, old_filter_data or nil)
+    end
+  end
+end
+
+function infinity_filter.quick_trash_all(player, player_table)
+  local main_inventory = player.get_main_inventory()
+  if main_inventory and main_inventory.valid then
+    local infinity_filters = player_table.infinity_filters
+    for name, count in pairs(search.get_combined_inventory_contents(player, main_inventory)) do
+      local existing_filter = infinity_filters.by_name[name] or {mode = "at-least", count = 0}
+      if existing_filter.mode == "at-least" and count > existing_filter.count then
+        infinity_filter.set(player, player_table, {name = name, mode = "exactly", count = 0}, true)
+      end
     end
   end
 end

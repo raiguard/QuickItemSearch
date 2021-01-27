@@ -119,9 +119,9 @@ function request.update_temporaries(player, player_table, combined_contents)
 end
 
 function request.quick_trash_all(player, player_table)
-  local requests = player_table.requests
   local main_inventory = player.get_main_inventory()
   if main_inventory and main_inventory.valid then
+    local requests = player_table.requests
     for name, count in pairs(search.get_combined_inventory_contents(player, main_inventory)) do
       local existing_request = requests.by_name[name]
       if existing_request then
