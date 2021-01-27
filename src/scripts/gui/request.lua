@@ -68,14 +68,10 @@ function request_gui.build(player, player_table)
                 numeric = true,
                 clear_and_focus_on_right_click = true,
                 text = "0",
+                tags = {bound = "min"},
                 ref = {"logistic_setter", "min", "textfield"},
                 actions = {
-                  on_confirmed = {
-                    gui = "request",
-                    action = "update_request",
-                    elem = "textfield",
-                    bound = "min"
-                  }
+                  on_confirmed = {gui = "request", action = "update_request"}
                 }
               },
               {type = "flow", direction = "vertical", children = {
@@ -89,14 +85,10 @@ function request_gui.build(player, player_table)
                   value = 0,
                   discrete_slider = true,
                   discrete_values = true,
+                  tags = {bound = "max"},
                   ref = {"logistic_setter", "max", "slider"},
                   actions = {
-                    on_value_changed = {
-                      gui = "request",
-                      action = "update_request",
-                      elem = "slider",
-                      bound = "max"
-                    }
+                    on_value_changed = {gui = "request", action = "update_request"}
                   }
                 },
                 {
@@ -109,14 +101,10 @@ function request_gui.build(player, player_table)
                   value = 500,
                   discrete_slider = true,
                   discrete_values = true,
+                  tags = {bound = "min"},
                   ref = {"logistic_setter", "min", "slider"},
                   actions = {
-                    on_value_changed = {
-                      gui = "request",
-                      action = "update_request",
-                      elem = "slider",
-                      bound = "min"
-                    }
+                    on_value_changed = {gui = "request", action = "update_request"}
                   }
                 }
               }},
@@ -126,14 +114,10 @@ function request_gui.build(player, player_table)
                 numeric = true,
                 clear_and_focus_on_right_click = true,
                 text = constants.infinity_rep,
+                tags = {bound = "max"},
                 ref = {"logistic_setter", "max", "textfield"},
                 actions = {
-                  on_confirmed = {
-                    gui = "request",
-                    action = "update_request",
-                    elem = "textfield",
-                    bound = "max"
-                  }
+                  on_confirmed = {gui = "request", action = "update_request"}
                 }
               },
               {
@@ -259,8 +243,18 @@ end
 
 function request_gui.set_request(player, player_table, is_temporary)
   player.play_sound{path = "utility/confirm"}
-  local state = player_table.guis.request.state
+  local gui_data = player_table.guis.request
+  local refs = gui_data.refs
+  local state = gui_data.state
+
+  -- get the latest values from each textfield
+  request_gui.update_request(refs, state, refs.logistic_setter.min.textfield)
+  request_gui.update_request(refs, state, refs.logistic_setter.max.textfield)
+
+  -- set the request
   request.set(player, player_table, state.item_data.name, state.request, is_temporary)
+
+  -- close this window
   if is_temporary then
     player.opened = nil
   end
@@ -272,6 +266,56 @@ function request_gui.clear_request(player, player_table)
   player.opened = nil
 end
 
+function request_gui.update_request(refs, state, element)
+  local item_data = state.item_data
+  local request_data = state.request
+
+  local bound = gui.get_tags(element).bound
+
+  local elems = refs.logistic_setter[bound]
+  local count
+  if element.type == "textfield" then
+    count = tonumber(element.text)
+    if not count then
+      count = bound == "min" and 0 or math.max_uint
+    end
+    elems.slider.slider_value = math.round(count / item_data.stack_size) * item_data.stack_size
+  else
+    count = element.slider_value
+    local text
+    if bound == "max" and count == item_data.stack_size * 10 then
+      count = math.max_uint
+      text = constants.infinity_rep
+    else
+      text = tostring(count)
+    end
+    elems.textfield.text = text
+  end
+  request_data[bound] = count
+
+  -- sync border
+  if bound == "min" and count > request_data.max then
+    request_data.max = count
+    refs.logistic_setter.max.textfield.text = tostring(count)
+    refs.logistic_setter.max.slider.slider_value = math.round(count / item_data.stack_size) * item_data.stack_size
+  elseif bound == "max" and count < request_data.min then
+    request_data.min = count
+    refs.logistic_setter.min.textfield.text = tostring(count)
+    refs.logistic_setter.min.slider.slider_value = math.round(count / item_data.stack_size) * item_data.stack_size
+  end
+
+  -- switch textfield
+  if element.type == "textfield" then
+    if bound == "min" then
+      refs.logistic_setter.max.textfield.select_all()
+      refs.logistic_setter.max.textfield.focus()
+    else
+      refs.logistic_setter.min.textfield.select_all()
+      refs.logistic_setter.min.textfield.focus()
+    end
+  end
+end
+
 function request_gui.handle_action(e, msg)
   local player = game.get_player(e.player_index)
   local player_table = global.players[e.player_index]
@@ -279,8 +323,6 @@ function request_gui.handle_action(e, msg)
   local refs = gui_data.refs
   local state = gui_data.state
 
-  local item_data = state.item_data
-  local request_data = state.request
 
   if msg.action == "close" then
     request_gui.close(player, player_table)
@@ -289,56 +331,17 @@ function request_gui.handle_action(e, msg)
   elseif msg.action == "recenter" and e.button == defines.mouse_button_type.middle then
     refs.window.force_auto_center()
   elseif msg.action == "update_request" then
-    local elems = refs.logistic_setter[msg.bound]
-    local count
-    if msg.elem == "textfield" then
-      count = tonumber(e.element.text)
-      if not count then
-        count = msg.bound == "min" and 0 or math.max_uint
-      end
-      elems.slider.slider_value = math.round(count / item_data.stack_size) * item_data.stack_size
-    else
-      count = e.element.slider_value
-      local text
-      if msg.bound == "max" and count == item_data.stack_size * 10 then
-        count = math.max_uint
-        text = constants.infinity_rep
-      else
-        text = tostring(count)
-      end
-      elems.textfield.text = text
-    end
-    request_data[msg.bound] = count
-
-    -- sync border
-    if msg.bound == "min" and count > request_data.max then
-      request_data.max = count
-      refs.logistic_setter.max.textfield.text = tostring(count)
-      refs.logistic_setter.max.slider.slider_value = math.round(count / item_data.stack_size) * item_data.stack_size
-    elseif msg.bound == "max" and count < request_data.min then
-      request_data.min = count
-      refs.logistic_setter.min.textfield.text = tostring(count)
-      refs.logistic_setter.min.slider.slider_value = math.round(count / item_data.stack_size) * item_data.stack_size
-    end
-
-    -- switch textfield
-    if msg.elem == "textfield" then
-      if msg.bound == "min" then
-        refs.logistic_setter.max.textfield.select_all()
-        refs.logistic_setter.max.textfield.focus()
-      else
-        refs.logistic_setter.min.textfield.select_all()
-        refs.logistic_setter.min.textfield.focus()
-      end
-    end
+    request_gui.update_request(refs, state, e.element)
   elseif msg.action == "clear_request" then
     request.clear(player, player_table, state.item_data.name)
     -- invoke `on_gui_closed` so the search GUI will be refocused
     player.opened = nil
   elseif msg.action == "set_request" then
-    request.set(player, player_table, state.item_data.name, state.request, msg.temporary)
-    -- invoke `on_gui_closed` so the search GUI will be refocused
-    player.opened = nil
+    request_gui.set_request(player, player_table, msg.temporary)
+    -- invoke `on_gui_closed` if the above function did not
+    if not msg.temporary then
+      player.opened = nil
+    end
   end
 end
 
