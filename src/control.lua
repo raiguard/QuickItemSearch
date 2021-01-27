@@ -46,35 +46,28 @@ end)
 
 -- CUSTOM INPUT
 
--- TODO: use these events instead of the dummy textfield
 event.register({"qis-confirm", "qis-shift-confirm", "qis-control-confirm"}, function(e)
   local player = game.get_player(e.player_index)
   local player_table = global.players[e.player_index]
 
-  local to_clear = e.input_name == "qis-control-confirm"
+  local is_shift = e.input_name == "qis-shift-confirm"
+  local is_control = e.input_name == "qis-control-confirm"
 
-  if player.controller_type == defines.controllers.character then
-    local gui_data = player_table.guis.request
-    if gui_data then
-      local state = gui_data.state
-      if state.visible then
-        if to_clear then
-          request_gui.clear_request(player, player_table, state)
-        else
-          request_gui.set_request(player, player_table, state, e.input_name == "qis-shift-confirm")
-        end
+  local opened = player.opened
+  if opened and player.opened_gui_type == defines.gui_type.custom then
+    if opened.name == "qis_search_window" then
+      search_gui.select_item(player, player_table, {shift = is_shift, control = is_control})
+    elseif opened.name == "qis_request_window" then
+      if is_control then
+        request_gui.clear_request(player, player_table)
+      else
+        request_gui.set_request(player, player_table, is_shift)
       end
-    end
-  elseif player.controller_type == defines.controllers.editor then
-    local gui_data = player_table.guis.infinity_filter
-    if gui_data then
-      local state = gui_data.state
-      if state.visible then
-        if to_clear then
-          infinity_filter_gui.clear_filter(player, player_table, state)
-        else
-          infinity_filter_gui.set_filter(player, player_table, state, e.input_name == "qis-shift-confirm")
-        end
+    elseif opened.name == "qis_infinity_filter_window" then
+      if is_control then
+        infinity_filter_gui.clear_filter(player, player_table)
+      else
+        infinity_filter_gui.set_filter(player, player_table, is_shift)
       end
     end
   end

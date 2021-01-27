@@ -24,7 +24,7 @@ function infinity_filter_gui.build(player, player_table)
     },
     {
       type = "frame",
-      name = "qis_subwindow_infinity_filter",
+      name = "qis_infinity_filter_window",
       direction = "vertical",
       visible = false,
       ref = {"window"},
@@ -206,18 +206,17 @@ function infinity_filter_gui.close(player, player_table)
   end
 end
 
-function infinity_filter_gui.set_filter(player, player_table, state, is_temporary)
+function infinity_filter_gui.set_filter(player, player_table, is_temporary)
   player.play_sound{path = "utility/confirm"}
-  local filter = state.infinity_filter
-  infinity_filter.set(player, player_table, filter, is_temporary)
+  infinity_filter.set(player, player_table, player_table.guis.infinity_filter.state.infinity_filter, is_temporary)
   if is_temporary then
     player.opened = nil
   end
 end
 
-function infinity_filter_gui.clear_filter(player, player_table, state)
+function infinity_filter_gui.clear_filter(player, player_table)
   player.play_sound{path = "utility/confirm"}
-  infinity_filter.clear(player, player_table, state.infinity_filter.name)
+  infinity_filter.clear(player, player_table, player_table.guis.infinity_filter.state.infinity_filter.name)
   player.opened = nil
 end
 

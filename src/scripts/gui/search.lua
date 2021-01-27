@@ -22,6 +22,7 @@ function search_gui.build(player, player_table)
     },
     {
       type = "frame",
+      name = "qis_search_window",
       direction = "vertical",
       visible = false,
       ref = {"window"},
@@ -62,17 +63,6 @@ function search_gui.build(player, player_table)
           style_mods = {top_padding = -2},
           direction = "vertical",
           children = {
-            -- dummy input action textfield
-            {
-              type = "textfield",
-              style = "qis_disablable_textfield",
-              style_mods = {width = 1, height = 1},
-              numeric = true,
-              ref = {"input_action_textfield"},
-              actions = {
-                on_confirmed = {gui = "search", action = "select_item"}
-              }
-            },
             {
               type = "textfield",
               style = "qis_disablable_textfield",
@@ -173,11 +163,17 @@ end
 
 function search_gui.close(player, player_table)
   local gui_data = player_table.guis.search
-  if not gui_data.state.subwindow_open then
-    gui_data.refs.window.visible = false
-    gui_data.state.visible = false
+  local refs = gui_data.refs
+  local state = gui_data.state
+
+  if state.selecting_item then
+    state.selecting_item = false
+    player.opened = refs.window
+  elseif not state.subwindow_open then
+    refs.window.visible = false
+    state.visible = false
     player.set_shortcut_toggled("qis-search", false)
-    if player.opened == gui_data.refs.window then
+    if player.opened == refs.window then
       player.opened = nil
     end
   end
@@ -202,10 +198,8 @@ function search_gui.reopen_after_subwindow(e)
     local refs = gui_data.refs
     local state = gui_data.state
 
-    refs.input_action_textfield.enabled = true
     refs.search_textfield.enabled = true
     refs.window_dimmer.visible = false
-    refs.input_action_textfield.focus()
     state.subwindow_open = false
 
     search_gui.perform_search(player, player_table, state, refs)
@@ -323,6 +317,33 @@ function search_gui.perform_search(player, player_table, state, refs, updated_qu
   end
 end
 
+function search_gui.select_item(player, player_table, modifiers, index)
+  local gui_data = player_table.guis.search
+  local refs = gui_data.refs
+  local state = gui_data.state
+
+  local i = index or state.selected_index
+  local result = state.results[i]
+  if modifiers.shift then
+    state.subwindow_open = true
+    refs.search_textfield.enabled = false
+    refs.window_dimmer.visible = true
+    refs.window_dimmer.bring_to_front()
+
+    local player_controller = player.controller_type
+    if player_controller == defines.controllers.editor then
+      infinity_filter_gui.open(player, player_table, result)
+    elseif player_controller == defines.controllers.character then
+      request_gui.open(player, player_table, result)
+    end
+  elseif modifiers.control then
+
+  else
+    state.selecting_item = true
+    cursor.set_stack(player, player.cursor_stack, player_table, result.name)
+  end
+end
+
 function search_gui.update_for_active_players()
   local tick = game.ticks_played
   for player_index in pairs(global.update_search_results) do
@@ -375,7 +396,6 @@ function search_gui.handle_action(e, msg)
     end
     local results_table = refs.results_table
     results_table.children[state.selected_index * 3 + 1].style.font_color = constants.colors.hovered
-    refs.input_action_textfield.focus()
   elseif msg.action == "update_selected_index" then
     local results_table = refs.results_table
     local selected_index = state.selected_index
@@ -384,29 +404,8 @@ function search_gui.handle_action(e, msg)
     state.selected_index = new_selected_index
     results_table.children[new_selected_index * 3 + 1].style.font_color = constants.colors.hovered
     refs.results_scroll_pane.scroll_to_element(results_table.children[new_selected_index * 3 + 1], "top-third")
-    -- in case it was defocused at some point
-    refs.input_action_textfield.focus()
   elseif msg.action == "select_item" then
-    local i = msg.index or state.selected_index
-    local result = state.results[i]
-    if e.shift then
-      state.subwindow_open = true
-      refs.input_action_textfield.enabled = false
-      refs.search_textfield.enabled = false
-      refs.window_dimmer.visible = true
-      refs.window_dimmer.bring_to_front()
-
-      local player_controller = player.controller_type
-      if player_controller == defines.controllers.editor then
-        infinity_filter_gui.open(player, player_table, result)
-      elseif player_controller == defines.controllers.character then
-        request_gui.open(player, player_table, result)
-      end
-    elseif e.control then
-
-    else
-      cursor.set_stack(player, player.cursor_stack, player_table, result.name)
-    end
+    search_gui.select_item(player, player_table, {shift = e.shift, control = e.control}, msg.index)
   elseif msg.action == "update_dimmer_location" then
     refs.window_dimmer.location = refs.window.location
   end
