@@ -4,6 +4,7 @@ local migration = require("__flib__.migration")
 local translation = require("__flib__.translation")
 
 local global_data = require("scripts.global-data")
+local infinity_filter = require("scripts.infinity-filter")
 local migrations = require("scripts.migrations")
 local player_data = require("scripts.player-data")
 local request = require("scripts.request")
@@ -45,11 +46,45 @@ end)
 
 -- CUSTOM INPUT
 
-event.register({"qis-confirm", "qis-shift-confirm"}, function(e)
+-- TODO: use these events instead of the dummy textfield
+event.register({"qis-confirm", "qis-shift-confirm", "qis-control-confirm"}, function(e)
   local player = game.get_player(e.player_index)
   local player_table = global.players[e.player_index]
 
-  request_gui.set_request(player, player_table, e.input_name == "qis-shift-confirm")
+  local to_clear = e.input_name == "qis-control-confirm"
+
+  if player.controller_type == defines.controllers.character then
+    local gui_data = player_table.guis.request
+    if gui_data then
+      local state = gui_data.state
+      if state.visible then
+        request_gui.set_request(player, player_table, state, e.input_name == "qis-shift-confirm")
+      end
+    end
+  elseif player.controller_type == defines.controllers.editor then
+    local gui_data = player_table.guis.infinity_filter
+    if gui_data then
+      local state = gui_data.state
+      if state.visible then
+        if to_clear then
+          infinity_filter_gui.clear_filter(player, player_table, state)
+        else
+          infinity_filter_gui.set_filter(player, player_table, state, e.input_name == "qis-shift-confirm")
+        end
+      end
+    end
+  end
+end)
+
+event.register("qis-cycle-infinity-filter-mode", function(e)
+  local player_table = global.players[e.player_index]
+  local gui_data = player_table.guis.infinity_filter
+  if gui_data then
+    local state = gui_data.state
+    if state.visible then
+      infinity_filter_gui.cycle_filter_mode(gui_data)
+    end
+  end
 end)
 
 event.register("qis-search", function(e)
@@ -154,10 +189,16 @@ event.register(
   function(e)
     local player = game.get_player(e.player_index)
     local player_table = global.players[e.player_index]
-    local temporary_requests = player_table.requests.temporary
 
-    if next(temporary_requests) then
-      request.update_temporaries(player, player_table)
+    if player.controller_type == defines.controllers.editor then
+      if next(player_table.infinity_filters.temporary) then
+        infinity_filter.update_temporaries(player, player_table)
+      end
+      infinity_filter.refresh(player, player_table)
+    elseif player.controller_type == defines.controllers.character then
+      if next(player_table.requests.temporary) then
+        request.update_temporaries(player, player_table)
+      end
     end
 
     local gui_data = player_table.guis.search

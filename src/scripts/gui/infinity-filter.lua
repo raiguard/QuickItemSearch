@@ -2,6 +2,7 @@ local gui = require("__flib__.gui-beta")
 local math = require("__flib__.math")
 
 local constants = require("constants")
+local infinity_filter = require("scripts.infinity-filter")
 
 local infinity_filter_gui = {}
 
@@ -23,6 +24,7 @@ function infinity_filter_gui.build(player, player_table)
     },
     {
       type = "frame",
+      name = "qis_subwindow_infinity_filter",
       direction = "vertical",
       visible = false,
       ref = {"window"},
@@ -64,6 +66,75 @@ function infinity_filter_gui.build(player, player_table)
           {
             type = "flow",
             style_mods = {vertical_align = "center", horizontal_spacing = 8, padding = 12},
+            children = {
+              {
+                type = "drop-down",
+                style_mods = {width = 60},
+                items = {">=", "<=", "="},
+                selected_index = 3,
+                ref = {"filter_setter", "dropdown"},
+                actions = {
+                  on_selection_state_changed = {gui = "infinity_filter", action = "change_filter_mode"}
+                }
+              },
+              {
+                type = "slider",
+                style = "notched_slider",
+                style_mods = {horizontally_stretchable = true},
+                minimum_value = 0,
+                maximum_value = 500,
+                value_step = 50,
+                value = 500,
+                discrete_slider = true,
+                discrete_values = true,
+                ref = {"filter_setter", "slider"},
+                actions = {
+                  on_value_changed = {
+                    gui = "infinity_filter",
+                    action = "update_filter",
+                    elem = "slider"
+                  }
+                }
+              },
+              {
+                type = "textfield",
+                style = "slider_value_textfield",
+                numeric = true,
+                ref = {"filter_setter", "textfield"},
+                actions = {
+                  on_text_changed = {gui = "infinity_filter", action = "update_filter", elem = "textfield"}
+                }
+              },
+              {
+                type = "sprite-button",
+                style = "item_and_count_select_confirm",
+                sprite = "utility/check_mark",
+                tooltip = {"qis-gui.set-infinity-filter"},
+                actions = {
+                  on_click = {gui = "infinity_filter", action = "set_filter"}
+                }
+              },
+              {
+                type = "sprite-button",
+                style = "flib_tool_button_light_green",
+                style_mods = {top_margin = 1},
+                sprite = "qis_temporary_request",
+                tooltip = {"qis-gui.set-temporary-infinity-filter"},
+                actions = {
+                  on_click = {gui = "infinity_filter", action = "set_filter", temporary = true}
+                }
+              },
+              {
+                type = "sprite-button",
+                style = "tool_button_red",
+                style_mods = {top_margin = 1},
+                sprite = "utility/trash",
+                tooltip = {"qis-gui.clear-infinity-filter"},
+                actions = {
+                  on_click = {gui = "infinity_filter", action = "clear_filter"}
+                }
+              }
+            }
           }
         }}
       }
@@ -96,7 +167,8 @@ function infinity_filter_gui.open(player, player_table, item_data)
   local stack_size = game.item_prototypes[item_data.name].stack_size
   item_data.stack_size = stack_size
   state.item_data = item_data
-  local infinity_filter_data = item_data.infinity_filter or {mode = "at-least", count = 0}
+  local infinity_filter_data = item_data.infinity_filter or {mode = "at-least", count = stack_size}
+  infinity_filter_data.name = item_data.name
   state.infinity_filter = infinity_filter_data
   state.visible = true
 
@@ -105,6 +177,14 @@ function infinity_filter_gui.open(player, player_table, item_data)
 
   -- update filter setter
   local filter_setter = refs.filter_setter
+  filter_setter.dropdown.selected_index = constants.infinity_filter_mode_to_index[infinity_filter_data.mode]
+  filter_setter.slider.set_slider_value_step(1)
+  filter_setter.slider.set_slider_minimum_maximum(0, stack_size * 10)
+  filter_setter.slider.set_slider_value_step(stack_size)
+  filter_setter.slider.slider_value = math.round(infinity_filter_data.count, stack_size)
+  filter_setter.textfield.text = tostring(infinity_filter_data.count)
+  filter_setter.textfield.select_all()
+  filter_setter.textfield.focus()
 
   -- update window
   refs.focus_frame.visible = true
@@ -126,15 +206,62 @@ function infinity_filter_gui.close(player, player_table)
   end
 end
 
-function infinity_filter_gui.handle_action(e, msg)
-  local player = game.get_player(e.player_index)
-  local player_table = global.players[e.player_index]
-  local gui_data = player_table.guis.request
+function infinity_filter_gui.set_filter(player, player_table, state, is_temporary)
+  player.play_sound{path = "utility/confirm"}
+  local filter = state.infinity_filter
+  infinity_filter.set(player, player_table, filter, is_temporary)
+  if is_temporary then
+    player.opened = nil
+  end
+end
+
+function infinity_filter_gui.clear_filter(player, player_table, state)
+  player.play_sound{path = "utility/confirm"}
+  infinity_filter.clear(player, player_table, state.infinity_filter.name)
+  player.opened = nil
+end
+
+function infinity_filter_gui.cycle_filter_mode(gui_data)
   local refs = gui_data.refs
   local state = gui_data.state
 
+  state.infinity_filter.mode = (
+    next(constants.infinity_filter_modes, state.infinity_filter.mode)
+    or next(constants.infinity_filter_modes)
+  )
+
+  refs.filter_setter.dropdown.selected_index = constants.infinity_filter_mode_to_index[state.infinity_filter.mode]
+end
+
+function infinity_filter_gui.handle_action(e, msg)
+  local player = game.get_player(e.player_index)
+  local player_table = global.players[e.player_index]
+  local gui_data = player_table.guis.infinity_filter
+  local refs = gui_data.refs
+  local state = gui_data.state
+
+  local item_data = state.item_data
+  local filter_data = state.infinity_filter
+
   if msg.action == "close" then
     infinity_filter_gui.close(player, player_table)
+  elseif msg.action == "change_filter_mode" then
+    local new_mode = constants.infinity_filter_modes_by_index[e.element.selected_index]
+    state.infinity_filter.mode = new_mode
+  elseif msg.action == "update_filter" then
+    if msg.elem == "slider" then
+      local count = e.element.slider_value
+      filter_data.count = count
+      refs.filter_setter.textfield.text = tostring(count)
+    else
+      local count = tonumber(e.element.text) or 0
+      filter_data.count = count
+      refs.filter_setter.slider.slider_value = math.round(count, item_data.stack_size)
+    end
+  elseif msg.action == "set_filter" then
+    infinity_filter.set(player, player_table, filter_data, msg.temporary)
+    -- invoke `on_gui_closed` so the search GUI will be refocused
+    player.opened = nil
   end
 end
 

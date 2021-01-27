@@ -26,10 +26,28 @@ constants.ignored_item_types = {
   ["upgrade-item"] = true
 }
 
+constants.infinity_filter_mode_to_index = {
+  ["at-least"] = 1,
+  ["at-most"] = 2,
+  ["exactly"] = 3
+}
+
 constants.infinity_filter_mode_to_symbol = {
   ["at-least"] = ">=",
   ["at-most"] = "<=",
   ["exactly"] = "="
+}
+
+constants.infinity_filter_modes = {
+  ["at-least"] = "at-least",
+  ["at-most"] = "at-most",
+  ["exactly"] = "exactly"
+}
+
+constants.infinity_filter_modes_by_index = {
+  "at-least",
+  "at-most",
+  "exactly"
 }
 
 constants.infinity_rep = "inf."

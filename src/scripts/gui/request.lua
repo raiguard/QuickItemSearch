@@ -24,6 +24,7 @@ function request_gui.build(player, player_table)
     },
     {
       type = "frame",
+      name = "qis_subwindow_request",
       direction = "vertical",
       visible = false,
       ref = {"window"},
@@ -246,17 +247,11 @@ function request_gui.update_focus_frame_size(player, player_table)
   end
 end
 
-function request_gui.set_request(player, player_table, is_temporary)
-  local gui_data = player_table.guis.request
-  if gui_data then
-    local state = gui_data.state
-    if state.visible then
-      player.play_sound{path = "utility/confirm"}
-      request.set(player, player_table, state.item_data.name, state.request, is_temporary)
-      if is_temporary then
-        player.opened = nil
-      end
-    end
+function request_gui.set_request(player, player_table, state, is_temporary)
+  player.play_sound{path = "utility/confirm"}
+  request.set(player, player_table, state.item_data.name, state.request, is_temporary)
+  if is_temporary then
+    player.opened = nil
   end
 end
 

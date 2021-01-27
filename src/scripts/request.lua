@@ -41,7 +41,6 @@ function request.set(player, player_table, name, counts, is_temporary)
     min = counts.min,
     max = counts.max
   })
-
 end
 
 function request.update(player, player_table, slot_index)

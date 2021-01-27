@@ -28,13 +28,28 @@ data:extend{
   {
     type = "custom-input",
     name = "qis-confirm",
-    key_sequence = "E",
+    key_sequence = "ENTER",
+    alternative_key_sequence = "E",
     order = "d"
   },
   {
     type = "custom-input",
     name = "qis-shift-confirm",
-    key_sequence = "SHIFT + E",
+    key_sequence = "SHIFT + ENTER",
+    alternative_key_sequence = "SHIFT + E",
     order = "e"
+  },
+  {
+    type = "custom-input",
+    name = "qis-control-confirm",
+    key_sequence = "CONTROL + ENTER",
+    alternative_key_sequence = "CONTROL + E",
+    order = "f"
+  },
+  {
+    type = "custom-input",
+    name = "qis-cycle-infinity-filter-mode",
+    key_sequence = "SPACE",
+    order = "g"
   }
 }

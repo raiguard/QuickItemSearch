@@ -1,6 +1,7 @@
 local translation = require("__flib__.translation")
 
 local constants = require("constants")
+local infinity_filter = require("scripts.infinity-filter")
 local request = require("scripts.request")
 local shared = require("scripts.shared")
 
@@ -18,7 +19,8 @@ function player_data.init(player_index)
       translate_on_join = false,
     },
     guis = {},
-    requests = {},
+    infinity_filters = {by_index = {}, by_name = {}, temporary = {}},
+    requests = {by_index = {}, by_name = {}, temporary = {}},
     settings = {}
   }
 end
@@ -42,8 +44,12 @@ function player_data.refresh(player, player_table)
   -- update settings
   player_data.update_settings(player, player_table)
 
-  -- refresh requests
-  request.refresh(player, player_table)
+  -- refresh requests or infinity filters
+  if player.controller_type == defines.controllers.editor then
+    infinity_filter.refresh(player, player_table)
+  elseif player.controller_type == defines.controllers.character then
+    request.refresh(player, player_table)
+  end
 
   -- run translations
   player_table.translations = {}

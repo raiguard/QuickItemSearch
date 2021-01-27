@@ -5,6 +5,8 @@ local search = {}
 function search.run(player, player_table, query)
   local requests = player_table.requests
   local requests_by_name = requests.by_name
+  local filters = player_table.infinity_filters
+  local filters_by_name = filters.by_name
   local settings = player_table.settings
   local translations = player_table.translations
 
@@ -28,6 +30,8 @@ function search.run(player, player_table, query)
       logistic = {},
       outbound = {}
     }
+
+    local controller_type = player.controller_type
 
     -- get logistic network and related contents
     if character and character.valid then
@@ -54,6 +58,7 @@ function search.run(player, player_table, query)
         if show_hidden or not hidden then
           local inventory_count = contents.inventory[name]
           local logistic_count = contents.logistic[name]
+
           local result = {
             hidden = hidden,
             inventory = inventory_count,
@@ -61,26 +66,35 @@ function search.run(player, player_table, query)
             name = name,
             translation = translation,
           }
-          -- add logistic request, if one exists
-          local request = requests_by_name[name]
-          if request then
-            result.request = {min = request.min, max = request.max}
-            if requests.temporary[name] then
-              result.request.is_temporary = true
+
+          if controller_type == defines.controllers.character then
+            -- add logistic request, if one exists
+            local request = requests_by_name[name]
+            if request then
+              result.request = {min = request.min, max = request.max}
+              if requests.temporary[name] then
+                result.request.is_temporary = true
+              end
+            end
+            -- determine logistic request color
+            local color
+            if contents.inbound[name] then
+              color = "inbound"
+            elseif contents.outbound[name] then
+              color = "outbound"
+            elseif request and (inventory_count or 0) < request.min then
+              color = "unsatisfied"
+            else
+              color = "normal"
+            end
+            result.request_color = color
+          elseif controller_type == defines.controllers.editor then
+            -- add infinity filter, if one exists
+            local filter = filters_by_name[name]
+            if filter then
+              result.infinity_filter = {mode = filter.mode, count = filter.count}
             end
           end
-          -- determine logistic request color
-          local color
-          if contents.inbound[name] then
-            color = "inbound"
-          elseif contents.outbound[name] then
-            color = "outbound"
-          elseif request and (inventory_count or 0) < request.min then
-            color = "unsatisfied"
-          else
-            color = "normal"
-          end
-          result.request_color = color
 
           i = i + 1
           results[i] = result
@@ -88,16 +102,6 @@ function search.run(player, player_table, query)
         end
       end
       if i > constants.results_limit then break end
-    end
-
-    -- if in editor, iterate infinity filters
-    if player.controller_type == defines.controllers.editor then
-      for _, filter in ipairs(player.infinity_inventory_filters) do
-        local result = lookup[filter.name]
-        if result then
-          result.infinity_filter = filter
-        end
-      end
     end
   end
 
