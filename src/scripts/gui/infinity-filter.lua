@@ -258,6 +258,10 @@ function infinity_filter_gui.handle_action(e, msg)
       filter_data.count = count
       refs.filter_setter.slider.slider_value = math.round(count, item_data.stack_size)
     end
+  elseif msg.action == "clear_filter" then
+    infinity_filter.clear(player, player_table, filter_data.name)
+    -- invoke `on_gui_closed` so the search GUI will be refocused
+    player.opened = nil
   elseif msg.action == "set_filter" then
     infinity_filter.set(player, player_table, filter_data, msg.temporary)
     -- invoke `on_gui_closed` so the search GUI will be refocused

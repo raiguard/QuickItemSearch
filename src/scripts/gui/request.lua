@@ -156,6 +156,16 @@ function request_gui.build(player, player_table)
                 actions = {
                   on_click = {gui = "request", action = "set_request", temporary = true}
                 }
+              },
+              {
+                type = "sprite-button",
+                style = "tool_button_red",
+                style_mods = {top_margin = 1},
+                sprite = "utility/trash",
+                tooltip = {"qis-gui.clear-request"},
+                actions = {
+                  on_click = {gui = "request", action = "clear_request"}
+                }
               }
             }
           }
@@ -320,6 +330,10 @@ function request_gui.handle_action(e, msg)
         refs.logistic_setter.min.textfield.focus()
       end
     end
+  elseif msg.action == "clear_request" then
+    request.clear(player, player_table, state.item_data.name)
+    -- invoke `on_gui_closed` so the search GUI will be refocused
+    player.opened = nil
   elseif msg.action == "set_request" then
     request.set(player, player_table, state.item_data.name, state.request, msg.temporary)
     -- invoke `on_gui_closed` so the search GUI will be refocused
