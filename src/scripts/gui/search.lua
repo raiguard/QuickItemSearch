@@ -299,6 +299,7 @@ function search_gui.perform_search(player, player_table, updated_query, combined
             request_label.style.font_color = constants.colors[row.request_color or "normal"]
           else
             request_label.caption = "--"
+            request_label.style.font_color = constants.colors.normal
           end
         else
           request_label.caption = ""

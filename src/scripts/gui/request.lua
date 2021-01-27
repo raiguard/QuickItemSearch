@@ -241,8 +241,11 @@ function request_gui.update_focus_frame_size(player, player_table)
   end
 end
 
-function request_gui.set_request(player, player_table, is_temporary)
-  player.play_sound{path = "utility/confirm"}
+function request_gui.set_request(player, player_table, is_temporary, skip_sound)
+  if not skip_sound then
+    player.play_sound{path = "utility/confirm"}
+  end
+
   local gui_data = player_table.guis.request
   local refs = gui_data.refs
   local state = gui_data.state
@@ -337,7 +340,7 @@ function request_gui.handle_action(e, msg)
     -- invoke `on_gui_closed` so the search GUI will be refocused
     player.opened = nil
   elseif msg.action == "set_request" then
-    request_gui.set_request(player, player_table, msg.temporary)
+    request_gui.set_request(player, player_table, msg.temporary, true)
     -- invoke `on_gui_closed` if the above function did not
     if not msg.temporary then
       player.opened = nil
