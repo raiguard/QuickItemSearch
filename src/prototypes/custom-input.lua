@@ -9,14 +9,14 @@ data:extend{
     type = "custom-input",
     name = "qis-nav-up",
     key_sequence = "UP",
-    alternative_key_sequence = "K",
+    alternative_key_sequence = "SHIFT + K",
     order = "ba"
   },
   {
     type = "custom-input",
     name = "qis-nav-down",
     key_sequence = "DOWN",
-    alternative_key_sequence = "J",
+    alternative_key_sequence = "SHIFT + J",
     order = "bb"
   },
   {

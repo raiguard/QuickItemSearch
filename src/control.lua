@@ -11,6 +11,7 @@ local request = require("scripts.request")
 local search = require("scripts.search")
 local shared = require("scripts.shared")
 
+local crafting_gui = require("scripts.gui.crafting")
 local infinity_filter_gui = require("scripts.gui.infinity-filter")
 local request_gui = require("scripts.gui.request")
 local search_gui = require("scripts.gui.search")
@@ -130,7 +131,9 @@ end)
 gui.hook_events(function(e)
   local msg = gui.read_action(e)
   if msg then
-    if msg.gui == "infinity_filter" then
+    if msg.gui == "crafting" then
+      crafting_gui.handle_action(e, msg)
+    elseif msg.gui == "infinity_filter" then
       infinity_filter_gui.handle_action(e, msg)
     elseif msg.gui == "request" then
       request_gui.handle_action(e, msg)
@@ -303,6 +306,7 @@ event.on_string_translated(function(e)
     player_table.flags.translate_on_join = false
     player_table.flags.show_message_after_translation = false
     -- create GUIs
+    crafting_gui.build(player, player_table)
     infinity_filter_gui.build(player, player_table)
     request_gui.build(player, player_table)
     search_gui.build(player, player_table)

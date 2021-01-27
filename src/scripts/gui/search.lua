@@ -6,6 +6,7 @@ local cursor = require("scripts.cursor")
 local search = require("scripts.search")
 local shared = require("scripts.shared")
 
+local crafting_gui = require("scripts.gui.crafting")
 local infinity_filter_gui = require("scripts.gui.infinity-filter")
 local request_gui = require("scripts.gui.request")
 
@@ -368,11 +369,28 @@ function search_gui.select_item(player, player_table, modifiers, index)
       player.play_sound{path = "utility/cannot_build"}
     end
   elseif modifiers.control then
-    player.play_sound{path = "utility/cannot_build"}
+    if player.controller_type == defines.controllers.character or player.controller_type == defines.controllers.god then
+      state.subwindow_open = true
+      refs.search_textfield.enabled = false
+      refs.window_dimmer.visible = true
+      refs.window_dimmer.bring_to_front()
+      crafting_gui.open(player, player_table, result)
+
+      player.play_sound{path = "utility/confirm"}
+    else
+      player.play_sound{path = "utility/cannot_build"}
+    end
   else
-    state.selected_item_tick = game.ticks_played
-    cursor.set_stack(player, player.cursor_stack, player_table, result.name)
-    player.play_sound{path = "utility/confirm"}
+    -- make sure we're not already holding this item
+    local cursor_stack = player.cursor_stack
+    if cursor_stack and cursor_stack.valid_for_read and cursor_stack.name == result.name then
+      player.play_sound{path = "utility/cannot_build"}
+      player.create_local_flying_text{text = {"qis-message.already-holding-item"}, create_at_cursor = true}
+    else
+      state.selected_item_tick = game.ticks_played
+      cursor.set_stack(player, player.cursor_stack, player_table, result.name)
+      player.play_sound{path = "utility/confirm"}
+    end
   end
 end
 
