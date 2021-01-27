@@ -7,27 +7,6 @@ local spawn_item_tooltip = {
 data:extend{
   {
     type = "bool-setting",
-    name = "qis-search-inventory",
-    setting_type = "runtime-per-user",
-    default_value = true,
-    order = "aa"
-  },
-  {
-    type = "bool-setting",
-    name = "qis-search-logistic-network",
-    setting_type = "runtime-per-user",
-    default_value = true,
-    order = "ab"
-  },
-  {
-    type = "bool-setting",
-    name = "qis-search-unavailable",
-    setting_type = "runtime-per-user",
-    default_value = true,
-    order = "ac"
-  },
-  {
-    type = "bool-setting",
     name = "qis-show-hidden",
     setting_type = "runtime-per-user",
     default_value = false,
@@ -47,12 +26,5 @@ data:extend{
     default_value = true,
     order = "af",
     localised_description = spawn_item_tooltip
-  },
-  {
-    type = "string-setting",
-    name = "qis-quick-trash-all-excludes",
-    setting_type = "runtime-per-user",
-    default_value = "[]",
-    order = "b"
   }
 }
