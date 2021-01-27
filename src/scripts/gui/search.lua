@@ -166,8 +166,7 @@ function search_gui.close(player, player_table)
   local refs = gui_data.refs
   local state = gui_data.state
 
-  if state.selecting_item then
-    state.selecting_item = false
+  if state.selected_item_tick == game.ticks_played then
     player.opened = refs.window
   elseif not state.subwindow_open then
     refs.window.visible = false
@@ -232,7 +231,12 @@ function search_gui.perform_search(player, player_table, updated_query, combined
 
   if #state.raw_query > 1 then
     local i = 0
-    local results, connected_to_network = search.run(player, player_table, query, combined_contents)
+    local results, connected_to_network, logistic_requests_enabled = search.run(
+      player,
+      player_table,
+      query,
+      combined_contents
+    )
     for _, row in ipairs(results) do
       i = i + 1
       local i3 = i * 3
@@ -248,7 +252,7 @@ function search_gui.perform_search(player, player_table, updated_query, combined
             }
           },
           {type = "label"},
-          {type = "label", style = "qis_clickable_label"}
+          {type = "label"}
         })
         -- update our copy of the table
         children = results_table.children
@@ -274,26 +278,30 @@ function search_gui.perform_search(player, player_table, updated_query, combined
       -- request / infinity filter
       local request_label = children[i3 + 3]
       if player.controller_type == defines.controllers.editor then
-        local filter = row.infinity_filter
-        if filter then
-          request_label.caption = constants.infinity_filter_mode_to_symbol[filter.mode].." "..filter.count
-        else
-          request_label.caption = "--"
-        end
+          local filter = row.infinity_filter
+          if filter then
+            request_label.caption = constants.infinity_filter_mode_to_symbol[filter.mode].." "..filter.count
+          else
+            request_label.caption = "--"
+          end
       else
-        local request = row.request
-        if request then
-          local max = request.max
-          if max == math.max_uint then
-            max = constants.infinity_rep
+        if logistic_requests_enabled then
+          local request = row.request
+          if request then
+            local max = request.max
+            if max == math.max_uint then
+              max = constants.infinity_rep
+            end
+            request_label.caption = request.min.." / "..max
+            if request.is_temporary then
+              request_label.caption = "(T) "..request_label.caption
+            end
+            request_label.style.font_color = constants.colors[row.request_color or "normal"]
+          else
+            request_label.caption = "--"
           end
-          request_label.caption = request.min.." / "..max
-          if request.is_temporary then
-            request_label.caption = "(T) "..request_label.caption
-          end
-          request_label.style.font_color = constants.colors[row.request_color or "normal"]
         else
-          request_label.caption = "--"
+          request_label.caption = ""
         end
       end
     end
@@ -302,10 +310,22 @@ function search_gui.perform_search(player, player_table, updated_query, combined
       results_table.children[j].destroy()
     end
     -- show or hide warning
-    if player.controller_type == defines.controllers.character and not connected_to_network then
+    if
+      logistic_requests_enabled
+      and player.controller_type == defines.controllers.character
+      and not connected_to_network
+    then
       refs.warning_subheader.visible = true
     else
       refs.warning_subheader.visible = false
+    end
+    if
+      player.controller_type == defines.controllers.god
+      or (player.controller_type == defines.controllers.character and not logistic_requests_enabled)
+    then
+      results_table.style.right_margin = -15
+    else
+      results_table.style.right_margin = 0
     end
     -- add to state
     state.results = results
@@ -322,8 +342,6 @@ function search_gui.perform_search(player, player_table, updated_query, combined
 end
 
 function search_gui.select_item(player, player_table, modifiers, index)
-  player.play_sound{path = "utility/confirm"}
-
   local gui_data = player_table.guis.search
   local refs = gui_data.refs
   local state = gui_data.state
@@ -331,22 +349,29 @@ function search_gui.select_item(player, player_table, modifiers, index)
   local i = index or state.selected_index
   local result = state.results[i]
   if modifiers.shift then
-    state.subwindow_open = true
-    refs.search_textfield.enabled = false
-    refs.window_dimmer.visible = true
-    refs.window_dimmer.bring_to_front()
-
     local player_controller = player.controller_type
-    if player_controller == defines.controllers.editor then
-      infinity_filter_gui.open(player, player_table, result)
-    elseif player_controller == defines.controllers.character then
-      request_gui.open(player, player_table, result)
+    if player_controller == defines.controllers.editor or player_controller == defines.controllers.character then
+      state.subwindow_open = true
+      refs.search_textfield.enabled = false
+      refs.window_dimmer.visible = true
+      refs.window_dimmer.bring_to_front()
+
+      if player_controller == defines.controllers.editor then
+        infinity_filter_gui.open(player, player_table, result)
+      elseif player_controller == defines.controllers.character then
+        request_gui.open(player, player_table, result)
+      end
+
+      player.play_sound{path = "utility/confirm"}
+    else
+      player.play_sound{path = "utility/cannot_build"}
     end
   elseif modifiers.control then
-
+    player.play_sound{path = "utility/cannot_build"}
   else
-    state.selecting_item = true
+    state.selected_item_tick = game.ticks_played
     cursor.set_stack(player, player.cursor_stack, player_table, result.name)
+    player.play_sound{path = "utility/confirm"}
   end
 end
 
@@ -356,7 +381,6 @@ function search_gui.update_for_active_players()
     local player = game.get_player(player_index)
     local player_table = global.players[player_index]
     local gui_data = player_table.guis.search
-    local refs = gui_data.refs
     local state = gui_data.state
 
     if tick - state.last_search_update > 120 then
