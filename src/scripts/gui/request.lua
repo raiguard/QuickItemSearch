@@ -255,6 +255,12 @@ function request_gui.set_request(player, player_table, state, is_temporary)
   end
 end
 
+function request_gui.clear_request(player, player_table, state)
+  player.play_sound{path = "utility/confirm"}
+  request.clear(player, player_table, state.item_data.name)
+  player.opened = nil
+end
+
 function request_gui.handle_action(e, msg)
   local player = game.get_player(e.player_index)
   local player_table = global.players[e.player_index]

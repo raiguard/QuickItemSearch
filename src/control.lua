@@ -58,7 +58,11 @@ event.register({"qis-confirm", "qis-shift-confirm", "qis-control-confirm"}, func
     if gui_data then
       local state = gui_data.state
       if state.visible then
-        request_gui.set_request(player, player_table, state, e.input_name == "qis-shift-confirm")
+        if to_clear then
+          request_gui.clear_request(player, player_table, state)
+        else
+          request_gui.set_request(player, player_table, state, e.input_name == "qis-shift-confirm")
+        end
       end
     end
   elseif player.controller_type == defines.controllers.editor then

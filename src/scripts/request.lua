@@ -43,6 +43,14 @@ function request.set(player, player_table, name, counts, is_temporary)
   })
 end
 
+function request.clear(player, player_table, name)
+  local requests = player_table.requests
+  local request_data = requests.by_name[name]
+  if request_data then
+    player.clear_personal_logistic_slot(request_data.index)
+  end
+end
+
 function request.update(player, player_table, slot_index)
   local requests = player_table.requests
   local existing_request = player.get_personal_logistic_slot(slot_index)
