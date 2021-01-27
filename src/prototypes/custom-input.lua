@@ -2,7 +2,7 @@ data:extend{
   {
     type = "custom-input",
     name = "qis-search",
-    key_sequence = "CONTROL + F",
+    key_sequence = "SHIFT + F",
     order = "a"
   },
   {
