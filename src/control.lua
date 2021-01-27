@@ -104,6 +104,14 @@ event.register({"qis-nav-up", "qis-nav-down"}, function(e)
   end
 end)
 
+event.register("qis-quick-trash-all", function(e)
+  local player = game.get_player(e.player_index)
+  if player.controller_type == defines.controllers.character and player.force.character_logistic_requests then
+    local player_table = global.players[e.player_index]
+    request.quick_trash_all(player, player_table)
+  end
+end)
+
 -- ENTITY
 
 event.on_entity_logistic_slot_changed(function(e)

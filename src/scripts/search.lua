@@ -20,7 +20,7 @@ function search.run(player, player_table, query, combined_contents)
     local show_hidden = settings.show_hidden
 
     local connected_to_network = false
-    local logistic_requests_enabled = false
+    local logistic_requests_available = false
     local results = {}
 
     -- get contents of all player inventories and cursor stack
@@ -38,10 +38,7 @@ function search.run(player, player_table, query, combined_contents)
 
     -- get logistic network and related contents
     if character and character.valid then
-      logistic_requests_enabled = (
-        character.character_personal_logistic_requests_enabled
-        and player.force.character_logistic_requests
-      )
+      logistic_requests_available = player.force.character_logistic_requests
       for _, data in ipairs(constants.logistic_point_data) do
         local point = character.get_logistic_point(data.logistic_point)
         if point and point.valid then
@@ -110,7 +107,7 @@ function search.run(player, player_table, query, combined_contents)
       if i > constants.results_limit then break end
     end
 
-    return results, connected_to_network, logistic_requests_enabled
+    return results, connected_to_network, logistic_requests_available
   end
   return {}, false, false
 end

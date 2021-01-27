@@ -231,7 +231,7 @@ function search_gui.perform_search(player, player_table, updated_query, combined
 
   if #state.raw_query > 1 then
     local i = 0
-    local results, connected_to_network, logistic_requests_enabled = search.run(
+    local results, connected_to_network, logistic_requests_available = search.run(
       player,
       player_table,
       query,
@@ -285,7 +285,7 @@ function search_gui.perform_search(player, player_table, updated_query, combined
             request_label.caption = "--"
           end
       else
-        if logistic_requests_enabled then
+        if logistic_requests_available then
           local request = row.request
           if request then
             local max = request.max
@@ -311,7 +311,7 @@ function search_gui.perform_search(player, player_table, updated_query, combined
     end
     -- show or hide warning
     if
-      logistic_requests_enabled
+      logistic_requests_available
       and player.controller_type == defines.controllers.character
       and not connected_to_network
     then
@@ -321,7 +321,7 @@ function search_gui.perform_search(player, player_table, updated_query, combined
     end
     if
       player.controller_type == defines.controllers.god
-      or (player.controller_type == defines.controllers.character and not logistic_requests_enabled)
+      or (player.controller_type == defines.controllers.character and not logistic_requests_available)
     then
       results_table.style.right_margin = -15
     else

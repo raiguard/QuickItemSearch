@@ -118,4 +118,21 @@ function request.update_temporaries(player, player_table, combined_contents)
   end
 end
 
+function request.quick_trash_all(player, player_table)
+  local requests = player_table.requests
+  local main_inventory = player.get_main_inventory()
+  if main_inventory and main_inventory.valid then
+    for name, count in pairs(search.get_combined_inventory_contents(player, main_inventory)) do
+      local existing_request = requests.by_name[name]
+      if existing_request then
+        if count > existing_request.min then
+          request.set(player, player_table, name, {min = existing_request.min, max = existing_request.min}, true)
+        end
+      else
+        request.set(player, player_table, name, {min = 0, max = 0}, true)
+      end
+    end
+  end
+end
+
 return request
