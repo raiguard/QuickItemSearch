@@ -2,28 +2,30 @@ local constants = require("constants")
 
 local search = {}
 
-function search.run(player, player_table, query)
-  local requests = player_table.requests
-  local requests_by_name = requests.by_name
-  local filters = player_table.infinity_filters
-  local filters_by_name = filters.by_name
-  local settings = player_table.settings
-  local translations = player_table.translations
+function search.run(player, player_table, query, combined_contents)
+  -- don't bother if they don't have a main inventory
+  local main_inventory = player.get_main_inventory()
+  if main_inventory and main_inventory.valid then
+    local requests = player_table.requests
+    local requests_by_name = requests.by_name
+    local filters = player_table.infinity_filters
+    local filters_by_name = filters.by_name
+    local settings = player_table.settings
+    local translations = player_table.translations
 
-  local item_prototypes = game.item_prototypes
-  local character = player.character
+    local item_prototypes = game.item_prototypes
+    local character = player.character
 
-  -- settings
-  local show_hidden = settings.show_hidden
+    -- settings
+    local show_hidden = settings.show_hidden
 
-  local connected_to_network = false
-  local lookup = {}
-  local results = {}
+    local connected_to_network = false
+    local results = {}
 
-  -- get contents of all player inventories and cursor stack
-  local combined_contents, has_main_inventory = search.get_combined_inventory_contents(player)
-  -- don't bother doing anything if they don't have an inventory
-  if has_main_inventory then
+    -- get contents of all player inventories and cursor stack
+    -- in some cases, this is passed in externally to save performance
+    combined_contents = combined_contents or search.get_combined_inventory_contents(player, main_inventory)
+    -- don't bother doing anything if they don't have an inventory
     local contents = {
       inbound = {},
       inventory = combined_contents,
@@ -98,19 +100,17 @@ function search.run(player, player_table, query)
 
           i = i + 1
           results[i] = result
-          lookup[name] = result
         end
       end
       if i > constants.results_limit then break end
     end
-  end
 
-  return results, connected_to_network
+    return results, connected_to_network
+  end
+  return {}, false
 end
 
-function search.get_combined_inventory_contents(player)
-  local main_inventory = player.get_main_inventory()
-  if not main_inventory then return {}, false end
+function search.get_combined_inventory_contents(player, main_inventory)
   -- main inventory contents
   local combined_contents = main_inventory.get_contents()
   -- cursor stack

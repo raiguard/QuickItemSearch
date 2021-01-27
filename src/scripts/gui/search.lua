@@ -155,7 +155,7 @@ function search_gui.open(player, player_table)
   gui_data.refs.search_textfield.select_all()
 
   -- update the table right away
-  search_gui.perform_search(player, player_table, gui_data.state, gui_data.refs)
+  search_gui.perform_search(player, player_table)
 
   global.update_search_results[player.index] = true
   shared.register_on_tick()
@@ -202,7 +202,7 @@ function search_gui.reopen_after_subwindow(e)
     refs.window_dimmer.visible = false
     state.subwindow_open = false
 
-    search_gui.perform_search(player, player_table, state, refs)
+    search_gui.perform_search(player, player_table)
 
     player.opened = gui_data.refs.window
 
@@ -211,7 +211,11 @@ function search_gui.reopen_after_subwindow(e)
   end
 end
 
-function search_gui.perform_search(player, player_table, state, refs, updated_query)
+function search_gui.perform_search(player, player_table, updated_query, combined_contents)
+  local gui_data = player_table.guis.search
+  local refs = gui_data.refs
+  local state = gui_data.state
+
   state.last_search_update = game.ticks_played
 
   local query = state.query
@@ -228,7 +232,7 @@ function search_gui.perform_search(player, player_table, state, refs, updated_qu
 
   if #state.raw_query > 1 then
     local i = 0
-    local results, connected_to_network = search.run(player, player_table, query)
+    local results, connected_to_network = search.run(player, player_table, query, combined_contents)
     for _, row in ipairs(results) do
       i = i + 1
       local i3 = i * 3
@@ -318,6 +322,8 @@ function search_gui.perform_search(player, player_table, state, refs, updated_qu
 end
 
 function search_gui.select_item(player, player_table, modifiers, index)
+  player.play_sound{path = "utility/confirm"}
+
   local gui_data = player_table.guis.search
   local refs = gui_data.refs
   local state = gui_data.state
@@ -354,7 +360,7 @@ function search_gui.update_for_active_players()
     local state = gui_data.state
 
     if tick - state.last_search_update > 120 then
-      search_gui.perform_search(player, player_table, state, refs)
+      search_gui.perform_search(player, player_table)
     end
   end
 end
@@ -382,10 +388,10 @@ function search_gui.handle_action(e, msg)
     end
     state.query = query
     state.raw_query = e.text
-    search_gui.perform_search(player, player_table, state, refs, true)
+    search_gui.perform_search(player, player_table, true)
   elseif msg.action == "perform_search" then
     -- perform search without updating query
-    search_gui.perform_search(player, player_table, state, refs)
+    search_gui.perform_search(player, player_table)
   elseif msg.action == "enter_result_selection" then
     if #refs.results_table.children == 3 then
       refs.search_textfield.focus()

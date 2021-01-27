@@ -19,7 +19,7 @@ function infinity_filter_gui.build(player, player_table)
       ref = {"focus_frame"},
       visible = false,
       actions = {
-        on_click = {gui = "infinity_filter", action = "close"}
+        on_click = {gui = "infinity_filter", action = "close", reopen_after_subwindow = true}
       }
     },
     {
@@ -29,7 +29,7 @@ function infinity_filter_gui.build(player, player_table)
       visible = false,
       ref = {"window"},
       actions = {
-        on_closed = {gui = "infinity_filter", action = "close"}
+        on_closed = {gui = "infinity_filter", action = "close", reopen_after_subwindow = true}
       },
       children = {
         {
@@ -53,7 +53,7 @@ function infinity_filter_gui.build(player, player_table)
               hovered_sprite = "utility/close_black",
               clicked_sprite = "utility/close_black",
               actions = {
-                on_click = {gui = "infinity_filter", action = "close"}
+                on_click = {gui = "infinity_filter", action = "close", reopen_after_subwindow = true}
               }
             }
           }

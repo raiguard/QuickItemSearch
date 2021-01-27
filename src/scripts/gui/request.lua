@@ -19,7 +19,7 @@ function request_gui.build(player, player_table)
       ref = {"focus_frame"},
       visible = false,
       actions = {
-        on_click = {gui = "request", action = "close"}
+        on_click = {gui = "request", action = "close", reopen_after_subwindow = true}
       }
     },
     {
@@ -29,7 +29,7 @@ function request_gui.build(player, player_table)
       visible = false,
       ref = {"window"},
       actions = {
-        on_closed = {gui = "request", action = "close"}
+        on_closed = {gui = "request", action = "close", reopen_after_subwindow = true}
       },
       children = {
         {
@@ -48,7 +48,7 @@ function request_gui.build(player, player_table)
               hovered_sprite = "utility/close_black",
               clicked_sprite = "utility/close_black",
               actions = {
-                on_click = {gui = "request", action = "close"}
+                on_click = {gui = "request", action = "close", reopen_after_subwindow = true}
               }
             }
           }

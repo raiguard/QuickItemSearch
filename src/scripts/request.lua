@@ -101,22 +101,19 @@ function request.refresh(player, player_table)
   player_table.requests = requests
 end
 
-function request.update_temporaries(player, player_table)
+function request.update_temporaries(player, player_table, combined_contents)
   local requests = player_table.requests
   local temporary_requests = requests.temporary
-  -- TODO: deduplicate this from updating the search results
-  local combined_contents, has_main_inventory = search.get_combined_inventory_contents(player)
-  if has_main_inventory then
-    for name, old_request_data in pairs(temporary_requests) do
-      local existing_request_data = requests.by_name[name]
-      local has_count = combined_contents[name] or 0
-      -- if the request has been satisfied
-      if has_count >= existing_request_data.min and has_count <= existing_request_data.max then
-        -- clear the temporary request data first to avoid setting the slot twice
-        temporary_requests[name] = nil
-        -- set the former request
-        player.set_personal_logistic_slot(existing_request_data.index, old_request_data)
-      end
+
+  for name, old_request_data in pairs(temporary_requests) do
+    local existing_request_data = requests.by_name[name]
+    local has_count = combined_contents[name] or 0
+    -- if the request has been satisfied
+    if has_count >= existing_request_data.min and has_count <= existing_request_data.max then
+      -- clear the temporary request data first to avoid setting the slot twice
+      temporary_requests[name] = nil
+      -- set the former request
+      player.set_personal_logistic_slot(existing_request_data.index, old_request_data)
     end
   end
 end
