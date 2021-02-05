@@ -28,22 +28,22 @@ data:extend{
   {
     type = "custom-input",
     name = "qis-confirm",
-    key_sequence = "ENTER",
-    alternative_key_sequence = "E",
+    key_sequence = "E",
+    alternative_key_sequence = "ENTER",
     order = "d"
   },
   {
     type = "custom-input",
     name = "qis-shift-confirm",
-    key_sequence = "SHIFT + ENTER",
-    alternative_key_sequence = "SHIFT + E",
+    key_sequence = "SHIFT + E",
+    alternative_key_sequence = "SHIFT + ENTER",
     order = "e"
   },
   {
     type = "custom-input",
     name = "qis-control-confirm",
-    key_sequence = "CONTROL + ENTER",
-    alternative_key_sequence = "CONTROL + E",
+    key_sequence = "CONTROL + E",
+    alternative_key_sequence = "CONTROL + ENTER",
     order = "f"
   },
   {

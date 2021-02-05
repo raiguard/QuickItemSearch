@@ -92,7 +92,7 @@ function search_gui.build(player, player_table)
                     {
                       type = "label",
                       style = "bold_label",
-                      caption = {"", "[img=utility/warning_white]  ", {"qis-gui.not-connected-to-logistic-network"}}
+                      caption = {"", "[img=utility/warning_white]  ", {"gui.qis-not-connected-to-logistic-network"}}
                     }
                   }
                 },
@@ -373,7 +373,7 @@ function search_gui.select_item(player, player_table, modifiers, index)
     local cursor_stack = player.cursor_stack
     if cursor_stack and cursor_stack.valid_for_read and cursor_stack.name == result.name then
       player.play_sound{path = "utility/cannot_build"}
-      player.create_local_flying_text{text = {"qis-message.already-holding-item"}, create_at_cursor = true}
+      player.create_local_flying_text{text = {"message.qis-already-holding-item"}, create_at_cursor = true}
     else
       state.selected_item_tick = game.ticks_played
       cursor.set_stack(player, player.cursor_stack, player_table, result.name)

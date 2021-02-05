@@ -16,6 +16,19 @@ local request_gui = require("scripts.gui.request")
 local search_gui = require("scripts.gui.search")
 
 -- -----------------------------------------------------------------------------
+-- COMMANDS
+
+commands.add_command("QuickItemSearch", {"command-help.QuickItemSearch"}, function(e)
+  if e.parameter == "refresh-player-data" then
+    local player = game.get_player(e.player_index)
+    player.print{"message.qis-refreshing-player-data"}
+    player_data.refresh(player, global.players[e.player_index])
+  else
+    game.get_player(e.player_index).print{"message.qis-invalid-parameter"}
+  end
+end)
+
+-- -----------------------------------------------------------------------------
 -- EVENT HANDLERS
 
 -- BOOTSTRAP
@@ -90,6 +103,9 @@ event.register("qis-search", function(e)
   local player_table = global.players[e.player_index]
   if player_table.flags.can_open_gui then
     search_gui.toggle(player, player_table)
+  else
+    player_table.flags.show_message_after_translation = true
+    player.print{"message.qis-cannot-open-gui"}
   end
 end)
 
@@ -301,7 +317,7 @@ event.on_string_translated(function(e)
     local player_table = global.players[e.player_index]
     -- show message if needed
     if player_table.flags.show_message_after_translation then
-      player.print{'qis-message.can-open-gui'}
+      player.print{"message.qis-can-open-gui"}
     end
     -- update flags
     player_table.flags.can_open_gui = true
