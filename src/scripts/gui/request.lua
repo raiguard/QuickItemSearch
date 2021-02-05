@@ -40,7 +40,12 @@ function request_gui.build(player, player_table)
             on_click = {gui = "request", action = "recenter"}
           },
           children = {
-            {type = "label", style = "frame_title", caption = {"gui.qis-set-request"}, ignored_by_interaction = true},
+            {
+              type = "label",
+              style = "frame_title",
+              caption = {"gui.qis-edit-logistic-request"},
+              ignored_by_interaction = true
+            },
             {type = "empty-widget", style = "flib_titlebar_drag_handle", ignored_by_interaction = true},
             {
               type = "sprite-button",
@@ -125,7 +130,7 @@ function request_gui.build(player, player_table)
                 type = "sprite-button",
                 style = "item_and_count_select_confirm",
                 sprite = "utility/check_mark",
-                tooltip = {"gui.qis-set-request"},
+                tooltip = {"", {"gui.qis-set-request"}, {"gui.qis-confirm"}},
                 ref = {"logistic_setter", "set_request_button"},
                 actions = {
                   on_click = {gui = "request", action = "set_request"}
@@ -136,7 +141,7 @@ function request_gui.build(player, player_table)
                 style = "flib_tool_button_light_green",
                 style_mods = {top_margin = 1},
                 sprite = "qis_temporary_request",
-                tooltip = {"gui.qis-set-temporary-request"},
+                tooltip = {"", {"gui.qis-set-temporary-request"}, {"gui.qis-shift-confirm"}},
                 ref = {"logistic_setter", "set_temporary_request_button"},
                 actions = {
                   on_click = {gui = "request", action = "set_request", temporary = true}
@@ -147,7 +152,7 @@ function request_gui.build(player, player_table)
                 style = "tool_button_red",
                 style_mods = {top_margin = 1},
                 sprite = "utility/trash",
-                tooltip = {"gui.qis-clear-request"},
+                tooltip = {"", {"gui.qis-clear-request"}, {"gui.qis-control-confirm"}},
                 actions = {
                   on_click = {gui = "request", action = "clear_request"}
                 }

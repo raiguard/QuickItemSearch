@@ -43,7 +43,7 @@ function infinity_filter_gui.build(player, player_table)
             {
               type = "label",
               style = "frame_title",
-              caption = {"gui.qis-set-infinity-filter"},
+              caption = {"gui.qis-edit-infinity-filter"},
               ignored_by_interaction = true
             },
             {type = "empty-widget", style = "flib_titlebar_drag_handle", ignored_by_interaction = true},
@@ -110,7 +110,7 @@ function infinity_filter_gui.build(player, player_table)
                 type = "sprite-button",
                 style = "item_and_count_select_confirm",
                 sprite = "utility/check_mark",
-                tooltip = {"gui.qis-set-infinity-filter"},
+                tooltip = {"", {"gui.qis-set-infinity-filter"}, {"gui.qis-confirm"}},
                 actions = {
                   on_click = {gui = "infinity_filter", action = "set_filter"}
                 }
@@ -120,7 +120,7 @@ function infinity_filter_gui.build(player, player_table)
                 style = "flib_tool_button_light_green",
                 style_mods = {top_margin = 1},
                 sprite = "qis_temporary_request",
-                tooltip = {"gui.qis-set-temporary-infinity-filter"},
+                tooltip = {"", {"gui.qis-set-temporary-infinity-filter"}, {"gui.qis-shift-confirm"}},
                 actions = {
                   on_click = {gui = "infinity_filter", action = "set_filter", temporary = true}
                 }
@@ -130,7 +130,7 @@ function infinity_filter_gui.build(player, player_table)
                 style = "tool_button_red",
                 style_mods = {top_margin = 1},
                 sprite = "utility/trash",
-                tooltip = {"gui.qis-clear-infinity-filter"},
+                tooltip = {"", {"gui.qis-clear-infinity-filter"}, {"gui.qis-control-confirm"}},
                 actions = {
                   on_click = {gui = "infinity_filter", action = "clear_filter"}
                 }

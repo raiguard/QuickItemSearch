@@ -230,6 +230,19 @@ function search_gui.perform_search(player, player_table, updated_query, combined
     state.selected_index = 1
   end
 
+  local result_tooltip = {
+    "",
+    {"gui.qis-result-click-tooltip"},
+    "\n",
+    {"gui.qis-shift-click"},
+    " ",
+    (
+      player.controller_type == defines.controllers.character
+      and {"gui.qis-edit-logistic-request"}
+      or {"gui.qis-edit-infinity-filter"}
+    )
+  }
+
   if #state.raw_query > 1 then
     local i = 0
     local results, connected_to_network, logistic_requests_available = search.run(
@@ -263,6 +276,7 @@ function search_gui.perform_search(player, player_table, updated_query, combined
       local item_label = children[i3 + 1]
       local hidden_abbrev = row.hidden and "[font=default-semibold](H)[/font]  " or ""
       item_label.caption = hidden_abbrev.."[item="..row.name.."]  "..row.translation
+      item_label.tooltip = result_tooltip
       -- item counts
       if player.controller_type == defines.controllers.character and connected_to_network then
         children[i3 + 2].caption = (
