@@ -6,7 +6,6 @@ local cursor = require("scripts.cursor")
 local search = require("scripts.search")
 local shared = require("scripts.shared")
 
-local crafting_gui = require("scripts.gui.crafting")
 local infinity_filter_gui = require("scripts.gui.infinity-filter")
 local request_gui = require("scripts.gui.request")
 
@@ -364,18 +363,6 @@ function search_gui.select_item(player, player_table, modifiers, index)
       elseif player_controller == defines.controllers.character then
         request_gui.open(player, player_table, result)
       end
-
-      player.play_sound{path = "utility/confirm"}
-    else
-      player.play_sound{path = "utility/cannot_build"}
-    end
-  elseif modifiers.control then
-    if player.controller_type == defines.controllers.character or player.controller_type == defines.controllers.god then
-      state.subwindow_open = true
-      refs.search_textfield.enabled = false
-      refs.window_dimmer.visible = true
-      refs.window_dimmer.bring_to_front()
-      crafting_gui.open(player, player_table, result)
 
       player.play_sound{path = "utility/confirm"}
     else

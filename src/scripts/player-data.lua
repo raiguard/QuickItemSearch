@@ -5,7 +5,6 @@ local infinity_filter = require("scripts.infinity-filter")
 local request = require("scripts.request")
 local shared = require("scripts.shared")
 
-local crafting_gui = require("scripts.gui.crafting")
 local infinity_filter_gui = require("scripts.gui.infinity-filter")
 local request_gui = require("scripts.gui.request")
 local search_gui = require("scripts.gui.search")
@@ -28,9 +27,6 @@ end
 
 function player_data.refresh(player, player_table)
   -- destroy GUIs
-  if player_table.guis.crafting then
-    crafting_gui.destroy(player_table)
-  end
   if player_table.guis.infinity_filter then
     infinity_filter_gui.destroy(player_table)
   end
