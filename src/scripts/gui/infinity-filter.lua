@@ -34,6 +34,7 @@ function infinity_filter_gui.build(player, player_table)
       children = {
         {
           type = "flow",
+          style = "flib_titlebar_flow",
           ref = {"titlebar_flow"},
           actions = {
             on_click = {gui = "infinity_filter", action = "recenter"}

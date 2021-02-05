@@ -34,6 +34,7 @@ function search_gui.build(player, player_table)
       children = {
         {
           type = "flow",
+          style = "flib_titlebar_flow",
           ref = {"titlebar_flow"},
           actions = {
             on_click = {gui = "search", action = "recenter"}
@@ -439,6 +440,8 @@ function search_gui.handle_action(e, msg)
     if #refs.results_table.children == 3 then
       refs.search_textfield.focus()
       return
+    else
+      refs.results_scroll_pane.focus()
     end
     if state.selected_index > ((#refs.results_table.children - 3) / 3) then
       state.selected_index = 1

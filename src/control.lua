@@ -121,8 +121,13 @@ event.on_entity_logistic_slot_changed(function(e)
   local entity = e.entity
   if entity and entity.valid and entity.type == "character" then
     local player = entity.player -- event does not provide player_index every time
-    local player_table = global.players[player.index]
-    request.update(player, player_table, e.slot_index)
+    -- sometimes the player won't exist because it's in a cutscene
+    if player then
+      local player_table = global.players[player.index]
+      if player_table then
+        request.update(player, player_table, e.slot_index)
+      end
+    end
   end
 end)
 

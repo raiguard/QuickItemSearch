@@ -1,7 +1,19 @@
 ---------------------------------------------------------------------------------------------------
 Version: 2.0.0
 Date: ????
+  Features:
+    - All-new GUI
+      - Results are shown in a list instead of a grid
+      - Each result is only shown once for both inventory and logistics
+      - The current logistic request / infinity filter for each item is shown
+    - Added infinity filter GUI with the ability to set temporary infinity filters
+    - All GUIs can be confirmed with E
   Changes:
+    - Completely rewrote the mod from scratch
+    - Significant performance improvements to quick-trash-all and search functionality
+    - Changed the default hotkey to Shift + F to avoid conflicts
+    - Removed search location settings
+
 ---------------------------------------------------------------------------------------------------
 Version: 1.5.15
 Date: 2020-11-23

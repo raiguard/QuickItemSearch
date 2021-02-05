@@ -34,6 +34,7 @@ function request_gui.build(player, player_table)
       children = {
         {
           type = "flow",
+          style = "flib_titlebar_flow",
           ref = {"titlebar_flow"},
           actions = {
             on_click = {gui = "request", action = "recenter"}

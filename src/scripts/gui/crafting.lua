@@ -30,6 +30,7 @@ function crafting_gui.build(player, player_table)
       children = {
         {
           type = "flow",
+          style = "flib_titlebar_flow",
           ref = {"titlebar_flow"},
           actions = {
             on_click = {gui = "crafting", action = "recenter"}
@@ -62,6 +63,16 @@ function crafting_gui.build(player, player_table)
           {
             type = "flow",
             style_mods = {vertical_align = "center", horizontal_spacing = 8, padding = 12},
+            children = {
+              {
+                type = "textfield",
+                numeric = true,
+                ref = {"textfield"},
+                actions = {
+                  on_text_changed = {gui = "crafting", action = "update_count"}
+                }
+              }
+            }
           }
         }}
       }
@@ -81,8 +92,8 @@ function crafting_gui.build(player, player_table)
 end
 
 function crafting_gui.destroy(player_table)
-  player_table.guis.infinity_filter.refs.window.destroy()
-  player_table.guis.infinity_filter = nil
+  player_table.guis.crafting.refs.window.destroy()
+  player_table.guis.crafting = nil
 end
 
 function crafting_gui.open(player, player_table, item_data)
@@ -95,6 +106,9 @@ function crafting_gui.open(player, player_table, item_data)
   refs.focus_frame.bring_to_front()
   refs.window.visible = true
   refs.window.bring_to_front()
+
+  -- info bar
+  refs.item_label.caption = "[item="..item_data.name.."]  "..item_data.translation
 
   -- set opened
   player.opened = refs.window
