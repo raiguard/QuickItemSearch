@@ -71,7 +71,7 @@ function infinity_filter_gui.build(player, player_table)
               {
                 type = "drop-down",
                 style_mods = {width = 60},
-                items = {">=", "<=", "="},
+                items = {"≥", "≤", "="},
                 selected_index = 3,
                 ref = {"filter_setter", "dropdown"},
                 actions = {

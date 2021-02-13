@@ -3,9 +3,9 @@ local table = require("__flib__.table")
 
 local search = require("scripts.search")
 
-local request = {}
+local logistic_request = {}
 
-function request.set(player, player_table, name, counts, is_temporary)
+function logistic_request.set(player, player_table, name, counts, is_temporary)
   local requests = player_table.requests
   local request_data = requests.by_name[name]
   local request_index
@@ -43,7 +43,7 @@ function request.set(player, player_table, name, counts, is_temporary)
   })
 end
 
-function request.clear(player, player_table, name)
+function logistic_request.clear(player, player_table, name)
   local requests = player_table.requests
   local request_data = requests.by_name[name]
   if request_data then
@@ -51,7 +51,7 @@ function request.clear(player, player_table, name)
   end
 end
 
-function request.update(player, player_table, slot_index)
+function logistic_request.update(player, player_table, slot_index)
   local requests = player_table.requests
   local existing_request = player.get_personal_logistic_slot(slot_index)
   if existing_request then
@@ -80,7 +80,7 @@ function request.update(player, player_table, slot_index)
   end
 end
 
-function request.refresh(player, player_table)
+function logistic_request.refresh(player, player_table)
   local requests = {
     by_index = {},
     by_name = {},
@@ -97,11 +97,17 @@ function request.refresh(player, player_table)
       end
     end
   end
-  -- TODO: check temporary requests for validity
+  -- preserve valid temporary requests
+  local item_prototypes = game.item_prototypes
+  for item_name, request in pairs(player_table.requests.temporary) do
+    if item_prototypes[item_name] then
+      requests.temporary[item_name] = request
+    end
+  end
   player_table.requests = requests
 end
 
-function request.update_temporaries(player, player_table, combined_contents)
+function logistic_request.update_temporaries(player, player_table, combined_contents)
   local requests = player_table.requests
   local temporary_requests = requests.temporary
 
@@ -118,7 +124,7 @@ function request.update_temporaries(player, player_table, combined_contents)
   end
 end
 
-function request.quick_trash_all(player, player_table)
+function logistic_request.quick_trash_all(player, player_table)
   local main_inventory = player.get_main_inventory()
   if main_inventory and main_inventory.valid then
     local requests = player_table.requests
@@ -126,13 +132,13 @@ function request.quick_trash_all(player, player_table)
       local existing_request = requests.by_name[name]
       if existing_request then
         if count > existing_request.min then
-          request.set(player, player_table, name, {min = existing_request.min, max = existing_request.min}, true)
+          logistic_request.set(player, player_table, name, {min = existing_request.min, max = existing_request.min}, true)
         end
       else
-        request.set(player, player_table, name, {min = 0, max = 0}, true)
+        logistic_request.set(player, player_table, name, {min = 0, max = 0}, true)
       end
     end
   end
 end
 
-return request
+return logistic_request

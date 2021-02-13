@@ -30,7 +30,7 @@ function infinity_filter.set(player, player_table, filter, is_temporary)
   )
 
   -- update stored requests
-  infinity_filter.refresh(player, player_table, true)
+  infinity_filter.update(player, player_table, true)
 end
 
 function infinity_filter.clear(player, player_table, name)
@@ -38,34 +38,53 @@ function infinity_filter.clear(player, player_table, name)
   local filter_data = infinity_filters.by_name[name]
   if filter_data then
     player.set_infinity_inventory_filter(filter_data.index, nil)
-    infinity_filter.refresh(player, player_table)
+    infinity_filter.update(player, player_table)
   end
 end
 
-function infinity_filter.refresh(player, player_table, preserve_temporaries)
+-- updates by_index and by_name without replacing everything
+function infinity_filter.update(player, player_table)
+  local by_index = {}
+  local by_name = {}
+  for i, existing_filter in pairs(player.infinity_inventory_filters) do
+    by_index[i] = existing_filter
+    by_name[existing_filter.name] = existing_filter
+  end
+  player_table.infinity_filters.by_index = by_index
+  player_table.infinity_filters.by_name = by_name
+end
+
+function infinity_filter.refresh(player, player_table)
   local infinity_filters = {
     by_index = {},
     by_name = {},
-    temporary = preserve_temporaries and player_table.infinity_filters.temporary or {}
+    temporary = {}
   }
   for i, existing_filter in pairs(player.infinity_inventory_filters) do
     infinity_filters.by_index[i] = existing_filter
     infinity_filters.by_name[existing_filter.name] = existing_filter
   end
-  -- TODO: check temporary requests for validity
+  -- preserve valid temporary filters
+  -- this shouldn't be needed in 99% of cases, as infinity filters are immediately satisfied
+  local item_prototypes = game.item_prototypes
+  for item_name, request in pairs(player_table.infinity_filters.temporary) do
+    if item_prototypes[item_name] then
+      infinity_filters.temporary[item_name] = request
+    end
+  end
   player_table.infinity_filters = infinity_filters
 end
 
 function infinity_filter.update_temporaries(player, player_table)
-  local infinity_filters = player_table.infinity_filters
-  local temporary_filters = infinity_filters.temporary
   local main_inventory = player.get_main_inventory()
   if main_inventory and main_inventory.valid then
-    for name, old_filter_data in pairs(temporary_filters) do
+    local infinity_filters = player_table.infinity_filters
+    for name, old_filter_data in pairs(infinity_filters.temporary) do
       local existing_filter_data = infinity_filters.by_name[name]
       -- infinity filters are guaranteed to be fulfilled, so we can safely remove temporaries immediately
       player.set_infinity_inventory_filter(existing_filter_data.index, old_filter_data or nil)
     end
+    infinity_filters.temporary = {}
   end
 end
 

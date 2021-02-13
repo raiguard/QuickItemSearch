@@ -33,8 +33,8 @@ constants.infinity_filter_mode_to_index = {
 }
 
 constants.infinity_filter_mode_to_symbol = {
-  ["at-least"] = ">=",
-  ["at-most"] = "<=",
+  ["at-least"] = "≥",
+  ["at-most"] = "≤",
   ["exactly"] = "="
 }
 

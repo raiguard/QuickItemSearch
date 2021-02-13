@@ -230,7 +230,7 @@ event.register(
         if next(player_table.infinity_filters.temporary) then
           infinity_filter.update_temporaries(player, player_table)
         end
-        infinity_filter.refresh(player, player_table)
+        infinity_filter.update(player, player_table)
       elseif player.controller_type == defines.controllers.character then
         if next(player_table.requests.temporary) then
           request.update_temporaries(player, player_table, get_combined_contents())
