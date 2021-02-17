@@ -80,9 +80,12 @@ function infinity_filter.update_temporaries(player, player_table)
   if main_inventory and main_inventory.valid then
     local infinity_filters = player_table.infinity_filters
     for name, old_filter_data in pairs(infinity_filters.temporary) do
-      local existing_filter_data = infinity_filters.by_name[name]
       -- infinity filters are guaranteed to be fulfilled, so we can safely remove temporaries immediately
-      player.set_infinity_inventory_filter(existing_filter_data.index, old_filter_data or nil)
+      if old_filter_data then
+        infinity_filter.set(player, player_table, old_filter_data)
+      else
+        infinity_filter.clear(player, player_table, name)
+      end
     end
     infinity_filters.temporary = {}
   end
