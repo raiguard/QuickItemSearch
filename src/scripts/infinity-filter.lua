@@ -30,7 +30,7 @@ function infinity_filter.set(player, player_table, filter, is_temporary)
   )
 
   -- update stored requests
-  infinity_filter.update(player, player_table, true)
+  infinity_filter.update(player, player_table)
 end
 
 function infinity_filter.clear(player, player_table, name)

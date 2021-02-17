@@ -13,7 +13,6 @@ Date: ????
     - Significant performance improvements to quick-trash-all and search functionality
     - Changed the default hotkey to Shift + F to avoid conflicts
     - Removed search location settings
-
 ---------------------------------------------------------------------------------------------------
 Version: 1.5.15
 Date: 2020-11-23
