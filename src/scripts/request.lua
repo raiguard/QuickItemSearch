@@ -113,13 +113,17 @@ function logistic_request.update_temporaries(player, player_table, combined_cont
 
   for name, old_request_data in pairs(temporary_requests) do
     local existing_request_data = requests.by_name[name]
-    local has_count = combined_contents[name] or 0
-    -- if the request has been satisfied
-    if has_count >= existing_request_data.min and has_count <= existing_request_data.max then
-      -- clear the temporary request data first to avoid setting the slot twice
+    if existing_request_data then
+      local has_count = combined_contents[name] or 0
+      -- if the request has been satisfied
+      if has_count >= existing_request_data.min and has_count <= existing_request_data.max then
+        -- clear the temporary request data first to avoid setting the slot twice
+        temporary_requests[name] = nil
+        -- set the former request
+        player.set_personal_logistic_slot(existing_request_data.index, old_request_data)
+      end
+    else
       temporary_requests[name] = nil
-      -- set the former request
-      player.set_personal_logistic_slot(existing_request_data.index, old_request_data)
     end
   end
 end
