@@ -6,7 +6,7 @@ function search.run(player, player_table, query, combined_contents)
   -- don't bother if they don't have a main inventory
   local main_inventory = player.get_main_inventory()
   if main_inventory and main_inventory.valid then
-    local requests = player_table.requests
+    local requests = player_table.logistic_requests
     local requests_by_name = requests.by_name
     local filters = player_table.infinity_filters
     local filters_by_name = filters.by_name

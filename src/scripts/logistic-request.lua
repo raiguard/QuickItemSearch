@@ -6,7 +6,7 @@ local search = require("scripts.search")
 local logistic_request = {}
 
 function logistic_request.set(player, player_table, name, counts, is_temporary)
-  local requests = player_table.requests
+  local requests = player_table.logistic_requests
   local request_data = requests.by_name[name]
   local request_index
   if request_data then
@@ -44,7 +44,7 @@ function logistic_request.set(player, player_table, name, counts, is_temporary)
 end
 
 function logistic_request.clear(player, player_table, name)
-  local requests = player_table.requests
+  local requests = player_table.logistic_requests
   local request_data = requests.by_name[name]
   if request_data then
     player.clear_personal_logistic_slot(request_data.index)
@@ -52,7 +52,7 @@ function logistic_request.clear(player, player_table, name)
 end
 
 function logistic_request.update(player, player_table, slot_index)
-  local requests = player_table.requests
+  local requests = player_table.logistic_requests
   local existing_request = player.get_personal_logistic_slot(slot_index)
   if existing_request then
     local request_data = requests.by_index[slot_index]
@@ -99,16 +99,16 @@ function logistic_request.refresh(player, player_table)
   end
   -- preserve valid temporary requests
   local item_prototypes = game.item_prototypes
-  for item_name, request in pairs(player_table.requests.temporary) do
+  for item_name, request in pairs(player_table.logistic_requests.temporary) do
     if item_prototypes[item_name] then
       requests.temporary[item_name] = request
     end
   end
-  player_table.requests = requests
+  player_table.logistic_requests = requests
 end
 
 function logistic_request.update_temporaries(player, player_table, combined_contents)
-  local requests = player_table.requests
+  local requests = player_table.logistic_requests
   local temporary_requests = requests.temporary
 
   for name, old_request_data in pairs(temporary_requests) do
@@ -131,7 +131,7 @@ end
 function logistic_request.quick_trash_all(player, player_table)
   local main_inventory = player.get_main_inventory()
   if main_inventory and main_inventory.valid then
-    local requests = player_table.requests
+    local requests = player_table.logistic_requests
     for name, count in pairs(search.get_combined_inventory_contents(player, main_inventory)) do
       local existing_request = requests.by_name[name]
       if existing_request then

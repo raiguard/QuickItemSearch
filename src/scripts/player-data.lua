@@ -20,7 +20,7 @@ function player_data.init(player_index)
     },
     guis = {},
     infinity_filters = {by_index = {}, by_name = {}, temporary = {}},
-    requests = {by_index = {}, by_name = {}, temporary = {}},
+    logistic_requests = {by_index = {}, by_name = {}, temporary = {}},
     settings = {}
   }
 end

@@ -232,7 +232,7 @@ event.register(
         end
         infinity_filter.update(player, player_table)
       elseif player.controller_type == defines.controllers.character then
-        if next(player_table.requests.temporary) then
+        if next(player_table.logistic_requests.temporary) then
           logistic_request.update_temporaries(player, player_table, get_combined_contents())
         end
       end
