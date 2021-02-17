@@ -2,11 +2,11 @@ local translation = require("__flib__.translation")
 
 local constants = require("constants")
 local infinity_filter = require("scripts.infinity-filter")
-local request = require("scripts.request")
+local logistic_request = require("scripts.logistic-request")
 local shared = require("scripts.shared")
 
 local infinity_filter_gui = require("scripts.gui.infinity-filter")
-local request_gui = require("scripts.gui.request")
+local logistic_request_gui = require("scripts.gui.logistic-request")
 local search_gui = require("scripts.gui.search")
 
 local player_data = {}
@@ -31,7 +31,7 @@ function player_data.refresh(player, player_table)
     infinity_filter_gui.destroy(player_table)
   end
   if player_table.guis.request then
-    request_gui.destroy(player_table)
+    logistic_request_gui.destroy(player_table)
   end
   if player_table.guis.search then
     search_gui.destroy(player_table)
@@ -48,7 +48,7 @@ function player_data.refresh(player, player_table)
   if player.controller_type == defines.controllers.editor then
     infinity_filter.refresh(player, player_table)
   elseif player.controller_type == defines.controllers.character then
-    request.refresh(player, player_table)
+    logistic_request.refresh(player, player_table)
   end
 
   -- run translations

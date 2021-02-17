@@ -7,7 +7,7 @@ local search = require("scripts.search")
 local shared = require("scripts.shared")
 
 local infinity_filter_gui = require("scripts.gui.infinity-filter")
-local request_gui = require("scripts.gui.request")
+local logistic_request_gui = require("scripts.gui.logistic-request")
 
 local search_gui = {}
 
@@ -375,7 +375,7 @@ function search_gui.select_item(player, player_table, modifiers, index)
       if player_controller == defines.controllers.editor then
         infinity_filter_gui.open(player, player_table, result)
       elseif player_controller == defines.controllers.character then
-        request_gui.open(player, player_table, result)
+        logistic_request_gui.open(player, player_table, result)
       end
 
       player.play_sound{path = "utility/confirm"}

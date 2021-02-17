@@ -7,12 +7,12 @@ local global_data = require("scripts.global-data")
 local infinity_filter = require("scripts.infinity-filter")
 local migrations = require("scripts.migrations")
 local player_data = require("scripts.player-data")
-local request = require("scripts.request")
+local logistic_request = require("scripts.logistic-request")
 local search = require("scripts.search")
 local shared = require("scripts.shared")
 
 local infinity_filter_gui = require("scripts.gui.infinity-filter")
-local request_gui = require("scripts.gui.request")
+local logistic_request_gui = require("scripts.gui.logistic-request")
 local search_gui = require("scripts.gui.search")
 
 -- -----------------------------------------------------------------------------
@@ -73,9 +73,9 @@ event.register({"qis-confirm", "qis-shift-confirm", "qis-control-confirm"}, func
       search_gui.select_item(player, player_table, {shift = is_shift, control = is_control})
     elseif opened.name == "qis_request_window" then
       if is_control then
-        request_gui.clear_request(player, player_table)
+        logistic_request_gui.clear_request(player, player_table)
       else
-        request_gui.set_request(player, player_table, is_shift)
+        logistic_request_gui.set_request(player, player_table, is_shift)
       end
     elseif opened.name == "qis_infinity_filter_window" then
       if is_control then
@@ -124,7 +124,7 @@ event.register("qis-quick-trash-all", function(e)
   local player = game.get_player(e.player_index)
   local player_table = global.players[e.player_index]
   if player.controller_type == defines.controllers.character and player.force.character_logistic_requests then
-    request.quick_trash_all(player, player_table)
+    logistic_request.quick_trash_all(player, player_table)
   elseif player.controller_type == defines.controllers.editor then
     infinity_filter.quick_trash_all(player, player_table)
   end
@@ -140,7 +140,7 @@ event.on_entity_logistic_slot_changed(function(e)
     if player then
       local player_table = global.players[player.index]
       if player_table then
-        request.update(player, player_table, e.slot_index)
+        logistic_request.update(player, player_table, e.slot_index)
       end
     end
   end
@@ -154,7 +154,7 @@ gui.hook_events(function(e)
     if msg.gui == "infinity_filter" then
       infinity_filter_gui.handle_action(e, msg)
     elseif msg.gui == "request" then
-      request_gui.handle_action(e, msg)
+      logistic_request_gui.handle_action(e, msg)
     elseif msg.gui == "search" then
       search_gui.handle_action(e, msg)
     end
@@ -200,7 +200,7 @@ event.register(
   function(e)
     local player = game.get_player(e.player_index)
     local player_table = global.players[e.player_index]
-    request_gui.update_focus_frame_size(player, player_table)
+    logistic_request_gui.update_focus_frame_size(player, player_table)
   end
 )
 
@@ -233,7 +233,7 @@ event.register(
         infinity_filter.update(player, player_table)
       elseif player.controller_type == defines.controllers.character then
         if next(player_table.requests.temporary) then
-          request.update_temporaries(player, player_table, get_combined_contents())
+          logistic_request.update_temporaries(player, player_table, get_combined_contents())
         end
       end
 
@@ -325,7 +325,7 @@ event.on_string_translated(function(e)
     player_table.flags.show_message_after_translation = false
     -- create GUIs
     infinity_filter_gui.build(player, player_table)
-    request_gui.build(player, player_table)
+    logistic_request_gui.build(player, player_table)
     search_gui.build(player, player_table)
     -- enable shortcut
     player.set_shortcut_available("qis-search", true)

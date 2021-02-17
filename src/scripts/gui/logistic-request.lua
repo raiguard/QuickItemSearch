@@ -2,11 +2,11 @@ local gui = require("__flib__.gui-beta")
 local math = require("__flib__.math")
 
 local constants = require("constants")
-local request = require("scripts.request")
+local logistic_request = require("scripts.logistic-request")
 
-local request_gui = {}
+local logistic_request_gui = {}
 
-function request_gui.build(player, player_table)
+function logistic_request_gui.build(player, player_table)
   local resolution = player.display_resolution
   local scale = player.display_scale
   local focus_frame_size = {resolution.width / scale, resolution.height / scale}
@@ -176,12 +176,12 @@ function request_gui.build(player, player_table)
   }
 end
 
-function request_gui.destroy(player_table)
+function logistic_request_gui.destroy(player_table)
   player_table.guis.request.refs.window.destroy()
   player_table.guis.request = nil
 end
 
-function request_gui.open(player, player_table, item_data)
+function logistic_request_gui.open(player, player_table, item_data)
   local gui_data = player_table.guis.request
   local refs = gui_data.refs
   local state = gui_data.state
@@ -227,7 +227,7 @@ function request_gui.open(player, player_table, item_data)
   player.opened = refs.window
 end
 
-function request_gui.close(player, player_table)
+function logistic_request_gui.close(player, player_table)
   local gui_data = player_table.guis.request
   gui_data.state.visible = false
   gui_data.refs.focus_frame.visible = false
@@ -237,7 +237,7 @@ function request_gui.close(player, player_table)
   end
 end
 
-function request_gui.update_focus_frame_size(player, player_table)
+function logistic_request_gui.update_focus_frame_size(player, player_table)
   local gui_data = player_table.guis.request
   if gui_data then
     local resolution = player.display_resolution
@@ -247,7 +247,7 @@ function request_gui.update_focus_frame_size(player, player_table)
   end
 end
 
-function request_gui.set_request(player, player_table, is_temporary, skip_sound)
+function logistic_request_gui.set_request(player, player_table, is_temporary, skip_sound)
   if not skip_sound then
     player.play_sound{path = "utility/confirm"}
   end
@@ -257,11 +257,11 @@ function request_gui.set_request(player, player_table, is_temporary, skip_sound)
   local state = gui_data.state
 
   -- get the latest values from each textfield
-  request_gui.update_request(refs, state, refs.logistic_setter.min.textfield)
-  request_gui.update_request(refs, state, refs.logistic_setter.max.textfield)
+  logistic_request_gui.update_request(refs, state, refs.logistic_setter.min.textfield)
+  logistic_request_gui.update_request(refs, state, refs.logistic_setter.max.textfield)
 
   -- set the request
-  request.set(player, player_table, state.item_data.name, state.request, is_temporary)
+  logistic_request.set(player, player_table, state.item_data.name, state.request, is_temporary)
 
   -- close this window
   if is_temporary then
@@ -269,13 +269,13 @@ function request_gui.set_request(player, player_table, is_temporary, skip_sound)
   end
 end
 
-function request_gui.clear_request(player, player_table)
+function logistic_request_gui.clear_request(player, player_table)
   player.play_sound{path = "utility/confirm"}
-  request.clear(player, player_table, player_table.guis.request.state.item_data.name)
+  logistic_request.clear(player, player_table, player_table.guis.request.state.item_data.name)
   player.opened = nil
 end
 
-function request_gui.update_request(refs, state, element)
+function logistic_request_gui.update_request(refs, state, element)
   local item_data = state.item_data
   local request_data = state.request
 
@@ -325,7 +325,7 @@ function request_gui.update_request(refs, state, element)
   end
 end
 
-function request_gui.handle_action(e, msg)
+function logistic_request_gui.handle_action(e, msg)
   local player = game.get_player(e.player_index)
   local player_table = global.players[e.player_index]
   local gui_data = player_table.guis.request
@@ -334,19 +334,19 @@ function request_gui.handle_action(e, msg)
 
 
   if msg.action == "close" then
-    request_gui.close(player, player_table)
+    logistic_request_gui.close(player, player_table)
   elseif msg.action == "bring_to_front" then
     refs.window.bring_to_front()
   elseif msg.action == "recenter" and e.button == defines.mouse_button_type.middle then
     refs.window.force_auto_center()
   elseif msg.action == "update_request" then
-    request_gui.update_request(refs, state, e.element)
+    logistic_request_gui.update_request(refs, state, e.element)
   elseif msg.action == "clear_request" then
-    request.clear(player, player_table, state.item_data.name)
+    logistic_request.clear(player, player_table, state.item_data.name)
     -- invoke `on_gui_closed` so the search GUI will be refocused
     player.opened = nil
   elseif msg.action == "set_request" then
-    request_gui.set_request(player, player_table, msg.temporary, true)
+    logistic_request_gui.set_request(player, player_table, msg.temporary, true)
     -- invoke `on_gui_closed` if the above function did not
     if not msg.temporary then
       player.opened = nil
@@ -354,4 +354,4 @@ function request_gui.handle_action(e, msg)
   end
 end
 
-return request_gui
+return logistic_request_gui
