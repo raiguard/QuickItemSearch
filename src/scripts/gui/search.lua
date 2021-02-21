@@ -363,6 +363,9 @@ function search_gui.select_item(player, player_table, modifiers, index)
   local state = gui_data.state
 
   local i = index or state.selected_index
+  local results = state.results
+  if not results then return end
+
   local result = state.results[i]
   if modifiers.shift then
     local player_controller = player.controller_type
