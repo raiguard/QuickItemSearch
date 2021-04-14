@@ -45,6 +45,10 @@ event.on_init(function()
   end
 end)
 
+event.on_load(function()
+  shared.register_on_tick()
+end)
+
 event.on_configuration_changed(function(e)
   if migration.on_config_changed(e, migrations) then
     -- reset running translations
@@ -272,6 +276,9 @@ end)
 
 -- TICK
 
+-- FIXME: This will cause a desync if someone joins in between the tick where this finishes working and the tick where
+-- it deregisters itself
+-- This is so rare that I might just leave it...
 local function on_tick(e)
   local deregister = true
 

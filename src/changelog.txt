@@ -2,6 +2,7 @@
 Version: 2.0.2
 Date: ????
   Bugfixes:
+    - Fixed a desync if a player joined while translations were being done, or a GUI was auto-updating
     - Fixed a flag not being reset, causing various crashes when using controls before translations are finished after configuration changed
 ---------------------------------------------------------------------------------------------------
 Version: 2.0.1
