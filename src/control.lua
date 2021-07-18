@@ -279,9 +279,6 @@ end)
 
 -- TICK
 
--- FIXME: This will cause a desync if someone joins in between the tick where this finishes working and the tick where
--- it deregisters itself
--- This is so rare that I might just leave it...
 local function on_tick(e)
   local deregister = true
 
@@ -296,6 +293,7 @@ local function on_tick(e)
   end
 
   if deregister then
+    global.on_tick_is_registered = nil
     event.on_tick(nil)
   end
 end
@@ -304,7 +302,9 @@ shared.register_on_tick = function()
   if
     translation.translating_players_count() > 0
     or next(global.update_search_results)
+    or global.on_tick_is_registered
   then
+    global.on_tick_is_registered = true
     event.on_tick(on_tick)
   end
 end
