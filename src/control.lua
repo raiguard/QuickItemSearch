@@ -68,6 +68,9 @@ event.register({"qis-confirm", "qis-shift-confirm", "qis-control-confirm"}, func
   local player = game.get_player(e.player_index)
   local player_table = global.players[e.player_index]
 
+  -- HACK: This makes it easy to check if we should close the search GUI or not
+  player_table.confirmed_tick = game.ticks_played
+
   local is_shift = e.input_name == "qis-shift-confirm"
   local is_control = e.input_name == "qis-control-confirm"
 
