@@ -1,5 +1,5 @@
 ---------------------------------------------------------------------------------------------------
-Version: 2.0.2
+Version: 2.1.0
 Date: ????
   Features:
     - Added a setting to auto-close the GUI after performing an action
