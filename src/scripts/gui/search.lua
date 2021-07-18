@@ -4,7 +4,6 @@ local math = require("__flib__.math")
 local constants = require("constants")
 local cursor = require("scripts.cursor")
 local search = require("scripts.search")
-local shared = require("scripts.shared")
 
 local infinity_filter_gui = require("scripts.gui.infinity-filter")
 local logistic_request_gui = require("scripts.gui.logistic-request")
@@ -159,7 +158,6 @@ function search_gui.open(player, player_table)
   search_gui.perform_search(player, player_table)
 
   global.update_search_results[player.index] = true
-  shared.register_on_tick()
 end
 
 function search_gui.close(player, player_table, force_close)
@@ -211,7 +209,6 @@ function search_gui.reopen_after_subwindow(e)
     end
 
     global.update_search_results[player.index] = true
-    shared.register_on_tick()
   end
 end
 

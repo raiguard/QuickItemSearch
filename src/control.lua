@@ -9,7 +9,6 @@ local migrations = require("scripts.migrations")
 local player_data = require("scripts.player-data")
 local logistic_request = require("scripts.logistic-request")
 local search = require("scripts.search")
-local shared = require("scripts.shared")
 
 local infinity_filter_gui = require("scripts.gui.infinity-filter")
 local logistic_request_gui = require("scripts.gui.logistic-request")
@@ -43,10 +42,6 @@ event.on_init(function()
     player_data.init(i)
     player_data.refresh(game.get_player(i), global.players[i])
   end
-end)
-
-event.on_load(function()
-  shared.register_on_tick()
 end)
 
 event.on_configuration_changed(function(e)
@@ -279,35 +274,15 @@ end)
 
 -- TICK
 
-local function on_tick(e)
-  local deregister = true
-
+event.on_tick(function(e)
   if translation.translating_players_count() > 0 then
-    deregister = false
     translation.iterate_batch(e)
   end
 
   if next(global.update_search_results) then
-    deregister = false
     search_gui.update_for_active_players()
   end
-
-  if deregister then
-    global.on_tick_is_registered = nil
-    event.on_tick(nil)
-  end
-end
-
-shared.register_on_tick = function()
-  if
-    translation.translating_players_count() > 0
-    or next(global.update_search_results)
-    or global.on_tick_is_registered
-  then
-    global.on_tick_is_registered = true
-    event.on_tick(on_tick)
-  end
-end
+end)
 
 -- TRANSLATIONS
 

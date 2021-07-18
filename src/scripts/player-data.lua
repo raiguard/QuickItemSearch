@@ -3,7 +3,6 @@ local translation = require("__flib__.translation")
 local constants = require("constants")
 local infinity_filter = require("scripts.infinity-filter")
 local logistic_request = require("scripts.logistic-request")
-local shared = require("scripts.shared")
 
 local infinity_filter_gui = require("scripts.gui.infinity-filter")
 local logistic_request_gui = require("scripts.gui.logistic-request")
@@ -64,7 +63,6 @@ end
 
 function player_data.start_translations(player_index)
   translation.add_requests(player_index, global.strings)
-  shared.register_on_tick()
 end
 
 function player_data.update_settings(player, player_table)
