@@ -210,9 +210,8 @@ function search_gui.reopen_after_subwindow(e)
       player.opened = gui_data.refs.window
     end
 
-    -- TODO: WTF is this doing and why?
-    -- global.update_search_results[player.index] = true
-    -- shared.register_on_tick()
+    global.update_search_results[player.index] = true
+    shared.register_on_tick()
   end
 end
 
