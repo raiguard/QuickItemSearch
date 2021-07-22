@@ -393,13 +393,15 @@ function search_gui.select_item(player, player_table, modifiers, index)
       player.play_sound{path = "utility/cannot_build"}
       player.create_local_flying_text{text = {"message.qis-already-holding-item"}, create_at_cursor = true}
     else
-      state.selected_item_tick = game.ticks_played
-      cursor.set_stack(player, player.cursor_stack, player_table, result.name)
-      player.play_sound{path = "utility/confirm"}
       -- Close the window after selection if desired
       if player_table.settings.auto_close then
         search_gui.close(player, player_table, true)
+      -- Or prevent the window from closing
+      else
+        state.selected_item_tick = game.ticks_played
       end
+      cursor.set_stack(player, player.cursor_stack, player_table, result.name)
+      player.play_sound{path = "utility/confirm"}
     end
   end
 end
