@@ -12,7 +12,7 @@ function logistic_request.set(player, player_table, name, counts, is_temporary)
   if request_data then
     request_index = request_data.index
   else
-    request_data = {min = 0, max = math.max_uint}
+    request_data = { min = 0, max = math.max_uint }
     -- search for first empty slot
     local i = 1
     while true do
@@ -39,7 +39,7 @@ function logistic_request.set(player, player_table, name, counts, is_temporary)
   player.set_personal_logistic_slot(request_index, {
     name = name,
     min = counts.min,
-    max = counts.max
+    max = counts.max,
   })
 end
 
@@ -84,7 +84,7 @@ function logistic_request.refresh(player, player_table)
   local requests = {
     by_index = {},
     by_name = {},
-    temporary = {}
+    temporary = {},
   }
   local character = player.character
   if character then
@@ -136,10 +136,16 @@ function logistic_request.quick_trash_all(player, player_table)
       local existing_request = requests.by_name[name]
       if existing_request then
         if count > existing_request.min then
-          logistic_request.set(player, player_table, name, {min = existing_request.min, max = existing_request.min}, true)
+          logistic_request.set(
+            player,
+            player_table,
+            name,
+            { min = existing_request.min, max = existing_request.min },
+            true
+          )
         end
       else
-        logistic_request.set(player, player_table, name, {min = 0, max = 0}, true)
+        logistic_request.set(player, player_table, name, { min = 0, max = 0 }, true)
       end
     end
   end
