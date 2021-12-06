@@ -1,6 +1,6 @@
 ---------------------------------------------------------------------------------------------------
 Version: 2.1.1
-Date: ????
+Date: 2021-12-06
   Changes:
     - Blueprints, upgrade planners, deconstruction planners, and selection tools are ignored when using quick-trash-all (#25)
   Bugfixes:
