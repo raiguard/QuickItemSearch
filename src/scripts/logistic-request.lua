@@ -1,6 +1,8 @@
 local math = require("__flib__.math")
 local table = require("__flib__.table")
 
+local constants = require("constants")
+
 local search = require("scripts.search")
 
 local logistic_request = {}
@@ -132,20 +134,23 @@ function logistic_request.quick_trash_all(player, player_table)
   local main_inventory = player.get_main_inventory()
   if main_inventory and main_inventory.valid then
     local requests = player_table.logistic_requests
+    local prototypes = game.item_prototypes
     for name, count in pairs(search.get_combined_inventory_contents(player, main_inventory)) do
-      local existing_request = requests.by_name[name]
-      if existing_request then
-        if count > existing_request.min then
-          logistic_request.set(
-            player,
-            player_table,
-            name,
-            { min = existing_request.min, max = existing_request.min },
-            true
-          )
+      if not constants.ignored_item_types[prototypes[name].type] then
+        local existing_request = requests.by_name[name]
+        if existing_request then
+          if count > existing_request.min then
+            logistic_request.set(
+              player,
+              player_table,
+              name,
+              { min = existing_request.min, max = existing_request.min },
+              true
+            )
+          end
+        else
+          logistic_request.set(player, player_table, name, { min = 0, max = 0 }, true)
         end
-      else
-        logistic_request.set(player, player_table, name, { min = 0, max = 0 }, true)
       end
     end
   end
