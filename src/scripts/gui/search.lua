@@ -91,7 +91,11 @@ function search_gui.build(player, player_table)
                     {
                       type = "label",
                       style = "bold_label",
-                      caption = { "", "[img=utility/warning_white]  ", { "gui.qis-not-connected-to-logistic-network" } },
+                      caption = {
+                        "",
+                        "[img=utility/warning_white]  ",
+                        { "gui.qis-not-connected-to-logistic-network" },
+                      },
                     },
                   },
                 },
@@ -219,7 +223,7 @@ function search_gui.perform_search(player, player_table, updated_query, combined
 
   state.last_search_update = game.ticks_played
 
-  local query = state.query
+  local query = string.lower(state.query)
   local results_table = refs.results_table
   local children = results_table.children
 
