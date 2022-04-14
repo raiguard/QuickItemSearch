@@ -8,7 +8,6 @@
       "factorioPath": "/home/rai/dev/factorio/1/bin/x64/factorio",
       "hookMode": "debug",
       "hookControl": ["QuickItemSearch", "Sandbox"],
-      "factorioArgs": ["--load-scenario", "Quick Item Search"]
     },
     {
       "type": "factoriomod",
@@ -19,7 +18,6 @@
       "hookControl": ["QuickItemSearch", "Sandbox"],
       "hookData": true,
       "hookSettings": true,
-      "factorioArgs": ["--load-scenario", "Quick Item Search"]
     },
     {
       "type": "factoriomod",
