@@ -372,6 +372,9 @@ function search_gui.select_item(player, player_table, modifiers, index)
   end
 
   local result = state.results[i]
+  if not result then
+    return
+  end
   if modifiers.shift then
     local player_controller = player.controller_type
     if player_controller == defines.controllers.editor or player_controller == defines.controllers.character then
