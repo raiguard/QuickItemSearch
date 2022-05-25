@@ -416,10 +416,11 @@ function search_gui.update_for_active_players()
     local player = game.get_player(player_index)
     local player_table = global.players[player_index]
     local gui_data = player_table.guis.search
-    local state = gui_data.state
-
-    if tick - state.last_search_update > 120 then
-      search_gui.perform_search(player, player_table)
+    if gui_data then
+      local state = gui_data.state
+      if tick - state.last_search_update > 120 then
+        search_gui.perform_search(player, player_table)
+      end
     end
   end
 end
