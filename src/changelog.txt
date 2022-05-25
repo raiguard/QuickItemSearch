@@ -2,6 +2,7 @@
 Version: 2.1.3
 Date: ????
   Bugfixes:
+    - Fixed a crash when another mod updates logistic slots before QIS can fully initialize
     - Fixed a crash when the mod tries to update the GUI right after mod configuration changes
 ---------------------------------------------------------------------------------------------------
 Version: 2.1.2

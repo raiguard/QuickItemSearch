@@ -47,6 +47,9 @@ end
 
 function logistic_request.clear(player, player_table, name)
   local requests = player_table.logistic_requests
+  if not requests then
+    return
+  end
   local request_data = requests.by_name[name]
   if request_data then
     player.clear_personal_logistic_slot(request_data.index)
@@ -55,6 +58,9 @@ end
 
 function logistic_request.update(player, player_table, slot_index)
   local requests = player_table.logistic_requests
+  if not requests then
+    return
+  end
   local existing_request = player.get_personal_logistic_slot(slot_index)
   if existing_request then
     local request_data = requests.by_index[slot_index]
@@ -111,6 +117,9 @@ end
 
 function logistic_request.update_temporaries(player, player_table, combined_contents)
   local requests = player_table.logistic_requests
+  if not requests then
+    return
+  end
   local temporary_requests = requests.temporary
 
   for name, old_request_data in pairs(temporary_requests) do
@@ -132,25 +141,29 @@ end
 
 function logistic_request.quick_trash_all(player, player_table)
   local main_inventory = player.get_main_inventory()
-  if main_inventory and main_inventory.valid then
-    local requests = player_table.logistic_requests
-    local prototypes = game.item_prototypes
-    for name, count in pairs(search.get_combined_inventory_contents(player, main_inventory)) do
-      if not constants.ignored_item_types[prototypes[name].type] then
-        local existing_request = requests.by_name[name]
-        if existing_request then
-          if count > existing_request.min then
-            logistic_request.set(
-              player,
-              player_table,
-              name,
-              { min = existing_request.min, max = existing_request.min },
-              true
-            )
-          end
-        else
-          logistic_request.set(player, player_table, name, { min = 0, max = 0 }, true)
+  if not main_inventory or not main_inventory.valid then
+    return
+  end
+  local requests = player_table.logistic_requests
+  if not requests then
+    return
+  end
+  local prototypes = game.item_prototypes
+  for name, count in pairs(search.get_combined_inventory_contents(player, main_inventory)) do
+    if not constants.ignored_item_types[prototypes[name].type] then
+      local existing_request = requests.by_name[name]
+      if existing_request then
+        if count > existing_request.min then
+          logistic_request.set(
+            player,
+            player_table,
+            name,
+            { min = existing_request.min, max = existing_request.min },
+            true
+          )
         end
+      else
+        logistic_request.set(player, player_table, name, { min = 0, max = 0 }, true)
       end
     end
   end
