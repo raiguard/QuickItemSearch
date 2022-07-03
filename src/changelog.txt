@@ -1,6 +1,6 @@
 ---------------------------------------------------------------------------------------------------
 Version: 2.1.4
-Date: ????
+Date: 2022-07-03
   Changes:
     - The QIS hotkey will only open the GUI if no other windows are marked as "opened"
       - This allows you to use the same hotkey for QIS and focusing search boxes
