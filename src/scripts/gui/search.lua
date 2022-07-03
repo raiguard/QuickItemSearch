@@ -182,11 +182,11 @@ function search_gui.close(player, player_table, force_close)
   global.update_search_results[player.index] = nil
 end
 
-function search_gui.toggle(player, player_table)
+function search_gui.toggle(player, player_table, force_open)
   local gui_data = player_table.guis.search
   if gui_data.state.visible then
     search_gui.close(player, player_table)
-  else
+  elseif force_open or player.opened_gui_type and player.opened_gui_type == defines.gui_type.none then
     search_gui.open(player, player_table)
   end
 end

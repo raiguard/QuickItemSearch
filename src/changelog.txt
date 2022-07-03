@@ -2,6 +2,7 @@
 Version: 2.1.4
 Date: ????
   Changes:
+    - QIS window opens only when no other main windows (that can be closed using default "E"/"Esc" keys) are open. Allows binding the keyboard shortcut to same combination as "Focus search" (default "Control + F") without preventing focus search in currently open (main) window. The shortcut bar button will still always open the QIS window.
 ---------------------------------------------------------------------------------------------------
 Version: 2.1.3
 Date: 2022-05-26
