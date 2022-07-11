@@ -30,7 +30,10 @@ function logistic_request.set(player, player_table, name, counts, is_temporary)
 
   -- save previous request if this one is temporary
   if is_temporary then
-    requests.temporary[name] = table.deep_copy(request_data)
+    -- Do not overwrite previously stored request.
+    if not requests.temporary[name] then
+      requests.temporary[name] = table.deep_copy(request_data)
+    end
   else
     -- delete temporary request for this item if there is one
     requests.temporary[name] = nil

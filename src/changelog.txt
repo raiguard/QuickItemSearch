@@ -1,7 +1,8 @@
 ---------------------------------------------------------------------------------------------------
 Version: 2.1.5
 Date: ????
-  Features:
+  Bugfixes:
+    - Fixed loss of original logistics requests configuration when using temporary requests or trashing of all items multiple times in a row without the previous requests being cleared.
 ---------------------------------------------------------------------------------------------------
 Version: 2.1.4
 Date: 2022-07-03
