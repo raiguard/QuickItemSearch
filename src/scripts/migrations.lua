@@ -11,4 +11,14 @@ return {
       player_data.init(i)
     end
   end,
+  ["2.1.5"] = function()
+    local current_age = game.tick
+    for player_index in pairs(game.players) do
+      for _, request in pairs(global.players[player_index].logistic_requests.temporary) do
+        if not request.age then
+          request.age = current_age
+        end
+      end
+    end
+  end
 }

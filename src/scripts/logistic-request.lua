@@ -33,6 +33,9 @@ function logistic_request.set(player, player_table, name, counts, is_temporary)
     -- Do not overwrite previously stored request.
     if not requests.temporary[name] then
       requests.temporary[name] = table.deep_copy(request_data)
+      -- Store age of temporary request in order to allow player to
+      -- persist changes after temporary requests have been fulfilled.
+      requests.temporary[name].age = game.tick
     end
   else
     -- delete temporary request for this item if there is one
@@ -88,6 +91,22 @@ function logistic_request.update(player, player_table, slot_index)
       requests.by_index[slot_index] = existing_request
       requests.by_name[existing_request.name] = existing_request
     end
+
+    -- Update previous request's quantities if affected. Allows player
+    -- to make changes to logistic requests that are affected by
+    -- temporary requests or quick-trashing, and still preserve those
+    -- (manual) changes after temporary requests are fullfilled.
+    if existing_request.name then
+      local temporary_request = requests.temporary[existing_request.name]
+      local current_age = game.tick
+
+      if temporary_request and temporary_request.age < current_age then
+        temporary_request.age = current_age
+        temporary_request.min = existing_request.min
+        temporary_request.max = existing_request.max
+      end
+    end
+
   end
 end
 
