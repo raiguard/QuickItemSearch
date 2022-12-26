@@ -1,10 +1,10 @@
-local constants = require("constants")
-local infinity_filter = require("scripts.infinity-filter")
-local logistic_request = require("scripts.logistic-request")
+local constants = require("__QuickItemSearch__/constants")
+local infinity_filter = require("__QuickItemSearch__/scripts/infinity-filter")
+local logistic_request = require("__QuickItemSearch__/scripts/logistic-request")
 
-local infinity_filter_gui = require("scripts.gui.infinity-filter")
-local logistic_request_gui = require("scripts.gui.logistic-request")
-local search_gui = require("scripts.gui.search")
+local infinity_filter_gui = require("__QuickItemSearch__/scripts/gui/infinity-filter")
+local logistic_request_gui = require("__QuickItemSearch__/scripts/gui/logistic-request")
+local search_gui = require("__QuickItemSearch__/scripts/gui/search")
 
 local player_data = {}
 

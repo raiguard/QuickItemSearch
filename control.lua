@@ -1,17 +1,17 @@
-local dictionary = require("__flib__.dictionary-lite")
-local gui = require("__flib__.gui")
-local migration = require("__flib__.migration")
+local dictionary = require("__flib__/dictionary-lite")
+local gui = require("__flib__/gui")
+local migration = require("__flib__/migration")
 
-local global_data = require("scripts.global-data")
-local infinity_filter = require("scripts.infinity-filter")
-local migrations = require("scripts.migrations")
-local player_data = require("scripts.player-data")
-local logistic_request = require("scripts.logistic-request")
-local search = require("scripts.search")
+local global_data = require("__QuickItemSearch__/scripts/global-data")
+local infinity_filter = require("__QuickItemSearch__/scripts/infinity-filter")
+local migrations = require("__QuickItemSearch__/scripts/migrations")
+local player_data = require("__QuickItemSearch__/scripts/player-data")
+local logistic_request = require("__QuickItemSearch__/scripts/logistic-request")
+local search = require("__QuickItemSearch__/scripts/search")
 
-local infinity_filter_gui = require("scripts.gui.infinity-filter")
-local logistic_request_gui = require("scripts.gui.logistic-request")
-local search_gui = require("scripts.gui.search")
+local infinity_filter_gui = require("__QuickItemSearch__/scripts/gui/infinity-filter")
+local logistic_request_gui = require("__QuickItemSearch__/scripts/gui/logistic-request")
+local search_gui = require("__QuickItemSearch__/scripts/gui/search")
 
 -- -----------------------------------------------------------------------------
 -- COMMANDS

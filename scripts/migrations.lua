@@ -1,5 +1,5 @@
-local global_data = require("scripts.global-data")
-local player_data = require("scripts.player-data")
+local global_data = require("__QuickItemSearch__/scripts/global-data")
+local player_data = require("__QuickItemSearch__/scripts/player-data")
 
 return {
   ["2.0.0"] = function()

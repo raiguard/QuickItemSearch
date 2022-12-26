@@ -1,6 +1,6 @@
 local dictionary = require("__flib__/dictionary-lite")
 
-local constants = require("constants")
+local constants = require("__QuickItemSearch__/constants")
 
 local search = {}
 
