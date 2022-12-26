@@ -20,5 +20,10 @@ return {
         end
       end
     end
+  end,
+  ["2.1.6"] = function()
+    if global.__flib then
+      global.__flib.translation = nil
+    end
   end
 }

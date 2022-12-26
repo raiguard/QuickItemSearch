@@ -29,7 +29,6 @@ end)
 
 script.on_configuration_changed(function(e)
   if migration.on_config_changed(e, migrations) then
-    -- reset running translations
     dictionary.on_configuration_changed()
 
     global_data.build_dictionary()
