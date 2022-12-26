@@ -131,7 +131,6 @@ script.on_event(dictionary.on_player_dictionaries_ready, function(e)
     end
     -- update flags
     player_table.flags.can_open_gui = true
-    player_table.flags.translate_on_join = false
     player_table.flags.show_message_after_translation = false
     -- create GUIs
     infinity_filter_gui.build(player, player_table)

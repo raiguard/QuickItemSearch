@@ -13,7 +13,6 @@ function player_data.init(player_index)
     flags = {
       can_open_gui = false,
       show_message_after_translation = false,
-      translate_on_join = false,
     },
     guis = {},
     infinity_filters = { by_index = {}, by_name = {}, temporary = {} },
