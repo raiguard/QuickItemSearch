@@ -1,5 +1,3 @@
-local translation = require("__flib__.translation")
-
 local constants = require("constants")
 local infinity_filter = require("scripts.infinity-filter")
 local logistic_request = require("scripts.logistic-request")
@@ -36,8 +34,6 @@ function player_data.refresh(player, player_table)
     search_gui.destroy(player_table)
   end
 
-  player_table.flags.can_open_gui = false
-
   -- set shortcut state
   player.set_shortcut_toggled("qis-search", false)
   player.set_shortcut_available("qis-search", false)
@@ -51,18 +47,6 @@ function player_data.refresh(player, player_table)
   elseif player.controller_type == defines.controllers.character then
     logistic_request.refresh(player, player_table)
   end
-
-  -- run translations
-  player_table.translations = {}
-  if player.connected then
-    player_data.start_translations(player.index)
-  else
-    player_table.flags.translate_on_join = true
-  end
-end
-
-function player_data.start_translations(player_index)
-  translation.add_requests(player_index, global.strings)
 end
 
 function player_data.update_settings(player, player_table)

@@ -1,3 +1,5 @@
+local dictionary = require("__flib__/dictionary-lite")
+
 local global_data = {}
 
 function global_data.init()
@@ -5,19 +7,11 @@ function global_data.init()
   global.update_search_results = {}
 end
 
-function global_data.build_strings()
-  local strings = {}
-  local i = 0
+function global_data.build_dictionary()
+  dictionary.new("item")
   for name, prototype in pairs(game.item_prototypes) do
-    i = i + 1
-    strings[i] = {
-      dictionary = "items",
-      internal = name,
-      localised = prototype.localised_name,
-    }
+    dictionary.add("item", name, prototype.localised_name)
   end
-
-  global.strings = strings
 end
 
 return global_data
