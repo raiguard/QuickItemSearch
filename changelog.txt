@@ -1,6 +1,6 @@
 ---------------------------------------------------------------------------------------------------
 Version: 2.1.6
-Date: ????
+Date: 2022-12-26
   Information:
     - Quick Item Search is now soft-deprecated, and will receive no further updates unless a crash is found
   Changes:
