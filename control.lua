@@ -27,15 +27,13 @@ script.on_init(function()
   end
 end)
 
-script.on_configuration_changed(function(e)
-  if migration.on_config_changed(e, migrations) then
-    dictionary.on_configuration_changed()
+migration.handle_on_configuration_changed(migrations, function()
+  dictionary.on_configuration_changed()
 
-    global_data.build_dictionary()
+  global_data.build_dictionary()
 
-    for i, player_table in pairs(global.players) do
-      player_data.refresh(game.get_player(i), player_table)
-    end
+  for i, player_table in pairs(global.players) do
+    player_data.refresh(game.get_player(i), player_table)
   end
 end)
 
