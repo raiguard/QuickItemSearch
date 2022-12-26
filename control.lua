@@ -1,5 +1,5 @@
 local dictionary = require("__flib__.dictionary-lite")
-local gui = require("__flib__.gui-beta")
+local gui = require("__flib__.gui")
 local migration = require("__flib__.migration")
 
 local global_data = require("scripts.global-data")
