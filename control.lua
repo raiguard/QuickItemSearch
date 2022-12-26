@@ -44,6 +44,9 @@ end)
 
 script.on_event({ "qis-confirm", "qis-shift-confirm", "qis-control-confirm" }, function(e)
   local player = game.get_player(e.player_index)
+  if not player then
+    return
+  end
   local player_table = global.players[e.player_index]
 
   -- HACK: This makes it easy to check if we should close the search GUI or not
@@ -85,6 +88,9 @@ end)
 
 script.on_event("qis-search", function(e)
   local player = game.get_player(e.player_index)
+  if not player then
+    return
+  end
   local player_table = global.players[e.player_index]
   if player_table.flags.can_open_gui then
     search_gui.toggle(player, player_table, false)
@@ -107,6 +113,9 @@ end)
 
 script.on_event("qis-quick-trash-all", function(e)
   local player = game.get_player(e.player_index)
+  if not player then
+    return
+  end
   local player_table = global.players[e.player_index]
   if player.controller_type == defines.controllers.character and player.force.character_logistic_requests then
     logistic_request.quick_trash_all(player, player_table)
@@ -121,6 +130,9 @@ dictionary.handle_events()
 
 script.on_event(dictionary.on_player_dictionaries_ready, function(e)
     local player = game.get_player(e.player_index)
+    if not player then
+      return
+    end
     if not player then
       return
     end
@@ -191,6 +203,9 @@ script.on_event({
   defines.events.on_player_display_scale_changed,
 }, function(e)
   local player = game.get_player(e.player_index)
+  if not player then
+    return
+  end
   local player_table = global.players[e.player_index]
   logistic_request_gui.update_focus_frame_size(player, player_table)
 end)
@@ -202,6 +217,9 @@ script.on_event({
   defines.events.on_player_main_inventory_changed,
 }, function(e)
   local player = game.get_player(e.player_index)
+  if not player then
+    return
+  end
   local player_table = global.players[e.player_index]
 
   local main_inventory = player.get_main_inventory()
@@ -241,6 +259,9 @@ end)
 script.on_event(defines.events.on_runtime_mod_setting_changed, function(e)
   if string.sub(e.setting, 1, 4) == "qis-" and e.setting_type == "runtime-per-user" then
     local player = game.get_player(e.player_index)
+    if not player then
+      return
+    end
     local player_table = global.players[e.player_index]
     player_data.update_settings(player, player_table)
   end
@@ -251,6 +272,9 @@ end)
 script.on_event(defines.events.on_lua_shortcut, function(e)
   if e.prototype_name == "qis-search" then
     local player = game.get_player(e.player_index)
+    if not player then
+      return
+    end
     local player_table = global.players[e.player_index]
     if player_table.flags.can_open_gui then
       search_gui.toggle(player, player_table, true)
