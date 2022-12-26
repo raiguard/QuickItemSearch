@@ -13,23 +13,7 @@ local infinity_filter_gui = require("__QuickItemSearch__/scripts/gui/infinity-fi
 local logistic_request_gui = require("__QuickItemSearch__/scripts/gui/logistic-request")
 local search_gui = require("__QuickItemSearch__/scripts/gui/search")
 
--- -----------------------------------------------------------------------------
--- COMMANDS
-
-commands.add_command("QuickItemSearch", { "command-help.QuickItemSearch" }, function(e)
-  if e.parameter == "refresh-player-data" then
-    local player = game.get_player(e.player_index)
-    player.print({ "message.qis-refreshing-player-data" })
-    player_data.refresh(player, global.players[e.player_index])
-  else
-    game.get_player(e.player_index).print({ "message.qis-invalid-parameter" })
-  end
-end)
-
--- -----------------------------------------------------------------------------
--- EVENT HANDLERS
-
--- BOOTSTRAP
+-- Bootstrap
 
 script.on_init(function()
   dictionary.on_init()
@@ -56,7 +40,7 @@ script.on_configuration_changed(function(e)
   end
 end)
 
--- CUSTOM INPUT
+-- Custom input
 
 script.on_event({ "qis-confirm", "qis-shift-confirm", "qis-control-confirm" }, function(e)
   local player = game.get_player(e.player_index)
@@ -131,7 +115,7 @@ script.on_event("qis-quick-trash-all", function(e)
   end
 end)
 
--- DICTIONARIES
+-- Dictionaries
 
 dictionary.handle_events()
 
@@ -157,7 +141,7 @@ script.on_event(dictionary.on_player_dictionaries_ready, function(e)
     player.set_shortcut_available("qis-search", true)
 end)
 
--- ENTITY
+-- Entity
 
 script.on_event(defines.events.on_entity_logistic_slot_changed, function(e)
   local entity = e.entity
@@ -192,7 +176,7 @@ gui.hook_events(function(e)
   end
 end)
 
--- PLAYER
+-- Player
 
 script.on_event(defines.events.on_player_created, function(e)
   player_data.init(e.player_index)
@@ -253,7 +237,7 @@ script.on_event({
   end
 end)
 
--- SETTINGS
+-- Settings
 
 script.on_event(defines.events.on_runtime_mod_setting_changed, function(e)
   if string.sub(e.setting, 1, 4) == "qis-" and e.setting_type == "runtime-per-user" then
@@ -263,7 +247,7 @@ script.on_event(defines.events.on_runtime_mod_setting_changed, function(e)
   end
 end)
 
--- SHORTCUT
+-- Shortcut
 
 script.on_event(defines.events.on_lua_shortcut, function(e)
   if e.prototype_name == "qis-search" then
@@ -275,7 +259,7 @@ script.on_event(defines.events.on_lua_shortcut, function(e)
   end
 end)
 
--- TICK
+-- Tick
 
 script.on_event(defines.events.on_tick, function()
   dictionary.on_tick()
