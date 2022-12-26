@@ -1,4 +1,3 @@
-local event = require("__flib__.event")
 local gui = require("__flib__.gui-beta")
 local migration = require("__flib__.migration")
 local translation = require("__flib__.translation")
@@ -32,7 +31,7 @@ end)
 
 -- BOOTSTRAP
 
-event.on_init(function()
+script.on_init(function()
   translation.init()
 
   global_data.init()
@@ -44,7 +43,7 @@ event.on_init(function()
   end
 end)
 
-event.on_configuration_changed(function(e)
+script.on_configuration_changed(function(e)
   if migration.on_config_changed(e, migrations) then
     -- reset running translations
     translation.init()
@@ -59,7 +58,7 @@ end)
 
 -- CUSTOM INPUT
 
-event.register({ "qis-confirm", "qis-shift-confirm", "qis-control-confirm" }, function(e)
+script.on_event({ "qis-confirm", "qis-shift-confirm", "qis-control-confirm" }, function(e)
   local player = game.get_player(e.player_index)
   local player_table = global.players[e.player_index]
 
@@ -89,7 +88,7 @@ event.register({ "qis-confirm", "qis-shift-confirm", "qis-control-confirm" }, fu
   end
 end)
 
-event.register("qis-cycle-infinity-filter-mode", function(e)
+script.on_event("qis-cycle-infinity-filter-mode", function(e)
   local player_table = global.players[e.player_index]
   local gui_data = player_table.guis.infinity_filter
   if gui_data then
@@ -100,7 +99,7 @@ event.register("qis-cycle-infinity-filter-mode", function(e)
   end
 end)
 
-event.register("qis-search", function(e)
+script.on_event("qis-search", function(e)
   local player = game.get_player(e.player_index)
   local player_table = global.players[e.player_index]
   if player_table.flags.can_open_gui then
@@ -111,7 +110,7 @@ event.register("qis-search", function(e)
   end
 end)
 
-event.register({ "qis-nav-up", "qis-nav-down" }, function(e)
+script.on_event({ "qis-nav-up", "qis-nav-down" }, function(e)
   local player_table = global.players[e.player_index]
   if player_table.flags.can_open_gui then
     local gui_data = player_table.guis.search
@@ -122,7 +121,7 @@ event.register({ "qis-nav-up", "qis-nav-down" }, function(e)
   end
 end)
 
-event.register("qis-quick-trash-all", function(e)
+script.on_event("qis-quick-trash-all", function(e)
   local player = game.get_player(e.player_index)
   local player_table = global.players[e.player_index]
   if player.controller_type == defines.controllers.character and player.force.character_logistic_requests then
@@ -134,7 +133,7 @@ end)
 
 -- ENTITY
 
-event.on_entity_logistic_slot_changed(function(e)
+script.on_event(defines.events.on_entity_logistic_slot_changed, function(e)
   local entity = e.entity
   if entity and entity.valid and entity.type == "character" then
     local player = entity.player -- event does not provide player_index every time
@@ -169,12 +168,12 @@ end)
 
 -- PLAYER
 
-event.on_player_created(function(e)
+script.on_event(defines.events.on_player_created, function(e)
   player_data.init(e.player_index)
   player_data.refresh(game.get_player(e.player_index), global.players[e.player_index])
 end)
 
-event.on_player_joined_game(function(e)
+script.on_event(defines.events.on_player_joined_game, function(e)
   local player_table = global.players[e.player_index]
   if player_table.flags.translate_on_join then
     player_table.flags.translate_on_join = false
@@ -182,7 +181,7 @@ event.on_player_joined_game(function(e)
   end
 end)
 
-event.on_player_left_game(function(e)
+script.on_event(defines.events.on_player_left_game, function(e)
   local player_table = global.players[e.player_index]
   if translation.is_translating(e.player_index) then
     translation.cancel(e.player_index)
@@ -190,11 +189,11 @@ event.on_player_left_game(function(e)
   end
 end)
 
-event.on_player_removed(function(e)
+script.on_event(defines.events.on_player_removed, function(e)
   global.players[e.player_index] = nil
 end)
 
-event.register({
+script.on_event({
   defines.events.on_player_display_resolution_changed,
   defines.events.on_player_display_scale_changed,
 }, function(e)
@@ -203,7 +202,7 @@ event.register({
   logistic_request_gui.update_focus_frame_size(player, player_table)
 end)
 
-event.register({
+script.on_event({
   defines.events.on_player_ammo_inventory_changed,
   defines.events.on_player_armor_inventory_changed,
   defines.events.on_player_gun_inventory_changed,
@@ -246,7 +245,7 @@ end)
 
 -- SETTINGS
 
-event.on_runtime_mod_setting_changed(function(e)
+script.on_event(defines.events.on_runtime_mod_setting_changed, function(e)
   if string.sub(e.setting, 1, 4) == "qis-" and e.setting_type == "runtime-per-user" then
     local player = game.get_player(e.player_index)
     local player_table = global.players[e.player_index]
@@ -256,7 +255,7 @@ end)
 
 -- SHORTCUT
 
-event.on_lua_shortcut(function(e)
+script.on_event(defines.events.on_lua_shortcut, function(e)
   if e.prototype_name == "qis-search" then
     local player = game.get_player(e.player_index)
     local player_table = global.players[e.player_index]
@@ -268,7 +267,7 @@ end)
 
 -- TICK
 
-event.on_tick(function(e)
+script.on_event(defines.events.on_tick, function(e)
   if translation.translating_players_count() > 0 then
     translation.iterate_batch(e)
   end
@@ -280,7 +279,7 @@ end)
 
 -- TRANSLATIONS
 
-event.on_string_translated(function(e)
+script.on_event(defines.events.on_string_translated, function(e)
   local names, finished = translation.process_result(e)
   if names then
     local player_table = global.players[e.player_index]
