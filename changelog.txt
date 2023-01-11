@@ -1,7 +1,8 @@
 ---------------------------------------------------------------------------------------------------
 Version: 2.1.7
 Date: ????
-  Changes:
+  Bugfixes:
+    - Fixed a crash when the toggle GUI function is somehow called before translations are complete
 ---------------------------------------------------------------------------------------------------
 Version: 2.1.6
 Date: 2022-12-26
