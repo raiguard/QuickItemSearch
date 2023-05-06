@@ -2,6 +2,7 @@
   "name": "QuickItemSearch",
   "version": "2.1.8",
   "title": "Quick Item Search",
+  "description": "Quickly and easily search for items in your inventory or connected logistic network. Set temporary requests and quickly trash any items above your minimum requests.",
   "author": "raiguard",
   "contact": "https://github.com/raiguard/QuickItemSearch",
   "homepage": "https://github.com/raiguard/QuickItemSearch",
@@ -11,5 +12,7 @@
     "flib >= 0.7.0",
     "(?) space-exploration"
   ],
-  "description": "Quickly and easily search for items in your inventory or connected logistic network. Set temporary requests and quickly trash any items above your minimum requests."
+  "package": {
+    "ignore": [ "stylua.toml", "screenshots" ]
+  }
 }
