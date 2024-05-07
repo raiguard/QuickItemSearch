@@ -13,6 +13,7 @@
     "(?) space-exploration"
   ],
   "package": {
+    "git_publish_branch": "master",
     "ignore": [ "stylua.toml", "screenshots" ]
   }
 }
