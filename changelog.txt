@@ -3,6 +3,7 @@ Version: 2.1.9
 Date: ????
   Bugfixes:
     - Fixed a crash in certain cases when translations complete after a mod migration. (#35)
+    - Fixed a crash when inputting a value greater than 4,294,967,295. (#37)
 ---------------------------------------------------------------------------------------------------
 Version: 2.1.8
 Date: 2023-05-06
