@@ -11,6 +11,7 @@ local logistic_request_gui = require("__QuickItemSearch__/scripts/gui/logistic-r
 local search_gui = {}
 
 function search_gui.build(player, player_table)
+  search_gui.destroy(player_table)
   local refs = gui.build(player.gui.screen, {
     {
       type = "frame",
@@ -144,7 +145,14 @@ function search_gui.build(player, player_table)
 end
 
 function search_gui.destroy(player_table)
-  player_table.guis.search.refs.window.destroy()
+  local gui_data = player_table.guis.search
+  if not gui_data then
+    return
+  end
+  if not gui_data.window or not gui_data.window.valid then
+    return
+  end
+  gui_data.window.valid.destroy()
   player_table.guis.search = nil
 end
 
