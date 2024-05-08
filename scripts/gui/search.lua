@@ -11,7 +11,17 @@ local logistic_request_gui = require("__QuickItemSearch__/scripts/gui/logistic-r
 local search_gui = {}
 
 function search_gui.build(player, player_table)
+  -- At some point it's possible for the player table to get out of sync... somehow.
+  local orphaned_dimmer = player.gui.screen.qis_window_dimmer
+  if orphaned_dimmer and orphaned_dimmer.valid then
+    orphaned_dimmer.destroy()
+  end
+  local orphaned_window = player.gui.screen.qis_search_window
+  if orphaned_window and orphaned_window.valid then
+    orphaned_window.destroy()
+  end
   search_gui.destroy(player_table)
+
   local refs = gui.build(player.gui.screen, {
     {
       type = "frame",
@@ -259,12 +269,8 @@ function search_gui.perform_search(player, player_table, updated_query, combined
 
   if #state.raw_query > 1 then
     local i = 0
-    local results, connected_to_network, logistic_requests_available = search.run(
-      player,
-      player_table,
-      query,
-      combined_contents
-    )
+    local results, connected_to_network, logistic_requests_available =
+      search.run(player, player_table, query, combined_contents)
     for _, row in ipairs(results) do
       i = i + 1
       local i3 = i * 3
@@ -294,13 +300,13 @@ function search_gui.perform_search(player, player_table, updated_query, combined
       -- item counts
       if player.controller_type == defines.controllers.character and connected_to_network then
         children[i3 + 2].caption = (
-            (row.inventory or 0)
-            .. " / [color="
-            .. constants.colors.logistic_str
-            .. "]"
-            .. (row.logistic or 0)
-            .. "[/color]"
-          )
+          (row.inventory or 0)
+          .. " / [color="
+          .. constants.colors.logistic_str
+          .. "]"
+          .. (row.logistic or 0)
+          .. "[/color]"
+        )
       else
         children[i3 + 2].caption = (row.inventory or 0)
       end
